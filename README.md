@@ -18,4 +18,11 @@ LTE CAT-M1 is considered the second-generation LTE technology and is lower-power
 
 Each of these have tradeoffs (and I won't really explain them all); for example, large bandwidth allows devices to send lots of data (like your phone, which can stream YouTube!) but this also means it's very power-hungry. Increasing the range (the "area" of the network) also increase power consumption. In the case of NB-IoT, cutting down the bandwidth means that you won't be able to send much data, but for IoT devices shooting morsels of data to the cloud this is perfect! Hence, "narrow"-band technology, ideal for low-power devices with little amounts of data but still with long range (wide area)!
 
-## NB-IoT Shield
+## Shield Versions
+There are a few variants of the LTE Shield, so make sure you choose carefully!
+
+### LTE CAT-M1 Shield
+The CAT-M1 shield will come with 
+
+### NB-IoT Shield
+
