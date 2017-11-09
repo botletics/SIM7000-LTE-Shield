@@ -1,4 +1,5 @@
-The botletics LTE Shield is a low-power 4G LTE CAT-M1 shield that supports the new LTE CAT-M1 technology and integrates GNSS (GPS,GLONASS and BeiDou/Compass, Galileo, QZSS standards) for location tracking. Simply plug the shield into an Arduino, attach a LiPo battery to power the cellular module, insert a compatible SIM card, attach the LTE/GNSS antenna, and you're good to go!
+# LTE Shield
+The LTE Shield is a low-power 4G LTE CAT-M1 shield that supports the new LTE CAT-M1 technology and integrates GNSS (GPS,GLONASS and BeiDou/Compass, Galileo, QZSS standards) for location tracking. Simply plug the shield into an Arduino, attach a LiPo battery to power the cellular module, insert a compatible SIM card, attach the LTE/GNSS antenna, and you're good to go!
 
 Order your own Reflowduino board here! Also, don’t forget to check out the comprehensive Github wiki! I also posted this Instructable as a quick 'n dirty summary of everything here as well as on Hackster.io!
 
