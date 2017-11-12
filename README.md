@@ -10,17 +10,23 @@ All other software is released under the [GNU General Public License v3.0](https
 ## Adafruit FONA Library Updates
 The code for this LTE shield is an altered library built upon the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added LTE functionality for the SIM7000 module. The following list is a summary of the updates:
 
-### Tested functionalities
+### Confirmed functionalities
 -	Read ADC voltage (“AT+CADC?”)
 -	Read battery voltage and percentage ("AT+CBC")
 - Read signal RSSI ("AT+CSQ"), works even without SIM card plugged in!
--
+- Get network status ("AT+CREG?")
+
+### Limitations
+- Can't play audio tone or drive buzzer
+- 
 
 ### To-Do List
 -	Change “AT+CVHU=0” at the beginning to “AT+CHUP” for LTE class
 -	Test SIM card-related functionalities
 - Test audio functionalities
 - Test web connection and HTTP/HTTPS
+- Add "ATM<value>" and "ATL<value>" command for monitor mode and monitor volume
+- 
 
 #### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
