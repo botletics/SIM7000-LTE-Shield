@@ -15,18 +15,21 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 -	Read battery voltage and percentage ("AT+CBC")
 - Read signal RSSI ("AT+CSQ"), works even without SIM card plugged in!
 - Get network status ("AT+CREG?")
+- Get phone status ("AT+CPAS")
+- 
 
 ### Limitations
 - Can't play audio tone or drive buzzer
+- No FM radio
 - 
 
 ### To-Do List
--	Change “AT+CVHU=0” at the beginning to “AT+CHUP” for LTE class
--	Test SIM card-related functionalities
-- Test audio functionalities
-- Test web connection and HTTP/HTTPS
-- Add "ATM<value>" and "ATL<value>" command for monitor mode and monitor volume
-- 
+-	Test SIM card functionalities
+- Test phone
+- Test SMS
+- Test Time
+- Test GPRS
+- Test GNSS/GPS
 
 #### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
