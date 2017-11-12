@@ -19,7 +19,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - 
 
 ### To-Do List
--	Test SIM card functionalities
+-	Test SIM card
 - Test phone
 - Test SMS
 - Test Time
@@ -31,4 +31,5 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 -	Included FONA_LTE_A and FONA_LTE_E types in .h file but not in .cpp declaration (I don't have a SIM7000E module with me so I don't know what its manufacturer-assigned name is)
 -	Added “setBaudrate(uint16_t baud)” function for LTE class using "AT+IPR=<rate>". 
 - Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200. At 115200 some data was being lost.
-- 
+- Added "hangUp(void)" function but still need to test with SIM card later
+-
