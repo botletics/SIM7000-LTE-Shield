@@ -5,4 +5,21 @@ Check out the [comprehensive wiki](https://github.com/botletics/LTE-Shield/wiki)
 
 All PCB design files and hardware are released under the [Creative Commons Attribution Share Alike 4.0 license](https://choosealicense.com/licenses/cc-by-sa-4.0/).
 
-All other software is released under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/). The code for this LTE shield is an altered library built upon the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added LTE functionality for the SIM7000 module.
+All other software is released under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/).
+
+## Adafruit FONA Library Updates
+The code for this LTE shield is an altered library built upon the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added LTE functionality for the SIM7000 module. The following list is a summary of the updates:
+
+### Tested functionalities
+-	Read ADC voltage (“AT+CADC?”)
+-	
+
+### To-Do List
+-	Change “AT+CVHU=0” at the beginning to “AT+CHUP” for LTE class
+-	
+
+#### Completed Tasks
+-	Included FONA_LTE class
+-	Included FONA_LTE_A and FONA_LTE_E types
+-	Added “setBaudrate(uint16_t baud)” function
+-	Updated FONA3G_setbaud function to include FONA_LTE definition
