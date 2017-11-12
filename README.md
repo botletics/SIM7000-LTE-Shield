@@ -18,11 +18,6 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Get phone status ("AT+CPAS")
 - 
 
-### Limitations
-- Can't play audio tone or drive buzzer
-- No FM radio
-- 
-
 ### To-Do List
 -	Test SIM card functionalities
 - Test phone
