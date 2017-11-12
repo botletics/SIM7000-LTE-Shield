@@ -23,7 +23,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test phone
 - Test SMS
 - Test Time
-- Test GPRS
+- Test LTE connection and web stuff
 - Test GNSS/GPS
 
 ### Completed Tasks
