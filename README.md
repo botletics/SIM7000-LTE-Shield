@@ -12,11 +12,15 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 
 ### Tested functionalities
 -	Read ADC voltage (“AT+CADC?”)
--	
+-	Read battery voltage and percentage ("AT+CBC")
+- Read signal RSSI ("AT+CSQ"), works even without SIM card plugged in!
+-
 
 ### To-Do List
 -	Change “AT+CVHU=0” at the beginning to “AT+CHUP” for LTE class
--	
+-	Test SIM card-related functionalities
+- Test audio functionalities
+- Test web connection and HTTP/HTTPS
 
 #### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
