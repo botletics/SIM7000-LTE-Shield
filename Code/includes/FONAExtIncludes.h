@@ -1,5 +1,5 @@
 /*
- * FONAConfig.h -- compile-time configuration
+ * FONAExtIncludes.h -- system-wide includes
  * This is part of the library for the Adafruit FONA Cellular Module
  *
  * Designed specifically to work with the Adafruit FONA
@@ -20,15 +20,14 @@
  *      Author: Pat Deegan
  */
 
-#ifndef ADAFRUIT_FONA_LIBRARY_SRC_INCLUDES_FONACONFIG_H_
-#define ADAFRUIT_FONA_LIBRARY_SRC_INCLUDES_FONACONFIG_H_
 
-/* ADAFRUIT_FONA_DEBUG
- * When defined, will cause extensive debug output on the
- * DebugStream set in the appropriate platform/ header.
- */
-
-#define ADAFRUIT_FONA_DEBUG
+#ifndef ADAFRUIT_FONA_LIBRARY_SRC_INCLUDES_FONAEXTINCLUDES_H_
+#define ADAFRUIT_FONA_LIBRARY_SRC_INCLUDES_FONAEXTINCLUDES_H_
 
 
-#endif /* ADAFRUIT_FONA_LIBRARY_SRC_INCLUDES_FONACONFIG_H_ */
+#include "FONAConfig.h"
+// include any system-wide includes required here
+
+
+
+#endif /* ADAFRUIT_FONA_LIBRARY_SRC_INCLUDES_FONAEXTINCLUDES_H_ */
