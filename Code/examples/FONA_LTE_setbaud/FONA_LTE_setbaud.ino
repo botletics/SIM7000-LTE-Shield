@@ -1,3 +1,8 @@
+/* This code sets the baud rate of the LTE shield to 4800 instead of
+ *  the default 115200 baud rate. You only need to run this code once
+ *  for it to take effect!
+ */
+
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
   since the FONA 3G does not do auto-baud very well, this demo
@@ -54,6 +59,12 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 
 void setup() {
   while (!Serial);
+
+  pinMode(FONA_PWRKEY, OUTPUT);
+  // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
+  pinMode(FONA_PWRKEY, LOW);
+  delay(100);
+  pinMode(FONA_PWRKEY, HIGH);
 
   Serial.begin(115200);
   Serial.println(F("FONA set baudrate"));
