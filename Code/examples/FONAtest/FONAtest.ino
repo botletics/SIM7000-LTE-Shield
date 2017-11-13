@@ -28,9 +28,9 @@ the commented section below at the end of the setup() function.
 #include "Adafruit_FONA.h"
 
 // Default
-#define FONA_RX 2
-#define FONA_TX 3
-#define FONA_RST 4
+//#define FONA_RX 2
+//#define FONA_TX 3
+//#define FONA_RST 4
 
 // For LTE shield
 #define FONA_PWRKEY 4
@@ -65,6 +65,12 @@ uint8_t type;
 
 void setup() {
   while (!Serial);
+
+  pinMode(FONA_PWRKEY, OUTPUT);
+  // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
+  pinMode(FONA_PWRKEY, LOW);
+  delay(100);
+  pinMode(FONA_PWRKEY, HIGH);
 
   Serial.begin(115200);
   Serial.println(F("FONA basic test"));
@@ -124,7 +130,7 @@ void setup() {
 void printMenu(void) {
   Serial.println(F("-------------------------------------"));
   Serial.println(F("[?] Print this menu"));
-  Serial.println(F("[a] read the ADC 2.8V max (FONA800 & 808)"));
+  Serial.println(F("[a] read the ADC 2.8V max (FONA800 & 808), 1.7V max for LTE shield"));
   Serial.println(F("[b] read the Battery V and % charged"));
   Serial.println(F("[C] read the SIM CCID"));
   Serial.println(F("[U] Unlock SIM with PIN code"));
