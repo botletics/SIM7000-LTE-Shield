@@ -16,15 +16,14 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Read signal RSSI ("AT+CSQ"), works even without SIM card plugged in!
 - Get network status ("AT+CREG?")
 - Get phone status ("AT+CPAS")
-- 
+- Turn GPS on/off ("AT+CGPSPWR=<value>")
+- GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix very quickly, only about 7 or 8s!
 
 ### To-Do List
 -	Test SIM card
 - Test phone
 - Test SMS
-- Test Time
 - Test LTE connection and web stuff
-- Test GNSS/GPS
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
