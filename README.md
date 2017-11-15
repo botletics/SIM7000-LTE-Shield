@@ -17,7 +17,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Get network status ("AT+CREG?")
 - Get phone status ("AT+CPAS")
 - Turn GPS on/off ("AT+CGPSPWR=<value>")
-- GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix very quickly, only about 7 or 8s!
+- GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix very quickly, only about 7 or 8s from cold start and even less (couple seconds or so) when turning off GPS, then turning back on and querying the location!
 
 ### To-Do List
 -	Test SIM card
