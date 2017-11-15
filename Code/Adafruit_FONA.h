@@ -33,7 +33,8 @@
 #define FONA3G_E 5
 
 #define FONA_LTE_A 7
-#define FONA_LTE_E 8
+#define FONA_LTE_C 8
+#define FONA_LTE_E 9
 
 // Set the preferred SMS storage.
 //   Use "SM" for storage on the SIM.
@@ -275,7 +276,7 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
 
  //    boolean getBattVoltage(uint16_t *v);
  //    boolean playToolkitTone(uint8_t t, uint16_t len);
- //    boolean hangUp(void);
+    boolean hangUp(void);
  //    boolean pickUp(void);
  //    boolean enableGPRS(boolean onoff);
  //    boolean enableGPS(boolean onoff);
