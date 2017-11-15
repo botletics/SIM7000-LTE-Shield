@@ -99,6 +99,8 @@ void setup() {
       Serial.println(F("FONA 3G (European)")); break;
     case FONA_LTE_A:
       Serial.println(F("FONA 4G LTE (American)")); break;
+    case FONA_LTE_C:
+      Serial.println(F("FONA 4G LTE (Chinese)")); break;
     case FONA_LTE_E:
       Serial.println(F("FONA 4G LTE (European)")); break;
     default: 
@@ -177,10 +179,11 @@ void printMenu(void) {
   Serial.println(F("[W] Post to website (GPRS)"));
 
   // GPS
-  if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2)) {
-    Serial.println(F("[O] Turn GPS on (FONA 808 & 3G)"));
-    Serial.println(F("[o] Turn GPS off (FONA 808 & 3G)"));
-    Serial.println(F("[L] Query GPS location (FONA 808 & 3G)"));
+  if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2) || 
+      (type == FONA_LTE_A) || (type == FONA_LTE_C) || (type == FONA_LTE_E)) {
+    Serial.println(F("[O] Turn GPS on (FONA 808 & 3G & LTE)"));
+    Serial.println(F("[o] Turn GPS off (FONA 808 & 3G & LTE)"));
+    Serial.println(F("[L] Query GPS location (FONA 808 & 3G & LTE)"));
     if (type == FONA808_V1) {
       Serial.println(F("[x] GPS fix status (FONA808 v1 only)"));
     }
