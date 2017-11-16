@@ -165,7 +165,7 @@ boolean Adafruit_FONA::enableRTC(uint8_t i) {
 }
 
 
-/********* BATTERY & ADC ********************************************/
+/********* POWER, BATTERY & ADC ********************************************/
 
 /* returns value in mV (uint16_t) */
 boolean Adafruit_FONA::getBattVoltage(uint16_t *v) {
@@ -178,6 +178,23 @@ boolean Adafruit_FONA_3G::getBattVoltage(uint16_t *v) {
   boolean b = sendParseReply(F("AT+CBC"), F("+CBC: "), &f, ',', 2);
   *v = f*1000;
   return b;
+}
+
+
+/* powers down the SIM module */
+boolean Adafruit_FONA::powerDown(void) {
+  if (! sendCheckReply(F("AT+CPOWD=1"), F("NORMAL POWER DOWN"))) // Normal power off
+    return false;
+
+  return true;
+}
+
+/* powers down the SIM5320 */
+boolean Adafruit_FONA_3G::powerDown(void) {
+  if (! sendCheckReply(F("AT+CPOF"), ok_reply))
+    return false;
+
+  return true;
 }
 
 
