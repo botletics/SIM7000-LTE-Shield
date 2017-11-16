@@ -91,7 +91,8 @@ class Adafruit_FONA : public FONAStreamType {
   boolean enableRTC(uint8_t i);
   boolean readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec);
 
-  // Battery and ADC
+  // Power, battery and ADC
+  boolean powerDown(void);
   boolean getADCVoltage(uint16_t *v);
   boolean getBattPercent(uint16_t *p);
   boolean getBattVoltage(uint16_t *v);
@@ -252,6 +253,7 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
   Adafruit_FONA_3G (int8_t r) : Adafruit_FONA(r) { _type = FONA3G_A; }
 
     boolean getBattVoltage(uint16_t *v);
+    boolean powerDown(void);
     boolean playToolkitTone(uint8_t t, uint16_t len);
     boolean hangUp(void);
     boolean pickUp(void);
@@ -273,13 +275,9 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
   Adafruit_FONA_LTE (int8_t r) : Adafruit_FONA(r) { _type = FONA_LTE_A; }
 
     boolean setBaudrate(uint16_t baud);
-
- //    boolean getBattVoltage(uint16_t *v);
  //    boolean playToolkitTone(uint8_t t, uint16_t len);
     boolean hangUp(void);
  //    boolean pickUp(void);
- //    boolean enableGPRS(boolean onoff);
- //    boolean enableGPS(boolean onoff);
 
  // protected:
  //    boolean parseReply(FONAFlashStringPtr toreply,
