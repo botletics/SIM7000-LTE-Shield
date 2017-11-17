@@ -16,6 +16,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Read signal RSSI ("AT+CSQ")
 - SIM card ("AT+CCID")
 - Get network status ("AT+CREG?")
+- Set APN/bearer settings and enable/disable GPRS
 - Get phone status ("AT+CPAS")
 - Get system clock time ("AT+CCLK")
 - Turn GPS on/off ("AT+CGPSPWR=<value>")
