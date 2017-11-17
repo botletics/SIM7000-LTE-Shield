@@ -21,11 +21,13 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Get system clock time ("AT+CCLK")
 - Turn GPS on/off ("AT+CGPSPWR=<value>")
 - GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix very quickly, only about 7s from cold start and even less (couple a second or two) when the device has already been on!
+- Read webpage (tested with 
+- Post to a webpage (tested with dweet.io)
 
 ### To-Do List
 - Test phone
 - Test SMS
-- Test LTE connection and web stuff
+- Test LTE connection
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
@@ -34,3 +36,4 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200 because at 115200 some parts of text would show up weird in the serial monitor.
 - Added "hangUp()" function but still need to test with SIM card later
 - Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
+- Tested HTTP commands!
