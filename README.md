@@ -38,5 +38,5 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200 because at 115200 some parts of text would show up weird in the serial monitor.
 - Added "hangUp()" function but still need to test with SIM card later
 - Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
-- Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm)
+- Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm) for AT&T
 - Tested HTTP commands!
