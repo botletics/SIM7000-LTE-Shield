@@ -27,7 +27,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 ### To-Do List
 - Test phone
 - Test SMS
-- Test LTE connection
+- Test LTE/NB-IoT commands
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
