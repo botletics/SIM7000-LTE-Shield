@@ -28,6 +28,8 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test phone
 - Test SMS
 - Test LTE/NB-IoT commands
+- Add an IoT HTTP GET/POST function for cloud API's
+- Create an IoT example that posts GPS lat/long data to the cloud
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
@@ -36,4 +38,5 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200 because at 115200 some parts of text would show up weird in the serial monitor.
 - Added "hangUp()" function but still need to test with SIM card later
 - Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
+- Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm)
 - Tested HTTP commands!
