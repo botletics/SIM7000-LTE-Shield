@@ -13,7 +13,8 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 ### Confirmed functionalities
 -	Read ADC voltage (“AT+CADC?”)
 -	Read battery voltage and percentage ("AT+CBC")
-- Read signal RSSI ("AT+CSQ"), works even without SIM card plugged in!
+- Read signal RSSI ("AT+CSQ")
+- SIM card ("AT+CCID")
 - Get network status ("AT+CREG?")
 - Get phone status ("AT+CPAS")
 - Get system clock time ("AT+CCLK")
@@ -21,7 +22,6 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix very quickly, only about 7s from cold start and even less (couple a second or two) when the device has already been on!
 
 ### To-Do List
--	Test SIM card
 - Test phone
 - Test SMS
 - Test LTE connection and web stuff
