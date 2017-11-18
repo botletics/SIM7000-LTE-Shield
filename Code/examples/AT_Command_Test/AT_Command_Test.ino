@@ -1,8 +1,10 @@
 /* This code allows you to freely test AT commands by entering them into
- *  the serial monitor! Make sure you select "No line ending" selected
- *  in the serial monitor settings. You can type in "ON" to turn on the
+ *  the serial monitor! You can type in "ON" to turn on the
  *  SIM7000 and "OFF" to turn it off, as well as "RESET" and "BAUD<value>"
  *  to set a new baud rate!
+ *  
+ *  Asterisks (***) indicate debug text and arrows (-->) indicate sending
+ *  an AT command. Everything else is a response from the module!
  *  
  *  Another way to experiment with AT commands is to use the
  *  "AT Command Library" here: https://github.com/botletics/AT-Command-Library
@@ -40,20 +42,15 @@ void loop() {
   if (Serial.available()) {
     String userCmd = Serial.readString();
 
-    if (userCmd == "ON") {
-      FONApower(true);
-    }
-    else if (userCmd == "OFF") {
-      FONApower(false);
-    }
-    else if (userCmd == "RESET") {
-      FONAreset();
-    }
-    else if (userCmd.indexOf("BAUD") != 0) {
-      int idx = userCmd.indexOf("BAUD");
-      baudRate = userCmd.substring(idx+1).toInt();
-
-      Serial.print("Switching to "); Serial.print(baudRate); Serial.println("baud");
+    if (userCmd == "ON") FONApower(true);
+    else if (userCmd == "OFF") FONApower(false);
+    else if (userCmd == "RESET") FONAreset();
+    else if (userCmd.indexOf("BAUD") != -1) {
+      baudRate = userCmd.substring(4).toInt();
+      Serial.print("*** Switching to "); Serial.print(baudRate); Serial.println(" baud");
+      Serial.print(" --> ");
+      fona.println("AT+IPR=" + String(baudRate));
+      delay(100); // Give it some time to chill
       fona.begin(baudRate);
     }
     else {
@@ -77,13 +74,13 @@ void flushInput() {
 // Enter "ON" or "OFF" in the serial monitor
 void FONApower(bool option) {
   if (option) {
-    Serial.println(" --> Turning ON (takes about 4.2s)");
+    Serial.println("*** Turning ON (takes about 4.2s)");
     digitalWrite(FONA_PWRKEY, LOW);
     delay(100); // At least 72ms
     digitalWrite(FONA_PWRKEY, HIGH);
   }
   else {
-    Serial.println(" --> Turning OFF (takes about 1.3s)");
+    Serial.println("*** Turning OFF (takes about 1.3s)");
     digitalWrite(FONA_PWRKEY, LOW);
     delay(1400); // At least 1.2s
     digitalWrite(FONA_PWRKEY, HIGH);
@@ -92,7 +89,7 @@ void FONApower(bool option) {
 
 // This function resets the FONA, used mainly in the case of an emergency!
 void FONAreset() {
-  Serial.println(" --> Resetting module...");
+  Serial.println("*** Resetting module...");
   digitalWrite(FONA_RST, LOW);
   delay(100); // Between 50-500ms
   digitalWrite(FONA_RST, HIGH);
