@@ -33,7 +33,6 @@
 #define FONA_PWRKEY 3
 #define FONA_RX 7
 #define FONA_TX 6
-#define FONA_RST 8
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -51,8 +50,9 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Use this for FONA 2G or 3G
 //Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
-// Use this for FONA LTE
-Adafruit_FONA_LTE fona = Adafruit_FONA_LTE(FONA_RST);
+// Use this one for FONA LTE
+// Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
+Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
