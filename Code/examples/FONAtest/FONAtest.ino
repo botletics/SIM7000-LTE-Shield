@@ -120,6 +120,7 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card ("Trio" SIM)
 
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
