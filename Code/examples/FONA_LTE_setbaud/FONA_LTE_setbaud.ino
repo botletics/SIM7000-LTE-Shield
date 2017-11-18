@@ -33,6 +33,7 @@
 #define FONA_PWRKEY 3
 #define FONA_RX 7
 #define FONA_TX 6
+#define FONA_RST 8
 
 // this is a large buffer for replies
 char replybuffer[255];
