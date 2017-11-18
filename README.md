@@ -42,3 +42,4 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
 - Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm) for AT&T
 - Tested HTTP commands with GPRS (2G)
+- Tweaked the library so that the LTE declaration "Adafruit_FONA_LTE fona = Adafruit_FONA_LTE()" doesn't include the reset pin because the reset pin is reserved for emergencies only, according to the SIM7000 design document.
