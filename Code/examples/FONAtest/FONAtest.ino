@@ -34,10 +34,11 @@ the commented section below at the end of the setup() function.
 
 // For LTE shield
 #define FONA_PWRKEY 3
-#define FONA_RI 5
+#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
+#define FONA_RI 5 // Need to enable via AT commands
 #define FONA_RX 7
 #define FONA_TX 6
-#define FONA_RST 8
+#define FONA_RST 8 // Not really used
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -57,7 +58,8 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Use this one for FONA 3G
 //Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
 // Use this one for FONA LTE
-Adafruit_FONA_LTE fona = Adafruit_FONA_LTE(FONA_RST);
+// Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
+Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 
@@ -77,6 +79,7 @@ void setup() {
   Serial.println(F("Initializing....(May take 3 seconds)"));
 
   fonaSerial->begin(4800); // If using the LTE shield, first run "FONA_LTE_setbaud.ino"
+//  fonaSerial->begin(115200); // Default LTE shield baud rate
   if (! fona.begin(*fonaSerial)) {
     Serial.println(F("Couldn't find FONA"));
     while (1);
