@@ -41,12 +41,15 @@ uint8_t Adafruit_FONA::type(void) {
 boolean Adafruit_FONA::begin(Stream &port) {
   mySerial = &port;
 
-  pinMode(_rstpin, OUTPUT);
-  digitalWrite(_rstpin, HIGH);
-  delay(10);
-  digitalWrite(_rstpin, LOW);
-  delay(100);
-  digitalWrite(_rstpin, HIGH);
+  if (_rstpin != 99) { // Pulse the reset pin only if it's not an LTE module
+  	DEBUG_PRINTLN(F("Resetting the module..."));
+    pinMode(_rstpin, OUTPUT);
+    digitalWrite(_rstpin, HIGH);
+    delay(10);
+    digitalWrite(_rstpin, LOW);
+    delay(100);
+    digitalWrite(_rstpin, HIGH);
+  }
 
   DEBUG_PRINTLN(F("Attempting to open comm with ATs"));
   // give 7 seconds to reboot

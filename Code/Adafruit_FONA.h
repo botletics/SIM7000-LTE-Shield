@@ -60,6 +60,7 @@
 #define FONA_STTONE_USADIALTONE 20
 
 #define FONA_DEFAULT_TIMEOUT_MS 500
+#define FONA_NO_RST_PIN 99
 
 #define FONA_HTTP_GET   0
 #define FONA_HTTP_POST  1
@@ -73,7 +74,7 @@
 
 class Adafruit_FONA : public FONAStreamType {
  public:
-  Adafruit_FONA(int8_t r);
+  Adafruit_FONA(int8_t);
   boolean begin(FONAStreamType &port);
   uint8_t type();
 
@@ -272,7 +273,7 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
 class Adafruit_FONA_LTE : public Adafruit_FONA {
 
  public:
-  Adafruit_FONA_LTE (int8_t r) : Adafruit_FONA(r) { _type = FONA_LTE_A; }
+  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = FONA_LTE_A; }
 
     boolean setBaudrate(uint16_t baud);
  //    boolean playToolkitTone(uint8_t t, uint16_t len);
