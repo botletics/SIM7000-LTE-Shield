@@ -21,7 +21,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Get system clock time ("AT+CCLK")
 - Turn GPS on/off ("AT+CGPSPWR=<value>")
 - GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20s from cold start and even less (a couple seconds or so) when the device has already been on!
-- Read webpage (tested with 
+- Read webpage (tested with GPRS)
 - Post to a webpage (tested with dweet.io)
 
 ### To-Do List
@@ -30,6 +30,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test LTE/NB-IoT commands
 - Add an IoT HTTP GET/POST function for cloud API's
 - Create an IoT example that posts GPS lat/long data to the cloud
+- Test LTE functionalities
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
@@ -39,4 +40,4 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Added "hangUp()" function but still need to test with SIM card later
 - Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
 - Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm) for AT&T
-- Tested HTTP commands!
+- Tested HTTP commands with GPRS (2G)
