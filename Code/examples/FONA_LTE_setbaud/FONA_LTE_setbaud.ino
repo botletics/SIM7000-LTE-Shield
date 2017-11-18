@@ -30,7 +30,7 @@
 //#define FONA_RST 4
 
 // For LTE shield
-#define FONA_PWRKEY 4
+#define FONA_PWRKEY 3
 #define FONA_RX 7
 #define FONA_TX 6
 #define FONA_RST 8
