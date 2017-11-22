@@ -1,6 +1,8 @@
 /* This is an example sketch to send battery, temperature, and GPS location data to
- *  dweet.io, a free cloud API. This example also puts the AVR microcontroller and
- *  MCP9808 temperature sensor to sleep to conserve power.
+ *  dweet.io, a free cloud API. You can choose to post only once or to post periodically
+ *  by commenting/uncommenting line 57 ("#define samplingRate 30"). When this line is 
+ *  commented out the AVR microcontroller and MCP9808 temperature sensor are put to 
+ *  sleep to conserve power.
  *  
  *  To check if the data was successfully sent, go to http://dweet.io/get/latest/dweet/for/{IMEI}
  *  and the IMEI number is printed at the beginning of the code but can also be found printed
@@ -262,7 +264,8 @@ void loop() {
   // Turn off GPS
   if (!fona.enableGPS(false)) Serial.println(F("Failed to turn off GPS!"));
 
-  // Power off FONA. Comment this out if you want 
+  // Power off the module. Note that you could instead put it in minimum functionality mode
+  // instead of completely turning it off. Experiment different ways depending on your application!
   // You should see the "PWR" LED turn off after this command
   if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!"));
   
