@@ -2,7 +2,8 @@
  *  dweet.io, a free cloud API. You can choose to post only once or to post periodically
  *  by commenting/uncommenting line 57 ("#define samplingRate 30"). When this line is 
  *  commented out the AVR microcontroller and MCP9808 temperature sensor are put to 
- *  sleep to conserve power.
+ *  sleep to conserve power, but when the line is being used data will be sent to the
+ *  cloud periodically. This makes it operate like a GPS tracker!
  *  
  *  To check if the data was successfully sent, go to http://dweet.io/get/latest/dweet/for/{IMEI}
  *  and the IMEI number is printed at the beginning of the code but can also be found printed
@@ -281,7 +282,7 @@ void loop() {
   // Comment out this line if you want it to keep posting periodically
   #ifndef samplingRate
     delay(10); // This is just to read the response of the last AT command before shutting down
-    MCU_powerDown(); // Sleep current depends on the MCU
+    MCU_powerDown(); // You could also write your own function to make it sleep for a certain duration instead
   #else
     // The following lines are for if you want to periodically post data (like GPS tracker)
     Serial.print("Waiting for "); Serial.print(samplingRate); Serial.println(" seconds");
