@@ -33,7 +33,7 @@ the commented section below at the end of the setup() function.
 //#define FONA_RST 4
 
 // For LTE shield
-#define FONA_PWRKEY 4
+#define FONA_PWRKEY 3
 //#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
 #define FONA_RI 5 // Need to enable via AT commands
 #define FONA_RX 7
