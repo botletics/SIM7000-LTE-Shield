@@ -247,19 +247,25 @@ void loop() {
   // Turn off GPS
   if (!fona.enableGPS(false)) Serial.println(F("Failed to turn off GPS!"));
 
-  // Power off FONA
+  // Power off FONA. Comment this out if you want 
   // You should see the "PWR" LED turn off after this command
   if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!"));
   
   // Alternative to the AT command method above:
-  // If your FONA has a PWR_key pin connected to your MCU, you can pulse the PWR_key
+  // If your FONA has a PWRKEY pin connected to your MCU, you can pulse PWRKEY
   // LOW for a little bit, then pull it back HIGH, like this:
 //  digitalWrite(PWRKEY, LOW);
 //  delay(600); // Minimum of 64ms to turn on and 500ms to turn off for FONA3G. Check spec sheet for other types
+//  delay(1300); // Minimum of 1.2s for LTE shield
 //  digitalWrite(PWRKEY, HIGH);
   
   // Shut down the MCU
+  // Comment out this line if you want it to keep posting periodically
   MCU_powerDown(); // Sleep current depends on the MCU
+
+  // For periodically posting data
+//  Serial.print("Waiting for "); Serial.print(samplingRate); Serial.println(" seconds");
+//  delay(samplingRate*1000); // Delay
 }
 
 // Read the battery level percentage
