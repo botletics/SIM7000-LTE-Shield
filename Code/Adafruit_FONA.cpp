@@ -1374,6 +1374,9 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
+  // Make sure HTTP service is terminated so initialization will run
+  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
+
   // Initialize HTTP service
   if (! sendCheckReply(F("AT+HTTPINIT"), ok_reply, 10000))
     return false;
