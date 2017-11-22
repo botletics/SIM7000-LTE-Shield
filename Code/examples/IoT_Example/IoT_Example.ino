@@ -63,13 +63,16 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
+// The following line is used for applications that require repeated data posting, like GPS trackers
+// Comment it out if you only want it to post once, not repeatedly every so often
+#define samplingRate 30 // The time in between posts, in seconds
+
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
 char replybuffer[255]; // Large buffer for replies
 uint8_t type;
 uint16_t VBAT = 0; // Battery voltage
 uint16_t battLevel = 0; // Battery level (percentage)
-
 float latitude, longitude, speed_kph, heading, altitude;
 
 void setup() {
@@ -85,10 +88,25 @@ void setup() {
   }
 
   pinMode(FONA_PWRKEY, OUTPUT);
-  digitalWrite(FONA_PWRKEY, LOW);
-//  delay(1050); // Pull low at least 1s to turn on SIM800
-  delay(100); // At least 72ms to turn on the SIM7000 (LTE)
-  digitalWrite(FONA_PWRKEY, HIGH);
+  powerOn(); // Power on the module
+
+  // Configure a GPRS APN, username, and password.
+  // You might need to do this to access your network's GPRS/data
+  // network.  Contact your provider for the exact APN, username,
+  // and password values.  Username and password are optional and
+  // can be removed, but APN is required.
+  //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setGPRSNetworkSettings(F("phone"); // This worked fine for a standard AT&T 3G SIM card (US)
+  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+
+  // Optionally configure HTTP gets to follow redirects over SSL.
+  // Default is not to follow SSL redirects, however if you uncomment
+  // the following line then redirects over SSL will be followed.
+  //fona.setHTTPSRedirect(true);
+}
+
+void loop() {
+  powerOn(); // Powers on the module if it was off previously
 
   fonaSerial->begin(115200); // Default LTE shield baud rate
   if (! fona.begin(*fonaSerial)) {
@@ -119,6 +137,12 @@ void setup() {
       Serial.println(F("FONA 3G (American)")); break;
     case FONA3G_E:
       Serial.println(F("FONA 3G (European)")); break;
+    case FONA_LTE_A:
+      Serial.println(F("FONA 4G LTE (American)")); break;
+    case FONA_LTE_C:
+      Serial.println(F("FONA 4G LTE (Chinese)")); break;
+    case FONA_LTE_E:
+      Serial.println(F("FONA 4G LTE (European)")); break;
     default: 
       Serial.println(F("???")); break;
   }
@@ -128,23 +152,7 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-
-  // Optionally configure a GPRS APN, username, and password.
-  // You might need to do this to access your network's GPRS/data
-  // network.  Contact your provider for the exact APN, username,
-  // and password values.  Username and password are optional and
-  // can be removed, but APN is required.
-  //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setGPRSNetworkSettings(F("phone"); // This worked fine for a standard AT&T 3G SIM card (US)
-  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
-
-  // Optionally configure HTTP gets to follow redirects over SSL.
-  // Default is not to follow SSL redirects, however if you uncomment
-  // the following line then redirects over SSL will be followed.
-  //fona.setHTTPSRedirect(true);
-}
-
-void loop() {
+  
   // Connect to cell network and verify connection
   // If unsuccessful, keep retrying every 2s until a connection is made
   while (!netStatus()) {
@@ -225,17 +233,24 @@ void loop() {
   sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
 
-  if (!fona.postData("GET", URL, "")) { // Add the quotes "" as third input because for GET request there's no "body"
+  int counter = 0; // This counts the number of failed attempts tries
+  // Try a total of three times if the post was unsuccessful (try additional 2 times)
+  while (counter < 3 && !fona.postData("GET", URL, "")) { // Add the quotes "" as third input because for GET request there's no "body"
     Serial.println(F("Failed to post data, retrying..."));
+    counter++; // Increment counter
+    delay(1000);
   }
   
   // You can also do a POST request instead
   /*
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
   sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
-  
-  if (!fona.postData("POST", URL, body)) {
+
+  int counter = 0;
+  while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
+    counter++
+    delay(1000);
   }
   */
 
@@ -259,13 +274,24 @@ void loop() {
 //  delay(1300); // Minimum of 1.2s for LTE shield
 //  digitalWrite(PWRKEY, HIGH);
   
-  // Shut down the MCU
+  // Shut down the MCU to save power
   // Comment out this line if you want it to keep posting periodically
-  MCU_powerDown(); // Sleep current depends on the MCU
+  #ifndef samplingRate
+    delay(10); // This is just to read the response of the last AT command before shutting down
+    MCU_powerDown(); // Sleep current depends on the MCU
+  #else
+    // The following lines are for if you want to periodically post data (like GPS tracker)
+    Serial.print("Waiting for "); Serial.print(samplingRate); Serial.println(" seconds");
+    delay(samplingRate*1000); // Delay
+  #endif
+}
 
-  // For periodically posting data
-//  Serial.print("Waiting for "); Serial.print(samplingRate); Serial.println(" seconds");
-//  delay(samplingRate*1000); // Delay
+// Power on the module
+void powerOn() {
+  digitalWrite(FONA_PWRKEY, LOW);
+//  delay(1050); // Pull low at least 1s to turn on SIM800
+  delay(100); // At least 72ms to turn on the SIM7000 (LTE)
+  digitalWrite(FONA_PWRKEY, HIGH);
 }
 
 // Read the battery level percentage
