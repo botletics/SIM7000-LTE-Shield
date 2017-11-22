@@ -18,7 +18,6 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 
 ### To-Do List
 - Test phone functionality (maybe on a later product version with voice support)
-- Add a GPS tracker example
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
@@ -34,3 +33,4 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - I have tested almost every AT command and they have all worked!
 - Updated the function "getGPS()" to include the LTE shield class
 - Created [this cool IoT example](https://github.com/botletics/NB-IoT-Shield/tree/master/Code/examples/IoT_Example)that posts GPS location, temperature, and battery data to the cloud!
+- Updated the IoT example sketch to include support for a GPS tracker (repeated data posting)
