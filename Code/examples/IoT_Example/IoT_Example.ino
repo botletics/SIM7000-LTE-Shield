@@ -6,9 +6,10 @@
  *  and the IMEI number is printed at the beginning of the code but can also be found printed
  *  on the SIMCOM module itself.
  *  
- *  Written by: Timothy Woo (www.botletics.com)
- *  Github repo: https://github.com/botletics/NB-IoT-Shield
+ *  Author: Timothy Woo (www.botletics.com)
+ *  Github: https://github.com/botletics/NB-IoT-Shield
  *  Last Updated: 11/22/2017
+ *  License: GNU GPL v3.0
   */
 
 #include "Adafruit_FONA.h"
