@@ -1,6 +1,6 @@
-/* This is an example sketch to send data to dweet.io, a free cloud API. Thi code
- *  also puts the AVR microcontroller to sleep to save power, as well as the MCP9808
- *  temperature sensor.
+/* This is an example sketch to send battery, temperature, and GPS location data to
+ *  dweet.io, a free cloud API. This example also puts the AVR microcontroller and
+ *  MCP9808 temperature sensor to sleep to conserve power.
  *  
  *  To check if the data was successfully sent, go to http://dweet.io/get/latest/dweet/for/{IMEI}
  *  and the IMEI number is printed at the beginning of the code but can also be found printed
@@ -69,18 +69,24 @@ uint8_t type;
 uint16_t VBAT = 0; // Battery voltage
 uint16_t battLevel = 0; // Battery level (percentage)
 
+float latitude, longitude, speed_kph, heading, altitude;
+
 void setup() {
   Serial.begin(115200);
+
+  pinMode(FONA_RST, OUTPUT);
+  digitalWrite(FONA_RST, HIGH); // Default state
 
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
   if (!tempsensor.begin()) {
     Serial.println("Couldn't find the MCP9808!");
     while (1);
   }
-  
+
   pinMode(FONA_PWRKEY, OUTPUT);
   digitalWrite(FONA_PWRKEY, LOW);
-  delay(1050); // Pull low at least 1s to turn on SIM800
+//  delay(1050); // Pull low at least 1s to turn on SIM800
+  delay(100); // At least 72ms to turn on the SIM7000 (LTE)
   digitalWrite(FONA_PWRKEY, HIGH);
 
   fonaSerial->begin(115200); // Default LTE shield baud rate
@@ -162,6 +168,30 @@ void loop() {
   tempsensor.shutdown(); // In this mode the MCP9808 draws only about 0.1uA
 
   float temperature = tempC; // Select what unit you want to use for this example
+
+  // Turn on GPS
+  while (!fona.enableGPS(true)) {
+    Serial.println(F("Failed to turn on GPS, retrying..."));
+    delay(2000); // Retry every 2s
+  }
+  Serial.println(F("Turned on GPS!"));
+
+  // Get a fix on location, try every 2s
+  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) {
+    Serial.println(F("Failed to get GPS location, retrying..."));
+    delay(2000); // Retry every 2s
+  }
+  Serial.println(F("Found 'eeeeem!"));
+  Serial.println("---------------------");
+  Serial.print("Latitude: "); Serial.println(latitude);
+  Serial.print("Longitude: "); Serial.println(longitude);
+  Serial.print("Speed: "); Serial.println(speed_kph);
+  Serial.print("Heading: "); Serial.println(heading);
+  Serial.print("Altitude: "); Serial.println(altitude);
+  Serial.println("---------------------");
+
+  // Disable GPRS just to make sure it was actually off so that we can turn it on
+  if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
   
   // Turn on GPRS
   while (!fona.enableGPRS(true)) {
@@ -172,19 +202,26 @@ void loop() {
 
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
-  char URL[150]; // Make sure this is long enough for your request URL
-  char tempBuff[16];
-  char battLevelBuff[16];
+  char URL[200]; // Make sure this is long enough for your request URL
+  char latBuff[16], longBuff[16], speedBuff[16], headBuff[16], altBuff[16],
+       tempBuff[16], battBuff[16];
 
-  // Format the floating point numbers as needed
-  dtostrf(temperature, 1, 0, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
-  dtostrf(battLevel, 1, 0, battLevelBuff);
+  // Format the floating point numbers
+  dtostrf(latitude, 1, 6, latBuff);
+  dtostrf(longitude, 1, 6, longBuff);
+  dtostrf(speed_kph, 1, 0, speedBuff);
+  dtostrf(heading, 1, 0, headBuff);
+  dtostrf(altitude, 1, 1, altBuff);
+  dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
+  dtostrf(battLevel, 1, 0, battBuff);
 
   // Construct the appropriate URL's and body, depending on request type
-  // Use IMEI as device ID for this example
+  // In this example we use the IMEI as device ID
 
   // GET request
-  sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff);
+  // You can adjust the contents of the request if you don't need certain things like speed, altitude, etc.
+  sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
+          speedBuff, headBuff, altBuff, tempBuff, battBuff);
 
   if (!fona.postData("GET", URL, "")) { // Add the quotes "" as third input because for GET request there's no "body"
     Serial.println(F("Failed to post data, retrying..."));
@@ -203,7 +240,10 @@ void loop() {
   // Disable GPRS
   // Note that you might not want to check if this was successful, but just run it
   // since the next command is to turn off the module anyway
-  if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS"));
+  if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
+
+  // Turn off GPS
+  if (!fona.enableGPS(false)) Serial.println(F("Failed to turn off GPS!"));
 
   // Power off FONA
   // You should see the "PWR" LED turn off after this command
