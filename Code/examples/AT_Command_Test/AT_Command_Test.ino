@@ -10,14 +10,15 @@
  *  "AT Command Library" here: https://github.com/botletics/AT-Command-Library
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Date: 11/18/2017
+ *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Last Updated: 11/22/2017
  *  License: GNU GPL v3.0
  */
 
 #include <SoftwareSerial.h> // This is for communicating with the SIM7000 module
 
 // For LTE shield
-#define FONA_PWRKEY 4
+#define FONA_PWRKEY 3
 #define FONA_RX 7
 #define FONA_TX 6
 #define FONA_RST 8
@@ -81,9 +82,12 @@ void FONApower(bool option) {
   }
   else {
     Serial.println("*** Turning OFF (takes about 1.3s)");
-    digitalWrite(FONA_PWRKEY, LOW);
-    delay(1400); // At least 1.2s
-    digitalWrite(FONA_PWRKEY, HIGH);
+    fona.println("AT+CPOWD=1");
+    
+    // Alternatively, pulse PWRKEY:
+//    digitalWrite(FONA_PWRKEY, LOW);
+//    delay(1400); // At least 1.2s
+//    digitalWrite(FONA_PWRKEY, HIGH);
   }
 }
 
