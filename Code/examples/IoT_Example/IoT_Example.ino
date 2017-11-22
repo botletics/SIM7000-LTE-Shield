@@ -258,7 +258,7 @@ void loop() {
 //  digitalWrite(PWRKEY, HIGH);
   
   // Shut down the MCU
-  MCU_powerDown();
+  MCU_powerDown(); // Sleep current depends on the MCU
 }
 
 // Read the battery level percentage
