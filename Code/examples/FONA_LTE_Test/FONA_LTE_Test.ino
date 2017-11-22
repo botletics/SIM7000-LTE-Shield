@@ -33,12 +33,12 @@ the commented section below at the end of the setup() function.
 //#define FONA_RST 4
 
 // For LTE shield
-#define FONA_PWRKEY 3
-#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
+#define FONA_PWRKEY 4
+//#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
 #define FONA_RI 5 // Need to enable via AT commands
 #define FONA_RX 7
 #define FONA_TX 6
-#define FONA_RST 8 // Not really used
+#define FONA_RST 8
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -62,14 +62,19 @@ SoftwareSerial *fonaSerial = &fonaSS;
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
-
 uint8_t type;
+char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
 
 void setup() {
   while (!Serial);
 
+  pinMode(FONA_RST, OUTPUT);
+  digitalWrite(FONA_RST, HIGH); // Default state
+  
   pinMode(FONA_PWRKEY, OUTPUT);
   // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
+  // This won't hurt even if the module is already on, because you need
+  // to pulse PWRKEY for at least 1.2s to turn it off!
   pinMode(FONA_PWRKEY, LOW);
   delay(100);
   pinMode(FONA_PWRKEY, HIGH);
@@ -78,7 +83,7 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take 3 seconds)"));
 
-  fonaSerial->begin(4800); // If using the LTE shield, first run "FONA_LTE_setbaud.ino"
+  fonaSerial->begin(4800); // If you want to use a lower baud rate first run "FONA_LTE_setbaud.ino"
 //  fonaSerial->begin(115200); // Default LTE shield baud rate
   if (! fona.begin(*fonaSerial)) {
     Serial.println(F("Couldn't find FONA"));
@@ -111,7 +116,6 @@ void setup() {
   }
   
   // Print module IMEI number.
-  char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
   uint8_t imeiLen = fona.getIMEI(imei);
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
@@ -181,6 +185,9 @@ void printMenu(void) {
   Serial.println(F("[l] Query GSMLOC (GPRS)"));
   Serial.println(F("[w] Read webpage (GPRS)"));
   Serial.println(F("[W] Post to website (GPRS)"));
+  // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
+  // FONA_IoT_example sketch for an actual application of this function!
+  Serial.println(F("[2] Post to dweet.io via 2G or 4G LTE)")); // This can be either 2G or 4G LTE (SIM800/808/900/7000) but not 3G (SIM5320)
 
   // GPS
   if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2) || 
@@ -816,6 +823,42 @@ void loop() {
         }
         Serial.println(F("\n****"));
         fona.HTTP_POST_end();
+        break;
+      }
+    case '2': {
+        // Post data to website via 2G or 4G LTE
+        float temperature = analogRead(A0)*1.23; // Change this to suit your needs
+        uint16_t battLevel = 87; // Just for testing. Use the read battery function instead
+
+        // Create char buffers for the floating point numbers for sprintf
+        // Make sure these buffers are long enough for your request URL
+        char URL[150];
+        char body[100];
+        char tempBuff[16];
+        char battLevelBuff[16];
+      
+        // Format the floating point numbers as needed
+        dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
+        dtostrf(battLevel, 1, 0, battLevelBuff);
+
+        // Construct the appropriate URL's and body, depending on request type
+        // Use IMEI as device ID for this example
+        
+        // GET request
+        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff);
+
+        if (!fona.postData("GET", URL, "")) // No body field required
+          Serial.println(F("Failed to complete HTTP GET request..."));
+        
+        // POST request
+        /*
+        sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
+        sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
+        
+        if (!fona.postData("POST", URL, body))
+          Serial.println(F("Failed to complete HTTP POST request..."));
+        */
+      
         break;
       }
     /*****************************************/
