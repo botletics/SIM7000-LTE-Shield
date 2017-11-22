@@ -18,7 +18,6 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 
 ### To-Do List
 - Test phone functionality (maybe on a later product version with voice support)
-- Create an IoT example that posts temperature and GPS lat/long data to the cloud
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
@@ -33,3 +32,4 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Added a function "postData()" for posting data to dweet.io, a free cloud API. You can choose to use HTTP GET or POST and I have added an example in the "FONA_LTE_Test" sketch (enter "2" in the menu for the option)
 - I have tested almost every AT command and they have all worked!
 - Updated the function "getGPS()" to include the LTE shield class
+- Create a cool IoT example that posts GPS location, temperature, and battery data to the cloud!
