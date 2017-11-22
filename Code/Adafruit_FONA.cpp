@@ -114,7 +114,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = FONA3G_E;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000AA R1351")) != 0) {
     _type = FONA_LTE_A;
-  }
+  } 
 
 
   if (_type == FONA800L) {
@@ -806,7 +806,7 @@ boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
 }
 
 int8_t Adafruit_FONA::GPSstatus(void) {
-  if (_type == FONA808_V2) {
+  if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
     // 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
     // Instead just look for a fix and if found assume it's a 3D fix.
     getReply(F("AT+CGNSINF"));
@@ -968,7 +968,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
-  } else if (_type == FONA808_V2) {
+  } else if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
 
