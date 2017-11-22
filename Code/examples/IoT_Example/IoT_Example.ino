@@ -151,7 +151,7 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Connected to cell network!"));
-  delay(1000); // At least 1s to help GPRS enable successfully
+  delay(1000); // Short delay to help GPRS enable successfully
 
   // Measure battery level
 //  VBAT = readVcc(); // Voltage
@@ -199,6 +199,7 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Enabled GPRS!"));
+  delay(1000); // A short delay is needed so the next part runs properly!
 
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
