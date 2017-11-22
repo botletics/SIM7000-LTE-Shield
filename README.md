@@ -12,18 +12,9 @@ All other software is released under the [GNU General Public License v3.0](https
 The code for this LTE shield is an altered library built upon the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added LTE functionality for the SIM7000 module. The following list is a summary of the updates:
 
 ### Confirmed functionalities
--	Read ADC voltage (“AT+CADC?”)
--	Read battery voltage and percentage ("AT+CBC")
-- Read signal RSSI ("AT+CSQ")
-- SIM card ("AT+CCID")
-- Get network status ("AT+CREG?")
-- Set APN/bearer settings and enable/disable GPRS
-- Get phone status ("AT+CPAS")
-- Get system clock time ("AT+CCLK")
-- Turn GPS on/off ("AT+CGPSPWR=<value>")
 - GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20s from cold start and even less (a couple seconds or so) when the device has already been on!
 - Read a webpage via LTE CAT-M1
-- Post to an API via LTE CAT-M1
+- Post to a web API via LTE CAT-M1
 
 ### To-Do List
 - Test phone functionality (maybe on a later product version with voice support)
@@ -40,3 +31,4 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Tested HTTP commands with GPRS (2G)
 - Tweaked the library so that the LTE declaration "Adafruit_FONA_LTE fona = Adafruit_FONA_LTE()" doesn't include the reset pin because the reset pin is reserved for emergencies only, according to the SIM7000 design document.
 - Added a function "postData()" for posting data to dweet.io, a free cloud API. You can choose to use HTTP GET or POST and I have added an example in the "FONA_LTE_Test" sketch (enter "2" in the menu for the option)
+- I have tested almost every AT command and they have all worked!
