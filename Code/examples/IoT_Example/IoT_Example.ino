@@ -281,7 +281,7 @@ void loop() {
   // Shut down the MCU to save power
   // Comment out this line if you want it to keep posting periodically
   #ifndef samplingRate
-    delay(10); // This is just to read the response of the last AT command before shutting down
+    delay(5); // This is just to read the response of the last AT command before shutting down
     MCU_powerDown(); // You could also write your own function to make it sleep for a certain duration instead
   #else
     // The following lines are for if you want to periodically post data (like GPS tracker)
