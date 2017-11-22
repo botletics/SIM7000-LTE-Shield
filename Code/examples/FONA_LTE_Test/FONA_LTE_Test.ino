@@ -83,12 +83,19 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take 3 seconds)"));
 
-  fonaSerial->begin(4800); // If you want to use a lower baud rate first run "FONA_LTE_setbaud.ino"
-//  fonaSerial->begin(115200); // Default LTE shield baud rate
+  fonaSerial->begin(115200); // Default LTE shield baud rate
   if (! fona.begin(*fonaSerial)) {
     Serial.println(F("Couldn't find FONA"));
-    while (1);
   }
+
+  // Baud rate setup
+  fona.setBaudrate(4800); // Set to 4800 baud
+  fonaSerial->begin(4800);
+  if (! fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find FONA"));
+    while (1); // This makes the code freeze when it can't find the device
+  }
+  
   type = fona.type();
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
