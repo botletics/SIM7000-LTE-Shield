@@ -18,6 +18,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 
 ### To-Do List
 - Test phone functionality (maybe on a later product version with voice support)
+- Add a GPS tracker example
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
