@@ -1369,6 +1369,68 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
   return true;
 
 }
+
+/********************************* HTTP FUNCTION *********************************/
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body) {
+  // NOTE: Need to open socket/enable GPRS before using this function
+
+  // Initialize HTTP service
+  if (! sendCheckReply(F("AT+HTTPINIT"), ok_reply, 10000))
+    return false;
+
+  // Set HTTP parameters
+  if (! sendCheckReply(F("AT+HTTPPARA=\"CID\",1"), ok_reply, 10000))
+    return false;
+
+  // Specify URL
+  char auxStr[64];
+  sprintf(auxStr, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  // Perform request based on specified request type
+  if (request_type == "GET") {
+  	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
+    return false;
+  }
+  else if (request_type == "POST" && strlen(body) > 0) { // POST with content body
+  	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
+    return false;
+
+	sprintf(auxStr, "AT+HTTPDATA=%d,10000", strlen(body));
+	if (! sendCheckReply(auxStr, "DOWNLOAD", 10000))
+    return false;
+
+	if (! sendCheckReply(body, ok_reply, 10000))
+    return false;
+
+  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+    return false;
+  }
+  else if (request_type == "POST" && strlen(body) == 0) { // POST with query parameters
+  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+    return false;
+  }
+  else if (request_type == "HEAD") {
+  	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
+    return false;
+  }
+
+  // Read server response
+  if (! sendCheckReply(F("AT+HTTPREAD"), ok_reply, 10000))
+    return false;
+
+  delay(2000); // Delay at least around 2000ms for AT+HTTPTERM to run properly
+
+  // Terminate HTTP service
+  if (! sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000))
+    return false;
+
+  return true;
+}
+
+/********************************* END OF HTTP FUNCTION *********************************/
+
 /********* TCP FUNCTIONS  ************************************/
 
 
