@@ -2,6 +2,10 @@
  *  also puts the AVR microcontroller to sleep to save power, as well as the MCP9808
  *  temperature sensor.
  *  
+ *  To check if the data was successfully sent, go to http://dweet.io/get/latest/dweet/for/{IMEI}
+ *  and the IMEI number is printed at the beginning of the code but can also be found printed
+ *  on the SIMCOM module itself.
+ *  
  *  Written by: Timothy Woo (www.botletics.com)
  *  Github repo: https://github.com/botletics/NB-IoT-Shield
  *  Last Updated: 11/22/2017
