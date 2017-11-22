@@ -1,7 +1,8 @@
 /* This code allows you to freely test AT commands by entering them into
  *  the serial monitor! You can type in "ON" to turn on the
  *  SIM7000 and "OFF" to turn it off, as well as "RESET" and "BAUD<value>"
- *  to set a new baud rate!
+ *  to set a new baud rate! Please note that you should set the serial
+ *  monitor to "No line ending"
  *  
  *  Asterisks (***) indicate debug text and arrows (-->) indicate sending
  *  an AT command. Everything else is a response from the module!
