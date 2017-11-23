@@ -703,11 +703,11 @@ round, layers 1 + 16 + 21 + 39 + 49</description>
 <text x="2.54" y="25.4" size="3.81" layer="94" font="vector" ratio="16">Botletics LLC</text>
 <text x="1.27" y="11.43" size="2.54" layer="94">Design by:</text>
 </symbol>
-<symbol name="4V" library_version="3" library_locally_modified="yes">
+<symbol name="VIN" urn="urn:adsk.eagle:symbol:502098/1" library_version="3" library_locally_modified="yes">
 <wire x1="0.762" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="-0.762" y2="1.27" width="0.254" layer="94"/>
 <text x="-1.016" y="3.556" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="4V" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
+<pin name="VIN" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -799,10 +799,10 @@ Standard 11x14 US Ledger frame</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="4V" prefix="SUPPLY" library_version="3" library_locally_modified="yes">
-<description>5V supply symbol</description>
+<deviceset name="VIN" urn="urn:adsk.eagle:component:502118/1" prefix="SUPPLY" library_version="3" library_locally_modified="yes">
+<description>Vin supply symbol</description>
 <gates>
-<gate name="G$1" symbol="4V" x="0" y="0"/>
+<gate name="G$1" symbol="VIN" x="0" y="0"/>
 </gates>
 <devices>
 <device name="">
@@ -11972,7 +11972,7 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="C1" library="TimWoo-Capacitors" library_urn="urn:adsk.eagle:library:500759" deviceset="CAP" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500792/2" value="1uF"/>
 <part name="C2" library="TimWoo-Capacitors" deviceset="CAP" device="MARKED-0603" value="4.7uF"/>
 <part name="J6" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="MICRO-USB_SMD_NOSHIELD" device="V1" package3d_urn="urn:adsk.eagle:package:1036780/2" value="microUSB"/>
-<part name="SUPPLY4" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="4V" device=""/>
+<part name="SUPPLY4" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VIN" device=""/>
 <part name="SUPPLY14" library="TimWoo-Aesthetics" deviceset="V_USB" device=""/>
 <part name="FID2" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="FIDUCIAL" device="" package3d_urn="urn:adsk.eagle:package:502130/2"/>
 <part name="FID1" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="FIDUCIAL" device="" package3d_urn="urn:adsk.eagle:package:502130/2"/>
@@ -11984,7 +11984,7 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="GND24" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
 <part name="GND18" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
 <part name="X1" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="ANTENNA_U.FL" device="" value="LTE-uFL"/>
-<part name="SUPPLY17" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="4V" device=""/>
+<part name="SUPPLY17" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VIN" device=""/>
 <part name="X3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="MICROSIM_SOCKET_PUSH-PULL" device="" package3d_urn="urn:adsk.eagle:package:1036783/2"/>
 <part name="GND25" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
 <part name="GND27" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
@@ -11995,7 +11995,7 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="SUPPLY15" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="1.8V" device=""/>
 <part name="C9" library="TimWoo-Capacitors" library_urn="urn:adsk.eagle:library:500759" deviceset="CAP" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500792/2" value="1uF"/>
 <part name="C8" library="TimWoo-Capacitors" deviceset="CAP" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500792/2" value="0.1uF"/>
-<part name="SUPPLY18" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="4V" device=""/>
+<part name="SUPPLY18" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VIN" device=""/>
 <part name="SUPPLY16" library="TimWoo-Aesthetics" deviceset="V_USB" device=""/>
 <part name="C10" library="TimWoo-Capacitors" library_urn="urn:adsk.eagle:library:500759" deviceset="CAP" device="1206" package3d_urn="urn:adsk.eagle:package:500778/1" value="150uF"/>
 <part name="C11" library="TimWoo-Capacitors" library_urn="urn:adsk.eagle:library:500759" deviceset="CAP" device="1206" package3d_urn="urn:adsk.eagle:package:500778/1" value="150uF"/>
@@ -12047,10 +12047,10 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="LOGO1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="OSHW-LOGO" device="L" package3d_urn="urn:adsk.eagle:package:37097/1"/>
 <part name="Q1" library="TimWoo-MOSFETs" library_urn="urn:adsk.eagle:library:501962" deviceset="MOSFET-N" device="GENERIC" package3d_urn="urn:adsk.eagle:package:501973/2" value="FDV301N"/>
 <part name="Q2" library="TimWoo-MOSFETs" library_urn="urn:adsk.eagle:library:501962" deviceset="MOSFET-N" device="GENERIC" package3d_urn="urn:adsk.eagle:package:501973/2" value="FDV301N"/>
-<part name="SUPPLY5" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="4V" device=""/>
-<part name="SUPPLY13" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="4V" device=""/>
+<part name="SUPPLY5" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VIN" device=""/>
+<part name="SUPPLY13" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VIN" device=""/>
 <part name="JP3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="JUMPER-SMT_2_NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:1036528/1"/>
-<part name="IC1" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" deviceset="VOLTAGE-REGULATOR_SOT23-5" device="SOT-23-5" package3d_urn="urn:adsk.eagle:package:500846/2" value="MIC5216-4.0YM5"/>
+<part name="IC1" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" deviceset="VOLTAGE-REGULATOR_SOT23-5" device="SOT-23-5" package3d_urn="urn:adsk.eagle:package:500846/2" value="MIC5219-3.6YM5"/>
 <part name="R1" library="TimWoo-Resistors" library_urn="urn:adsk.eagle:library:500711" deviceset="RESISTOR" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500751/2" value="150k"/>
 <part name="JP1" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="JUMPER-SMT_2_NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:1036528/1"/>
 <part name="J3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="M04" device="PTH-ROUND"/>
@@ -12125,9 +12125,8 @@ from Arduino USB 5V</text>
 <text x="180.34" y="154.94" size="2.54" layer="97">ADDR: 0x18</text>
 <text x="144.78" y="264.16" size="5.08" layer="94">UART Logic Level Shifting</text>
 <text x="44.45" y="218.44" size="1.27" layer="91">EN</text>
-<text x="11.43" y="223.52" size="1.778" layer="97">Set LOW to turn
-off 4V regulator
-(~0.1uA quiescent)</text>
+<text x="13.97" y="223.52" size="1.778" layer="97">Set LOW to turn
+off the regulator</text>
 <wire x1="137.16" y1="99.06" x2="233.68" y2="99.06" width="0.1524" layer="94" style="longdash"/>
 <wire x1="137.16" y1="279.4" x2="137.16" y2="195.58" width="0.1524" layer="94" style="longdash"/>
 <wire x1="137.16" y1="195.58" x2="137.16" y2="99.06" width="0.1524" layer="94" style="longdash"/>
@@ -12136,7 +12135,7 @@ off 4V regulator
 <text x="165.1" y="66.04" size="1.778" layer="97">Cut jumper to
 disable PWR LED</text>
 <wire x1="137.16" y1="99.06" x2="137.16" y2="0" width="0.1524" layer="94" style="longdash"/>
-<text x="60.96" y="53.34" size="1.778" layer="97">4V/500mA Regulator
+<text x="60.96" y="53.34" size="1.778" layer="97">3.6V/500mA Regulator
 EN = LOW: 0.1uA + 33uA (through R1)
 EN = HIGH: 350uA @ 50mA draw
                    1.8mA @ 150mA draw
@@ -12486,13 +12485,13 @@ on EN pin</text>
 <wire x1="88.9" y1="116.84" x2="76.2" y2="116.84" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="4V" class="0">
+<net name="VIN" class="0">
 <segment>
 <wire x1="106.68" y1="43.18" x2="106.68" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="45.72" x2="106.68" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="C2" gate="G$1" pin="1"/>
 <junction x="106.68" y="45.72"/>
-<pinref part="SUPPLY4" gate="G$1" pin="4V"/>
+<pinref part="SUPPLY4" gate="G$1" pin="VIN"/>
 <wire x1="106.68" y1="50.8" x2="106.68" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="OUT"/>
 </segment>
@@ -12506,7 +12505,7 @@ on EN pin</text>
 <pinref part="U1" gate="G$1" pin="VBAT@1"/>
 <wire x1="330.2" y1="218.44" x2="330.2" y2="226.06" width="0.1524" layer="91"/>
 <wire x1="330.2" y1="226.06" x2="327.66" y2="226.06" width="0.1524" layer="91"/>
-<pinref part="SUPPLY17" gate="G$1" pin="4V"/>
+<pinref part="SUPPLY17" gate="G$1" pin="VIN"/>
 <wire x1="327.66" y1="228.6" x2="327.66" y2="226.06" width="0.1524" layer="91"/>
 </segment>
 <segment>
@@ -12519,7 +12518,7 @@ on EN pin</text>
 <wire x1="406.4" y1="226.06" x2="406.4" y2="228.6" width="0.1524" layer="91"/>
 <wire x1="406.4" y1="228.6" x2="396.24" y2="228.6" width="0.1524" layer="91"/>
 <junction x="396.24" y="228.6"/>
-<pinref part="SUPPLY18" gate="G$1" pin="4V"/>
+<pinref part="SUPPLY18" gate="G$1" pin="VIN"/>
 <wire x1="391.16" y1="231.14" x2="391.16" y2="228.6" width="0.1524" layer="91"/>
 <junction x="391.16" y="228.6"/>
 <pinref part="C9" gate="G$1" pin="1"/>
@@ -12530,13 +12529,13 @@ on EN pin</text>
 </segment>
 <segment>
 <pinref part="LED2" gate="G$1" pin="A"/>
-<pinref part="SUPPLY13" gate="G$1" pin="4V"/>
+<pinref part="SUPPLY13" gate="G$1" pin="VIN"/>
 <wire x1="208.28" y1="63.5" x2="208.28" y2="60.96" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="JP3" gate="G$1" pin="1"/>
 <wire x1="154.94" y1="63.5" x2="152.4" y2="63.5" width="0.1524" layer="91"/>
-<pinref part="SUPPLY5" gate="G$1" pin="4V"/>
+<pinref part="SUPPLY5" gate="G$1" pin="VIN"/>
 <wire x1="152.4" y1="63.5" x2="152.4" y2="68.58" width="0.1524" layer="91"/>
 </segment>
 </net>
