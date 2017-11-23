@@ -2801,7 +2801,7 @@ chip</description>
 <text x="-0.8" y="0.5" size="0.4064" layer="25">&gt;NAME</text>
 <text x="-0.9" y="-0.7" size="0.4064" layer="27">&gt;VALUE</text>
 </package>
-<package name="1206" urn="urn:adsk.eagle:footprint:500761/1" library_version="3">
+<package name="1206" urn="urn:adsk.eagle:footprint:500761/1" locally_modified="yes" library_version="3" library_locally_modified="yes">
 <wire x1="-2.473" y1="0.983" x2="2.473" y2="0.983" width="0.0508" layer="39"/>
 <wire x1="2.473" y1="-0.983" x2="-2.473" y2="-0.983" width="0.0508" layer="39"/>
 <wire x1="-2.473" y1="-0.983" x2="-2.473" y2="0.983" width="0.0508" layer="39"/>
@@ -2810,11 +2810,15 @@ chip</description>
 <wire x1="-0.965" y1="-0.787" x2="0.965" y2="-0.787" width="0.1016" layer="51"/>
 <smd name="1" x="-1.4" y="0" dx="1.6" dy="1.8" layer="1"/>
 <smd name="2" x="1.4" y="0" dx="1.6" dy="1.8" layer="1"/>
-<text x="-1.27" y="1.143" size="0.4064" layer="25">&gt;NAME</text>
-<text x="-1.397" y="-1.524" size="0.4064" layer="27">&gt;VALUE</text>
+<text x="-1.27" y="1.393" size="0.4064" layer="25">&gt;NAME</text>
+<text x="-1.397" y="-1.774" size="0.4064" layer="27">&gt;VALUE</text>
 <rectangle x1="-1.7018" y1="-0.8509" x2="-0.9517" y2="0.8491" layer="51"/>
 <rectangle x1="0.9517" y1="-0.8491" x2="1.7018" y2="0.8509" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
+<wire x1="-2.75" y1="1.25" x2="2.75" y2="1.25" width="0.254" layer="21"/>
+<wire x1="2.75" y1="1.25" x2="2.75" y2="-1.25" width="0.254" layer="21"/>
+<wire x1="2.75" y1="-1.25" x2="-2.75" y2="-1.25" width="0.254" layer="21"/>
+<wire x1="-2.75" y1="-1.25" x2="-2.75" y2="1.25" width="0.254" layer="21"/>
 </package>
 <package name="CTZ3" urn="urn:adsk.eagle:footprint:500772/1" library_version="3">
 <description>CTZ3 Series land pattern for variable capacitor - CTZ3E-50C-W1-PF</description>
@@ -2997,7 +3001,7 @@ It has reduced top mask to make it harder to put the component on the wrong side
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="CAP" urn="urn:adsk.eagle:component:500795/3" prefix="C" uservalue="yes" library_version="3">
+<deviceset name="CAP" urn="urn:adsk.eagle:component:500795/3" locally_modified="yes" prefix="C" uservalue="yes" library_version="3" library_locally_modified="yes">
 <description>&lt;b&gt;Capacitor&lt;/b&gt;
 Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <gates>
@@ -12148,7 +12152,7 @@ LTE Idle: ~11mA</text>
 <text x="40.64" y="147.32" size="1.778" layer="97">NOTE: The Arduino will likely draw a lot more current
 than the LTE shield. If you are concerned about low
 power, please select or design a board wisely!</text>
-<text x="40.64" y="27.94" size="1.778" layer="97">Cut jumper to
+<text x="50.8" y="30.48" size="1.778" layer="97">Cut jumper to
 disable pull-up
 on EN pin</text>
 <text x="43.18" y="114.3" size="1.778" layer="97">Extra I2C header</text>
@@ -12248,8 +12252,8 @@ on EN pin</text>
 <instance part="SUPPLY13" gate="G$1" x="208.28" y="63.5"/>
 <instance part="JP3" gate="G$1" x="160.02" y="63.5"/>
 <instance part="IC1" gate="G$1" x="83.82" y="43.18"/>
-<instance part="R1" gate="G$1" x="58.42" y="40.64"/>
-<instance part="JP1" gate="G$1" x="45.72" y="40.64"/>
+<instance part="R1" gate="G$1" x="45.72" y="40.64"/>
+<instance part="JP1" gate="G$1" x="58.42" y="40.64"/>
 <instance part="J3" gate="G$1" x="71.12" y="114.3"/>
 <instance part="GND4" gate="1" x="91.44" y="116.84" rot="R90"/>
 <instance part="SUPPLY3" gate="G$1" x="78.74" y="124.46"/>
@@ -12822,7 +12826,7 @@ on EN pin</text>
 <pinref part="IC1" gate="G$1" pin="IN"/>
 <wire x1="38.1" y1="40.64" x2="38.1" y2="45.72" width="0.1524" layer="91"/>
 <junction x="38.1" y="45.72"/>
-<pinref part="JP1" gate="G$1" pin="1"/>
+<pinref part="R1" gate="G$1" pin="1"/>
 <wire x1="40.64" y1="40.64" x2="38.1" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
@@ -13024,7 +13028,7 @@ on EN pin</text>
 <wire x1="73.66" y1="43.18" x2="66.04" y2="43.18" width="0.1524" layer="91"/>
 <label x="68.58" y="43.18" size="1.778" layer="95"/>
 <wire x1="66.04" y1="40.64" x2="66.04" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="R1" gate="G$1" pin="2"/>
+<pinref part="JP1" gate="G$1" pin="2"/>
 <wire x1="63.5" y1="40.64" x2="66.04" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
@@ -13035,8 +13039,8 @@ on EN pin</text>
 </net>
 <net name="N$6" class="0">
 <segment>
-<pinref part="JP1" gate="G$1" pin="2"/>
-<pinref part="R1" gate="G$1" pin="1"/>
+<pinref part="R1" gate="G$1" pin="2"/>
+<pinref part="JP1" gate="G$1" pin="1"/>
 <wire x1="50.8" y1="40.64" x2="53.34" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
