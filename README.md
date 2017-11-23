@@ -15,6 +15,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20s from cold start and even less (a couple seconds or so) when the device has already been on!
 - Read a webpage via LTE CAT-M1
 - Post to a web API via LTE CAT-M1
+- The shield works without a LiPo battery connected!
 
 ### To-Do List
 - Test phone functionality (maybe on a later product version with voice support)
