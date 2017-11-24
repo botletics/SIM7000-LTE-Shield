@@ -87,7 +87,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
   }
 
   // turn on hangupitude
-  sendCheckReply(F("AT+CVHU=0"), ok_reply);
+  if (_rstpin != 99) sendCheckReply(F("AT+CVHU=0"), ok_reply);
 
   delay(100);
   flushInput();
@@ -112,7 +112,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = FONA3G_A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIMCOM_SIM5320E")) != 0) {
     _type = FONA3G_E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000AA R1351")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000AA R13")) != 0) {
     _type = FONA_LTE_A;
   } 
 
@@ -610,7 +610,7 @@ boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
 
   DEBUG_PRINTLN("^Z");
 
-  if ( (_type == FONA3G_A) || (_type == FONA3G_E) ) {
+  if ( (_type == FONA3G_A) || (_type == FONA3G_E) || (_type == FONA_LTE_A) || (_type == FONA_LTE_C) || (_type == FONA_LTE_E) ) {
     // Eat two sets of CRLF
     readline(200);
     //DEBUG_PRINT("Line 1: "); DEBUG_PRINTLN(strlen(replybuffer));
