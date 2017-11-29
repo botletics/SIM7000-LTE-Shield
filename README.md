@@ -23,6 +23,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test phone functionality (maybe on a later product version with voice support)
 - Test with Hologram SIM card
 - Test with Verizon SIM card
+- Measure current consumption
 
 ### Completed Tasks
 -	Included FONA_LTE class to the library for SIM7000A module
