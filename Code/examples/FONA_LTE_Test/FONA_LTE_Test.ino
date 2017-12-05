@@ -1,3 +1,13 @@
+/*  This is an example sketch to test the core functionalities of SIMCom-based cellular modules. 
+ *  This code supports the SIM7000-series modules (LTE/NB-IoT shields) for low-power IoT devices!
+ *  
+ *  Author: Timothy Woo (www.botletics.com)
+ *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Last Updated: 12/5/2017
+ *  License: GNU GPL v3.0
+  */
+
+/******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
 
@@ -95,6 +105,7 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1); // This makes the code freeze when it can't find the device
   }
+  
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
@@ -835,7 +846,12 @@ void loop() {
     case '2': {
         // Post data to website via 2G or 4G LTE
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
-        uint16_t battLevel = 87; // Just for testing. Use the read battery function instead
+        
+        // Voltage in mV, just for testing. Use the read battery function instead.
+        // Please note that for the LTE shield the voltage read will always be around 3.6V
+        // because the SIM7000 is powered by a 3.6V regulator. If you want to monitor the
+        // power source to the Arduino you will have to use something else.
+        uint16_t battLevel = 3600;
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
@@ -855,7 +871,7 @@ void loop() {
         sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff);
 
         if (!fona.postData("GET", URL, "")) // No body field required
-          Serial.println(F("Failed to complete HTTP GET request..."));
+          Serial.println(F("Failed to complete HTTP GET..."));
         
         // POST request
         /*
@@ -863,7 +879,7 @@ void loop() {
         sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
         
         if (!fona.postData("POST", URL, body))
-          Serial.println(F("Failed to complete HTTP POST request..."));
+          Serial.println(F("Failed to complete HTTP POST..."));
         */
       
         break;
