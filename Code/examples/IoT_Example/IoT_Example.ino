@@ -11,7 +11,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 11/22/2017
+ *  Last Updated: 12/5/2017
  *  License: GNU GPL v3.0
   */
 
@@ -74,7 +74,6 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
 char replybuffer[255]; // Large buffer for replies
 uint8_t type;
-uint16_t VBAT = 0; // Battery voltage
 uint16_t battLevel = 0; // Battery level (percentage)
 float latitude, longitude, speed_kph, heading, altitude;
 
@@ -166,8 +165,12 @@ void loop() {
   delay(1000); // Short delay to help GPRS enable successfully
 
   // Measure battery level
-//  VBAT = readVcc(); // Voltage
-  battLevel = readVcc(); // Percentage
+  // Note: on the LTE shield this won't be accurate because the SIM7000
+  // is supplied by a regulated 3.6V, not directly from the battery. You
+  // can use the Arduino and a voltage divider to measure the battery voltage
+  // and use that instead, but for now we will use the function below
+  // only for testing.
+  battLevel = readVcc(); // Get voltage in mV
 
   // Measure temperature
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
@@ -300,12 +303,13 @@ void powerOn() {
 
 // Read the battery level percentage
 float readVcc() {
-//  if (!fona.getBattVoltage(&VBAT)) Serial.println(F("Failed to read Batt"));
-//  else Serial.print(F("VBAT = ")); Serial.print(VBAT); Serial.println(F(" mV"));
+  // Read battery voltage
+  if (!fona.getBattVoltage(&battLevel)) Serial.println(F("Failed to read batt"));
+  else Serial.print(F("battery = ")); Serial.print(battLevel); Serial.println(F(" mV"));
 
   // Read battery percentage
-  if (!fona.getBattPercent(&battLevel)) Serial.println(F("Failed to read batt"));
-  else Serial.print(F("BAT % = ")); Serial.print(battLevel); Serial.println(F("%"));
+//  if (!fona.getBattPercent(&battLevel)) Serial.println(F("Failed to read batt"));
+//  else Serial.print(F("BAT % = ")); Serial.print(battLevel); Serial.println(F("%"));
 
   return battLevel;
 }
