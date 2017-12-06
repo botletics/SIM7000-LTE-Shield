@@ -57,6 +57,7 @@ void loop() {
     }
     else {
       Serial.print(" --> ");
+      Serial.println(userCmd);
       fona.println(userCmd);
     }
   }
