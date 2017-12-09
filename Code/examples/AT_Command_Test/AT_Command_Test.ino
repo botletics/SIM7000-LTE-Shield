@@ -19,10 +19,13 @@
 #include <SoftwareSerial.h> // This is for communicating with the SIM7000 module
 
 // For LTE shield
-#define FONA_PWRKEY 3
-#define FONA_RX 7
-#define FONA_TX 6
-#define FONA_RST 8
+#define FONA_PWRKEY 6
+#define FONA_RST 7
+//#define FONA_DTR 8 // Connect with solder jumper
+//#define FONA_RI 9
+#define FONA_TX 10 // Microcontroller RX
+#define FONA_RX 11 // Microcontroller TX
+//#define T_ALERT 12 // Connect with solder jumper
 
 SoftwareSerial fona = SoftwareSerial(FONA_TX, FONA_RX);
 
