@@ -17,7 +17,6 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - GPS works even without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20s from cold start and even less (a couple seconds or so) when the device has already been on!
 - Read a webpage via LTE CAT-M1
 - Post to a web API via LTE CAT-M1
-- The shield works without a LiPo battery connected!
 
 ### To-Do List
 - Test phone functionality (maybe on a later product version with voice support)
@@ -26,17 +25,19 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Measure current consumption
 
 ### Completed Tasks
--	Included FONA_LTE class to the library for SIM7000A module
--	Included FONA_LTE_A and FONA_LTE_E types in .h file but not in .cpp declaration (I don't have a SIM7000E module with me so I don't know what its manufacturer-assigned name is)
--	Added “setBaudrate(uint16_t baud)” function for LTE class using "AT+IPR=<rate>". 
-- Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200 because at 115200 some parts of text would show up weird in the serial monitor.
-- Added "hangUp()" function but still need to test with SIM card later
-- Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
-- Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm) for AT&T
-- Tested HTTP commands with GPRS (2G)
-- Tweaked the library so that the LTE declaration "Adafruit_FONA_LTE fona = Adafruit_FONA_LTE()" doesn't include the reset pin because the reset pin is reserved for emergencies only, according to the SIM7000 design document.
-- Added a function "postData()" for posting data to dweet.io, a free cloud API. You can choose to use HTTP GET or POST and I have added an example in the "FONA_LTE_Test" sketch (enter "2" in the menu for the option)
-- I have tested almost every AT command and they have all worked!
-- Updated the function "getGPS()" to include the LTE shield class
-- Created [this cool IoT example](https://github.com/botletics/NB-IoT-Shield/tree/master/Code/examples/IoT_Example)that posts GPS location, temperature, and battery data to the cloud!
+- 
+- Tested the [Hologram developer SIM card](https://hologram.io/devplan/)
 - Updated the IoT example sketch to include support for a GPS tracker (repeated data posting)
+- Created [this cool IoT example](https://github.com/botletics/NB-IoT-Shield/tree/master/Code/examples/IoT_Example)that posts GPS location, temperature, and battery data to the cloud!
+- Updated the function "getGPS()" to include the LTE shield class
+- I have tested almost every AT command and they have all worked!
+- Added a function "postData()" for posting data to dweet.io, a free cloud API. You can choose to use HTTP GET or POST and I have added an example in the "FONA_LTE_Test" sketch (enter "2" in the menu for the option)
+- Tweaked the library so that the LTE declaration "Adafruit_FONA_LTE fona = Adafruit_FONA_LTE()" doesn't include the reset pin because the reset pin is reserved for emergencies only, according to the SIM7000 design document.
+- Tested HTTP commands with GPRS (2G)
+- Tested the dual LTE/GNSS antenna signal strength. Inside (near the window) I get an RSSI around 31 (-52 dBm) for AT&T
+- Added "powerDown()" function using "AT+CPOWD=1" to turn off the SIM7000
+- Added "hangUp()" function
+- Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200 because at 115200 some parts of text would show up weird in the serial monitor.
+-	Added “setBaudrate(uint16_t baud)” function for LTE class using "AT+IPR=<rate>". 
+-	Included FONA_LTE_A and FONA_LTE_E types in .h file but not in .cpp declaration (I don't have a SIM7000E module with me so I don't know what its manufacturer-assigned name is)
+-	Included FONA_LTE class to the library for SIM7000A module
