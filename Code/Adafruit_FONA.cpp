@@ -114,6 +114,10 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = FONA3G_E;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000AA R13")) != 0) {
     _type = FONA_LTE_A;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C R13")) != 0) {
+    _type = FONA_LTE_C;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E R13")) != 0) {
+    _type = FONA_LTE_E;
   } 
 
 
