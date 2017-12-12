@@ -112,7 +112,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = FONA3G_A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIMCOM_SIM5320E")) != 0) {
     _type = FONA3G_E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000AA R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A R13")) != 0) {
     _type = FONA_LTE_A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C R13")) != 0) {
     _type = FONA_LTE_C;
@@ -1430,8 +1430,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   delay(2000); // Delay at least around 2000ms for AT+HTTPTERM to run properly
 
   // Terminate HTTP service
-  if (! sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000))
-    return false;
+  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
 
   return true;
 }
