@@ -25,6 +25,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 
 ### Completed Tasks
 - 
+- Added baud rate setup in the setup() function in example sketches
 - Tested the [Hologram developer SIM card](https://hologram.io/devplan/)
 - Updated the IoT example sketch to include support for a GPS tracker (repeated data posting)
 - Created [this cool IoT example](https://github.com/botletics/NB-IoT-Shield/tree/master/Code/examples/IoT_Example) that posts GPS location, temperature, and battery data to the cloud!
