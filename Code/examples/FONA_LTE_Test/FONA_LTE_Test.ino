@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 12/5/2017
+ *  Last Updated: 12/12/2017
  *  License: GNU GPL v3.0
   */
 
@@ -37,12 +37,20 @@ the commented section below at the end of the setup() function.
 */
 #include "Adafruit_FONA.h"
 
-// Default
+// Default Adafruit settings
 //#define FONA_RX 2
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield
+// For LTE shield v3
+//#define FONA_PWRKEY 3
+////#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
+//#define FONA_RI 5 // Need to enable via AT commands
+//#define FONA_RX 7
+//#define FONA_TX 6
+//#define FONA_RST 8
+
+// For LTE shield v4
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -94,19 +102,36 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take 3 seconds)"));
 
-  fonaSerial->begin(115200); // Default LTE shield baud rate
-  if (! fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
-  }
+  // If you have a fixed baud rate in mind (especially if
+  // you are wiring the shield directly to hardware serial
+  // and using 115200 baud) then uncomment the 3 lines below
+  // and comment the next block of code.
+//  fonaSerial->begin(115200); // Default LTE shield baud rate
+//  if (!fona.begin(*fonaSerial)) {
+//    Serial.println(F("Couldn't find FONA"));
+//  }
 
-  // Baud rate setup
-  fona.setBaudrate(4800); // Set to 4800 baud
+  / **************** /
+  // AUTOMATIC BAUD RATE SETUP
+  // Try at 4800 baud first, then at 115200 if not successful
+  // If 115200 was successful, configure baud rate to 4800
   fonaSerial->begin(4800);
-  if (! fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
-    while (1); // This makes the code freeze when it can't find the device
+  if (!fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find FONA at 4800 baud, trying 115200..."));
+    fonaSerial->begin(115200);
+    if (!fona.begin(*fonaSerial)) {
+      Serial.println(F("Couldn't find FONA"));
+    }
+    else {
+      Serial.println(F("Configuring to 4800 baud"));
+      fona.setBaudrate(4800); // Set to 4800 baud
+      fonaSerial->begin(4800);
+      if (!fona.begin(*fonaSerial)) {
+        Serial.println(F("Couldn't find FONA"));
+      }
+    }
   }
-  
+  / **************** /
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
@@ -146,7 +171,8 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card ("Trio" SIM)
+//  fona.setGPRSNetworkShettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
 
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
