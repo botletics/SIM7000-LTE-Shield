@@ -125,7 +125,8 @@ void loop() {
   fona.setBaudrate(4800); // Set to 4800 baud
   fonaSerial->begin(4800);
   if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA at 4800 baud"));
+    Serial.println(F("Couldn't find FONA"));
+    while(1); // Don't proceed if it couldn't find the device
   }
   
   type = fona.type();
