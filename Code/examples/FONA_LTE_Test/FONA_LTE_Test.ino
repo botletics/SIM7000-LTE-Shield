@@ -42,6 +42,14 @@ the commented section below at the end of the setup() function.
 //#define FONA_TX 3
 //#define FONA_RST 4
 
+// For LTE shield
+//#define FONA_PWRKEY 4
+////#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
+//#define FONA_RI 5 // Need to enable via AT commands
+//#define FONA_RX 7
+//#define FONA_TX 6
+//#define FONA_RST 8
+
 // For LTE shield v3
 //#define FONA_PWRKEY 3
 ////#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
@@ -111,7 +119,7 @@ void setup() {
 //    Serial.println(F("Couldn't find FONA"));
 //  }
 
-  / **************** /
+  // ****************
   // AUTOMATIC BAUD RATE SETUP
   // Try at 4800 baud first, then at 115200 if not successful
   // If 115200 was successful, configure baud rate to 4800
@@ -131,7 +139,7 @@ void setup() {
       }
     }
   }
-  / **************** /
+  // ****************
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
