@@ -11,7 +11,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 12/5/2017
+ *  Last Updated: 12/12/2017
  *  License: GNU GPL v3.0
   */
 
@@ -111,18 +111,36 @@ void setup() {
 void loop() {
   powerOn(); // Powers on the module if it was off previously
 
-  fonaSerial->begin(115200); // Default LTE shield baud rate
-  if (! fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
-  }
+  // If you have a fixed baud rate in mind (especially if
+  // you are wiring the shield directly to hardware serial
+  // and using 115200 baud) then uncomment the 3 lines below
+  // and comment the next block of code.
+//  fonaSerial->begin(115200); // Default LTE shield baud rate
+//  if (!fona.begin(*fonaSerial)) {
+//    Serial.println(F("Couldn't find FONA"));
+//  }
 
-  // Baud rate setup
-  fona.setBaudrate(4800); // Set to 4800 baud
+  // ****************
+  // AUTOMATIC BAUD RATE SETUP
+  // Try at 4800 baud first, then at 115200 if not successful
+  // If 115200 was successful, configure baud rate to 4800
   fonaSerial->begin(4800);
-  if (! fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
-    while (1); // This makes the code freeze when it can't find the device
+  if (!fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find FONA at 4800 baud, trying 115200..."));
+    fonaSerial->begin(115200);
+    if (!fona.begin(*fonaSerial)) {
+      Serial.println(F("Couldn't find FONA"));
+    }
+    else {
+      Serial.println(F("Configuring to 4800 baud"));
+      fona.setBaudrate(4800); // Set to 4800 baud
+      fonaSerial->begin(4800);
+      if (!fona.begin(*fonaSerial)) {
+        Serial.println(F("Couldn't find FONA"));
+      }
+    }
   }
+  // ****************
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
