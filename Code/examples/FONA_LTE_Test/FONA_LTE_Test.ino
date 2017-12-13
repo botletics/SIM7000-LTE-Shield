@@ -94,36 +94,23 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take 3 seconds)"));
 
-  // If you have a fixed baud rate in mind (especially if
-  // you are wiring the shield directly to hardware serial
-  // and using 115200 baud) then uncomment the 3 lines below
-  // and comment the next block of code.
-//  fonaSerial->begin(115200); // Default LTE shield baud rate
-//  if (!fona.begin(*fonaSerial)) {
-//    Serial.println(F("Couldn't find FONA"));
-//  }
+  // The baud rate always resets back to default (115200) after
+  // being powered down so let's try 115200 first. Hats off to
+  // anyone who can figure out how to make it remember the new
+  // baud rate even after being power cycled! If you are using
+  // hardware serial then this shouldn't be an issue because
+  // you can just use the default 115200 baud.
+  fonaSerial->begin(115200); // Default LTE shield baud rate
+  if (!fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find FONA at 115200 baud"));
+  }
 
-  // ****************
-  // AUTOMATIC BAUD RATE SETUP
-  // Try at 4800 baud first, then at 115200 if not successful
-  // If 115200 was successful, configure baud rate to 4800
+  Serial.println(F("Configuring to 4800 baud"));
+  fona.setBaudrate(4800); // Set to 4800 baud
   fonaSerial->begin(4800);
   if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA at 4800 baud, trying 115200..."));
-    fonaSerial->begin(115200);
-    if (!fona.begin(*fonaSerial)) {
-      Serial.println(F("Couldn't find FONA"));
-    }
-    else {
-      Serial.println(F("Configuring to 4800 baud"));
-      fona.setBaudrate(4800); // Set to 4800 baud
-      fonaSerial->begin(4800);
-      if (!fona.begin(*fonaSerial)) {
-        Serial.println(F("Couldn't find FONA"));
-      }
-    }
+    Serial.println(F("Couldn't find FONA at 4800 baud"));
   }
-  // ****************
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
@@ -157,7 +144,7 @@ void setup() {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
 
-  // Optionally configure a GPRS APN, username, and password.
+  // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
   // network.  Contact your provider for the exact APN, username,
   // and password values.  Username and password are optional and
