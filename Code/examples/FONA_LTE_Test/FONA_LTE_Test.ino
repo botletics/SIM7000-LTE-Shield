@@ -101,15 +101,19 @@ void setup() {
   // hardware serial then this shouldn't be an issue because
   // you can just use the default 115200 baud.
   fonaSerial->begin(115200); // Default LTE shield baud rate
-  if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA at 115200 baud"));
-  }
+  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+  // If you are using hardware serial you can uncomment the lines below
+  // and comment the one right above
+//  if (!fona.begin(*fonaSerial)) { 
+//    Serial.println(F("Couldn't find FONA at 115200 baud"));
+//  }
 
   Serial.println(F("Configuring to 4800 baud"));
   fona.setBaudrate(4800); // Set to 4800 baud
   fonaSerial->begin(4800);
   if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA at 4800 baud"));
+    Serial.println(F("Couldn't find FONA"));
+    while(1); // Don't proceed if it couldn't find the device
   }
   
   type = fona.type();
