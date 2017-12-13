@@ -99,8 +99,9 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setGPRSNetworkSettings(F("phone"); // This worked fine for a standard AT&T 3G SIM card (US)
-  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+//  fona.setGPRSNetworkShettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  fona.setGPRSNetworkSettings(F("hologram")); // For Hologram developer SIM card
+  
 
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
@@ -111,36 +112,21 @@ void setup() {
 void loop() {
   powerOn(); // Powers on the module if it was off previously
 
-  // If you have a fixed baud rate in mind (especially if
-  // you are wiring the shield directly to hardware serial
-  // and using 115200 baud) then uncomment the 3 lines below
-  // and comment the next block of code.
-//  fonaSerial->begin(115200); // Default LTE shield baud rate
-//  if (!fona.begin(*fonaSerial)) {
-//    Serial.println(F("Couldn't find FONA"));
-//  }
+  // The baud rate always resets back to default (115200) after
+  // being powered down so let's try 115200 first. Hats off to
+  // anyone who can figure out how to make it remember the new
+  // baud rate even after being power cycled!
+  fonaSerial->begin(115200); // Default LTE shield baud rate
+  if (!fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find FONA at 115200 baud"));
+  }
 
-  // ****************
-  // AUTOMATIC BAUD RATE SETUP
-  // Try at 4800 baud first, then at 115200 if not successful
-  // If 115200 was successful, configure baud rate to 4800
+  Serial.println(F("Configuring to 4800 baud"));
+  fona.setBaudrate(4800); // Set to 4800 baud
   fonaSerial->begin(4800);
   if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA at 4800 baud, trying 115200..."));
-    fonaSerial->begin(115200);
-    if (!fona.begin(*fonaSerial)) {
-      Serial.println(F("Couldn't find FONA"));
-    }
-    else {
-      Serial.println(F("Configuring to 4800 baud"));
-      fona.setBaudrate(4800); // Set to 4800 baud
-      fonaSerial->begin(4800);
-      if (!fona.begin(*fonaSerial)) {
-        Serial.println(F("Couldn't find FONA"));
-      }
-    }
+    Serial.println(F("Couldn't find FONA at 4800 baud"));
   }
-  // ****************
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
@@ -217,8 +203,8 @@ void loop() {
   }
   Serial.println(F("Found 'eeeeem!"));
   Serial.println("---------------------");
-  Serial.print("Latitude: "); Serial.println(latitude);
-  Serial.print("Longitude: "); Serial.println(longitude);
+  Serial.print("Latitude: "); Serial.println(latitude, 6);
+  Serial.print("Longitude: "); Serial.println(longitude, 6);
   Serial.print("Speed: "); Serial.println(speed_kph);
   Serial.print("Heading: "); Serial.println(heading);
   Serial.print("Altitude: "); Serial.println(altitude);
@@ -307,7 +293,7 @@ void loop() {
     MCU_powerDown(); // You could also write your own function to make it sleep for a certain duration instead
   #else
     // The following lines are for if you want to periodically post data (like GPS tracker)
-    Serial.print("Waiting for "); Serial.print(samplingRate); Serial.println(" seconds");
+    Serial.print("Sleeping for "); Serial.print(samplingRate); Serial.println(" seconds");
     delay(samplingRate*1000); // Delay
   #endif
 }
