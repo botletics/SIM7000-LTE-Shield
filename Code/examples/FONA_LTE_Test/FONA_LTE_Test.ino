@@ -42,7 +42,7 @@ the commented section below at the end of the setup() function.
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield
+// For LTE shield v4
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -215,7 +215,7 @@ void printMenu(void) {
   Serial.println(F("[W] Post to website (GPRS)"));
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
   // FONA_IoT_example sketch for an actual application of this function!
-  Serial.println(F("[2] Post to dweet.io via 2G or 4G LTE)")); // This can be either 2G or 4G LTE (SIM800/808/900/7000) but not 3G (SIM5320)
+  Serial.println(F("[2] Post to dweet.io (via 2G or LTE)")); // This can be either 2G or LTE (SIM800/808/900/7000) but not 3G (SIM5320)
 
   // GPS
   if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2) || 
