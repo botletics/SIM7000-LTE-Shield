@@ -22,9 +22,11 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test phone functionality (maybe on a later product version with voice support)
 - Test with Verizon SIM card
 - Measure current consumption
+- Fully test voice support
 
 ### Completed Tasks
 - 
+- Added voice and audio support on revision v5
 - Added baud rate setup in the setup() function in example sketches to eliminate the need for a separate "setbaud" sketch.
 - Tested the [Hologram developer SIM card](https://hologram.io/devplan/)
 - Updated the IoT example sketch to include support for a GPS tracker (repeated data posting)
