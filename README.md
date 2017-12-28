@@ -25,7 +25,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Fully test voice support
 
 ### Completed Tasks
-- 
+- Added driver files in documentation folder
 - Added voice and audio support on revision v5
 - Added baud rate setup in the setup() function in example sketches to eliminate the need for a separate "setbaud" sketch.
 - Tested the [Hologram developer SIM card](https://hologram.io/devplan/)
