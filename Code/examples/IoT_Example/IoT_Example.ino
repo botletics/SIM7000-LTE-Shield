@@ -113,6 +113,27 @@ void setup() {
   // Default is not to follow SSL redirects, however if you uncomment
   // the following line then redirects over SSL will be followed.
   //fona.setHTTPSRedirect(true);
+
+  // Perform first-time GPS/GPRS setup if the shield is going to remain on,
+  // otherwise these won't be enabled in loop() and it won't work!
+#ifndef turnOffShield
+  // Enable GPS
+  while (!fona.enableGPS(true)) {
+    Serial.println(F("Failed to turn on GPS, retrying..."));
+    delay(2000); // Retry every 2s
+  }
+  Serial.println(F("Turned on GPS!"));
+
+  // Disable GPRS just to make sure it was actually off so that we can turn it on
+  if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
+  
+  // Turn on GPRS
+  while (!fona.enableGPRS(true)) {
+    Serial.println(F("Failed to enable GPRS, retrying..."));
+    delay(2000); // Retry every 2s
+  }
+  Serial.println(F("Enabled GPRS!"));
+#endif
 }
 
 void loop() {
@@ -123,7 +144,6 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Connected to cell network!"));
-//  delay(1000); // Short delay to help GPRS enable successfully
 
   // Measure battery level
   // Note: on the LTE shield this won't be accurate because the SIM7000
@@ -178,7 +198,6 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Enabled GPRS!"));
-  delay(1000); // A short delay is needed so the next part runs properly!
 #endif
 
   // Post something like temperature and battery level to the web API
