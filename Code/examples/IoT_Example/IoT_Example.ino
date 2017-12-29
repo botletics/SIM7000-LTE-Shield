@@ -98,6 +98,7 @@ void setup() {
 
   pinMode(FONA_PWRKEY, OUTPUT);
   powerOn(); // Power on the module
+  moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
   // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
@@ -118,57 +119,11 @@ void setup() {
 void loop() {
   powerOn(); // Powers on the module if it was off previously
 
-  // The baud rate always resets back to default (115200) after
-  // being powered down so let's try 115200 first. Hats off to
-  // anyone who can figure out how to make it remember the new
-  // baud rate even after being power cycled!
-  fonaSerial->begin(115200); // Default LTE shield baud rate
-  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
-  // If you are using hardware serial you can uncomment the lines below
-  // and comment the one right above
-//  if (!fona.begin(*fonaSerial)) { 
-//    Serial.println(F("Couldn't find FONA at 115200 baud"));
-//  }
-
-  Serial.println(F("Configuring to 4800 baud"));
-  fona.setBaudrate(4800); // Set to 4800 baud
-  fonaSerial->begin(4800);
-  if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
-    while(1); // Don't proceed if it couldn't find the device
-  }
-  
-  type = fona.type();
-  Serial.println(F("FONA is OK"));
-  Serial.print(F("Found "));
-  switch (type) {
-    case FONA800L:
-      Serial.println(F("FONA 800L")); break;
-    case FONA800H:
-      Serial.println(F("FONA 800H")); break;
-    case FONA808_V1:
-      Serial.println(F("FONA 808 (v1)")); break;
-    case FONA808_V2:
-      Serial.println(F("FONA 808 (v2)")); break;
-    case FONA3G_A:
-      Serial.println(F("FONA 3G (American)")); break;
-    case FONA3G_E:
-      Serial.println(F("FONA 3G (European)")); break;
-    case FONA_LTE_A:
-      Serial.println(F("FONA 4G LTE (American)")); break;
-    case FONA_LTE_C:
-      Serial.println(F("FONA 4G LTE (Chinese)")); break;
-    case FONA_LTE_E:
-      Serial.println(F("FONA 4G LTE (European)")); break;
-    default: 
-      Serial.println(F("???")); break;
-  }
-  
-  // Print module IMEI number.
-  uint8_t imeiLen = fona.getIMEI(imei);
-  if (imeiLen > 0) {
-    Serial.print("Module IMEI: "); Serial.println(imei);
-  }
+  // Only run the initialization again if the module was powered off
+  // since it resets back to 115200 baud instead of 4800.
+  #ifdef turnOffShield
+    moduleSetup();
+  #endif
   
   // Connect to cell network and verify connection
   // If unsuccessful, keep retrying every 2s until a connection is made
@@ -275,6 +230,8 @@ void loop() {
   }
   */
 
+  //Only run the code below if you want to turn off the shield after posting data
+  #ifdef turnOffShield
   // Disable GPRS
   // Note that you might not want to check if this was successful, but just run it
   // since the next command is to turn off the module anyway
@@ -282,12 +239,11 @@ void loop() {
 
   // Turn off GPS
   if (!fona.enableGPS(false)) Serial.println(F("Failed to turn off GPS!"));
-
+  
   // Power off the module. Note that you could instead put it in minimum functionality mode
   // instead of completely turning it off. Experiment different ways depending on your application!
   // You should see the "PWR" LED turn off after this command
 //  if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!")); // No retries
-  #ifdef turnOffShield
     counter = 0;
     while (counter < 3 && !fona.powerDown()) { // Try shutting down 
       Serial.println(F("Failed to power down FONA!"));
@@ -324,13 +280,69 @@ void powerOn() {
   digitalWrite(FONA_PWRKEY, HIGH);
 }
 
-// Read the battery level percentage
+void moduleSetup() {
+  // The baud rate always resets back to default (115200) after being powered
+  // powered down or shutting off, so let's try 115200 first. Hats off to
+  // anyone who can figure out how to make it remember the new baud rate even
+  // after being power cycled!
+  fonaSerial->begin(115200); // Default LTE shield baud rate
+  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+  // If you are using hardware serial you can uncomment the lines below
+  // and comment the one right above
+//  if (!fona.begin(*fonaSerial)) { 
+//    Serial.println(F("Couldn't find FONA at 115200 baud"));
+//  }
+
+  Serial.println(F("Configuring to 4800 baud"));
+  fona.setBaudrate(4800); // Set to 4800 baud
+  fonaSerial->begin(4800);
+  if (!fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find FONA"));
+    while(1); // Don't proceed if it couldn't find the device
+  }
+
+  type = fona.type();
+  Serial.println(F("FONA is OK"));
+  Serial.print(F("Found "));
+  switch (type) {
+    case FONA800L:
+      Serial.println(F("FONA 800L")); break;
+    case FONA800H:
+      Serial.println(F("FONA 800H")); break;
+    case FONA808_V1:
+      Serial.println(F("FONA 808 (v1)")); break;
+    case FONA808_V2:
+      Serial.println(F("FONA 808 (v2)")); break;
+    case FONA3G_A:
+      Serial.println(F("FONA 3G (American)")); break;
+    case FONA3G_E:
+      Serial.println(F("FONA 3G (European)")); break;
+    case FONA_LTE_A:
+      Serial.println(F("FONA 4G LTE (American)")); break;
+    case FONA_LTE_C:
+      Serial.println(F("FONA 4G LTE (Chinese)")); break;
+    case FONA_LTE_E:
+      Serial.println(F("FONA 4G LTE (European)")); break;
+    default: 
+      Serial.println(F("???")); break;
+  }
+  
+  // Print module IMEI number.
+  uint8_t imeiLen = fona.getIMEI(imei);
+  if (imeiLen > 0) {
+    Serial.print("Module IMEI: "); Serial.println(imei);
+  }
+}
+
+// Read the module's power supply voltage
 float readVcc() {
   // Read battery voltage
   if (!fona.getBattVoltage(&battLevel)) Serial.println(F("Failed to read batt"));
   else Serial.print(F("battery = ")); Serial.print(battLevel); Serial.println(F(" mV"));
 
-  // Read battery percentage
+  // Read LiPo battery percentage
+  // Note: This will NOT work properly on the LTE shield because the voltage
+  // is regulated to 3.6V so you will always read about the same value!
 //  if (!fona.getBattPercent(&battLevel)) Serial.println(F("Failed to read batt"));
 //  else Serial.print(F("BAT % = ")); Serial.print(battLevel); Serial.println(F("%"));
 
