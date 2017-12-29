@@ -11,7 +11,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 12/12/2017
+ *  Last Updated: 12/28/2017
  *  License: GNU GPL v3.0
   */
 
@@ -71,6 +71,12 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // Comment it out if you only want it to post once, not repeatedly every so often
 #define samplingRate 30 // The time in between posts, in seconds
 
+// The following line can be used to turn off the shield after posting data. This
+// could be useful for saving energy for sparse readings but keep in mind that it
+// will take longer to get a fix on location after turning back on than if it had
+// already been on. Comment out to leave the shield on after it posts data.
+#define turnOffShield // Turn off shield after posting data
+
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
 char replybuffer[255]; // Large buffer for replies
@@ -117,9 +123,12 @@ void loop() {
   // anyone who can figure out how to make it remember the new
   // baud rate even after being power cycled!
   fonaSerial->begin(115200); // Default LTE shield baud rate
-  if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA at 115200 baud"));
-  }
+  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+  // If you are using hardware serial you can uncomment the lines below
+  // and comment the one right above
+//  if (!fona.begin(*fonaSerial)) { 
+//    Serial.println(F("Couldn't find FONA at 115200 baud"));
+//  }
 
   Serial.println(F("Configuring to 4800 baud"));
   fona.setBaudrate(4800); // Set to 4800 baud
@@ -277,7 +286,15 @@ void loop() {
   // Power off the module. Note that you could instead put it in minimum functionality mode
   // instead of completely turning it off. Experiment different ways depending on your application!
   // You should see the "PWR" LED turn off after this command
-  if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!"));
+//  if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!")); // No retries
+  #ifdef turnOffShield
+    counter = 0;
+    while (counter < 3 && !fona.powerDown()) { // Try shutting down 
+      Serial.println(F("Failed to power down FONA!"));
+      counter++; // Increment counter
+      delay(1000);
+    }
+  #endif
   
   // Alternative to the AT command method above:
   // If your FONA has a PWRKEY pin connected to your MCU, you can pulse PWRKEY
