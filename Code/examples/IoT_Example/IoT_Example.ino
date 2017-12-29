@@ -75,7 +75,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // could be useful for saving energy for sparse readings but keep in mind that it
 // will take longer to get a fix on location after turning back on than if it had
 // already been on. Comment out to leave the shield on after it posts data.
-#define turnOffShield // Turn off shield after posting data
+//#define turnOffShield // Turn off shield after posting data
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
