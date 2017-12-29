@@ -106,10 +106,9 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-//  fona.setGPRSNetworkShettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setGPRSNetworkShettings(F("m2m.com.attz")); // For AT&T IoT SIM card
   fona.setGPRSNetworkSettings(F("hologram")); // For Hologram developer SIM card
   
-
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
   // the following line then redirects over SSL will be followed.
@@ -117,14 +116,6 @@ void setup() {
 }
 
 void loop() {
-  powerOn(); // Powers on the module if it was off previously
-
-  // Only run the initialization again if the module was powered off
-  // since it resets back to 115200 baud instead of 4800.
-  #ifdef turnOffShield
-    moduleSetup();
-  #endif
-  
   // Connect to cell network and verify connection
   // If unsuccessful, keep retrying every 2s until a connection is made
   while (!netStatus()) {
@@ -132,7 +123,7 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Connected to cell network!"));
-  delay(1000); // Short delay to help GPRS enable successfully
+//  delay(1000); // Short delay to help GPRS enable successfully
 
   // Measure battery level
   // Note: on the LTE shield this won't be accurate because the SIM7000
@@ -154,12 +145,14 @@ void loop() {
 
   float temperature = tempC; // Select what unit you want to use for this example
 
-  // Turn on GPS
+  // Turn on GPS if it wasn't on already (e.g., if the module wasn't turned off)
+#ifdef turnOffShield
   while (!fona.enableGPS(true)) {
     Serial.println(F("Failed to turn on GPS, retrying..."));
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Turned on GPS!"));
+#endif
 
   // Get a fix on location, try every 2s
   while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) {
@@ -175,6 +168,7 @@ void loop() {
   Serial.print("Altitude: "); Serial.println(altitude);
   Serial.println("---------------------");
 
+#ifdef turnOffShield // If the shield was already on, no need to re-enable
   // Disable GPRS just to make sure it was actually off so that we can turn it on
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
   
@@ -185,6 +179,7 @@ void loop() {
   }
   Serial.println(F("Enabled GPRS!"));
   delay(1000); // A short delay is needed so the next part runs properly!
+#endif
 
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
@@ -231,7 +226,7 @@ void loop() {
   */
 
   //Only run the code below if you want to turn off the shield after posting data
-  #ifdef turnOffShield
+#ifdef turnOffShield
   // Disable GPRS
   // Note that you might not want to check if this was successful, but just run it
   // since the next command is to turn off the module anyway
@@ -244,32 +239,42 @@ void loop() {
   // instead of completely turning it off. Experiment different ways depending on your application!
   // You should see the "PWR" LED turn off after this command
 //  if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!")); // No retries
-    counter = 0;
-    while (counter < 3 && !fona.powerDown()) { // Try shutting down 
-      Serial.println(F("Failed to power down FONA!"));
-      counter++; // Increment counter
-      delay(1000);
-    }
-  #endif
+  counter = 0;
+  while (counter < 3 && !fona.powerDown()) { // Try shutting down 
+    Serial.println(F("Failed to power down FONA!"));
+    counter++; // Increment counter
+    delay(1000);
+  }
+#endif
   
   // Alternative to the AT command method above:
   // If your FONA has a PWRKEY pin connected to your MCU, you can pulse PWRKEY
   // LOW for a little bit, then pull it back HIGH, like this:
 //  digitalWrite(PWRKEY, LOW);
-//  delay(600); // Minimum of 64ms to turn on and 500ms to turn off for FONA3G. Check spec sheet for other types
+//  delay(600); // Minimum of 64ms to turn on and 500ms to turn off for FONA 3G. Check spec sheet for other types
 //  delay(1300); // Minimum of 1.2s for LTE shield
 //  digitalWrite(PWRKEY, HIGH);
   
   // Shut down the MCU to save power
   // Comment out this line if you want it to keep posting periodically
-  #ifndef samplingRate
-    delay(5); // This is just to read the response of the last AT command before shutting down
-    MCU_powerDown(); // You could also write your own function to make it sleep for a certain duration instead
-  #else
-    // The following lines are for if you want to periodically post data (like GPS tracker)
-    Serial.print("Sleeping for "); Serial.print(samplingRate); Serial.println(" seconds");
-    delay(samplingRate*1000); // Delay
+#ifndef samplingRate
+  Serial.println(F("Shutting down..."));
+  delay(5); // This is just to read the response of the last AT command before shutting down
+  MCU_powerDown(); // You could also write your own function to make it sleep for a certain duration instead
+#else
+  // The following lines are for if you want to periodically post data (like GPS tracker)
+  Serial.print(F("Waiting for ")); Serial.print(samplingRate); Serial.println(F(" seconds"));
+  delay(samplingRate*1000); // Delay
+  
+  powerOn(); // Powers on the module if it was off previously
+
+  // Only run the initialization again if the module was powered off
+  // since it resets back to 115200 baud instead of 4800.
+  #ifdef turnOffShield
+    moduleSetup();
   #endif
+    
+#endif
 }
 
 // Power on the module
