@@ -11,7 +11,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 12/28/2017
+ *  Last Updated: 12/30/2017
  *  License: GNU GPL v3.0
   */
 
@@ -249,7 +249,7 @@ void loop() {
 
   // Let's try a POST request to thingsboard.io
   /*
-  const char* token = "U1yZ9osTUx2RhVgnNiHy";
+  const char* token = "YOUR_DEVICE_TOKEN"; // From thingsboard.io device
   sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
   sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
