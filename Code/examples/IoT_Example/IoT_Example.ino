@@ -69,7 +69,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 // The following line is used for applications that require repeated data posting, like GPS trackers
 // Comment it out if you only want it to post once, not repeatedly every so often
-#define samplingRate 30 // The time in between posts, in seconds
+#define samplingRate 10 // The time in between posts, in seconds
 
 // The following line can be used to turn off the shield after posting data. This
 // could be useful for saving energy for sparse readings but keep in mind that it
@@ -203,6 +203,7 @@ void loop() {
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
   char URL[200]; // Make sure this is long enough for your request URL
+  char body[200];
   char latBuff[16], longBuff[16], speedBuff[16], headBuff[16], altBuff[16],
        tempBuff[16], battBuff[16];
 
@@ -219,6 +220,7 @@ void loop() {
   // In this example we use the IMEI as device ID
 
   // GET request
+  
   // You can adjust the contents of the request if you don't need certain things like speed, altitude, etc.
   sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
@@ -231,6 +233,7 @@ void loop() {
     delay(1000);
   }
   
+  
   // You can also do a POST request instead
   /*
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
@@ -240,6 +243,22 @@ void loop() {
   while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++
+    delay(1000);
+  }
+  */
+
+  // Let's try a POST request to thingsboard.io
+  /*
+  const char* token = "U1yZ9osTUx2RhVgnNiHy";
+  sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
+  sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
+          speedBuff, headBuff, altBuff, tempBuff, battBuff);
+//  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
+
+  int counter = 0;
+  while (!fona.postData("POST", URL, body)) {
+    Serial.println(F("Failed to complete HTTP POST..."));
+    counter++;
     delay(1000);
   }
   */
