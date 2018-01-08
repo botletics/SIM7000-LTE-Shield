@@ -1,3 +1,14 @@
+/*  This is an example sketch that receives text messages from the user
+ *   and sends a response back dto the user depending on what the
+ *   message was! You can use this code for all sorts of cool applications
+ *   like remote sensors, SMS-activated controls, and many other things!
+ *  
+ *  Author: Timothy Woo (www.botletics.com)
+ *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Last Updated: 1/8/2017
+ *  License: GNU GPL v3.0
+  */
+
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
 
@@ -103,11 +114,6 @@ void setup() {
   // you can just use the default 115200 baud.
   fonaSerial->begin(115200); // Default LTE shield baud rate
   fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
-  // If you are using hardware serial you can uncomment the lines below
-  // and comment the one right above
-//  if (!fona.begin(*fonaSerial)) { 
-//    Serial.println(F("Couldn't find FONA at 115200 baud"));
-//  }
 
   Serial.println(F("Configuring to 4800 baud"));
   fona.setBaudrate(4800); // Set to 4800 baud
@@ -149,21 +155,6 @@ void setup() {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
 
-//  // make it slow so its easy to read!
-//  fonaSerial->begin(4800);
-//  if (! fona.begin(*fonaSerial)) {
-//    Serial.println(F("Couldn't find FONA"));
-//    while(1);
-//  }
-//  Serial.println(F("FONA is OK"));
-//
-//  // Print SIM card IMEI number.
-//  char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
-//  uint8_t imeiLen = fona.getIMEI(imei);
-//  if (imeiLen > 0) {
-//    Serial.print("SIM card IMEI: "); Serial.println(imei);
-//  }
-
   fonaSerial->print("AT+CNMI=2,1\r\n");  //set up the FONA to send a +CMTI notification when an SMS is received
 
   Serial.println("FONA Ready");
@@ -172,6 +163,9 @@ void setup() {
   
 char fonaNotificationBuffer[64];  //for notifications from the FONA
 char smsBuffer[250];
+char callerIDbuffer[32];  //we'll store the SMS sender number in here
+
+int slot = 0;            //this will be the slot number of the SMS
 
 void loop() {
   
@@ -179,7 +173,6 @@ void loop() {
   
   if (fona.available())      //any data available from the FONA?
   {
-    int slot = 0;            //this will be the slot number of the SMS
     int charCount = 0;
     //Read the notification into fonaInBuffer
     do  {
@@ -195,54 +188,65 @@ void loop() {
     //  If it's an SMS message, we'll get the slot number in 'slot'
     if (1 == sscanf(fonaNotificationBuffer, "+CMTI: " FONA_PREF_SMS_STORAGE ",%d", &slot)) {
       Serial.print("slot: "); Serial.println(slot);
-      
-      char callerIDbuffer[32];  //we'll store the SMS sender number in here
-      
+            
       // Retrieve SMS sender address/phone number.
       if (! fona.getSMSSender(slot, callerIDbuffer, 31)) {
         Serial.println("Didn't find SMS message in slot!");
       }
       Serial.print(F("FROM: ")); Serial.println(callerIDbuffer);
 
-        // Retrieve SMS value.
-        uint16_t smslen;
-        if (fona.readSMS(slot, smsBuffer, 250, &smslen)) { // pass in buffer and max len!
-          Serial.println(smsBuffer);
+      // Retrieve SMS value.
+      uint16_t smslen;
+      if (fona.readSMS(slot, smsBuffer, 250, &smslen)) { // pass in buffer and max len!
+        Serial.println(smsBuffer);
+
+        // OPTIONAL: Check for a magic password and do something special!
+        // Maybe turn on a relay, send a reading only with this password,
+        // or send GPS coordinates! Use your imagination!
+        char* magicPass = "OPEN SESAME!"; // You can create more magic passwords!
+        if (strcmp(smsBuffer, magicPass) == 0) { // Check if strictly identical
+          // Unlock the secret stash of chocolate!
+          sendText("Treasure chest unlocked!");
+          // Do stuff like digitalWrite(lockPin, HIGH); or something
+          // Use your imagination!
         }
+        else if (strstr(smsBuffer, magicPass) != NULL) { // Only check if the magic password is somewhere in the text
+          sendText("Opening secret door!");
+          // Do stuff like digitalWrite(door, HIGH); or something
+        }
+        else { // The text didn't contain the magic password!
+          // Reply with normal sensor data!
+          float sensorVal = analogRead(A0) * 1.123; // For testing
+          char textMessage[100]; // Make sure this is long enough!
+          char sensorBuff[16];
+          dtostrf(sensorVal, 1, 2, sensorBuff); // float_val, min_width, digits_after_decimal, char_buffer
+          strcpy(textMessage, "Sensor reading: ");
+          strcat(textMessage, sensorBuff);
 
-      //Send back an automatic response
-      Serial.println("Sending reponse...");
-      
-      // Canned response:
-//      if (!fona.sendSMS(callerIDbuffer, "Hey, I got your text!")) {
-//        Serial.println(F("Failed"));
-//      } else {
-//        Serial.println(F("Sent!"));
-//      }
-
-      // Reply with sensor data instead!
-      float sensorVal = analogRead(A0) * 1.123; // For testing
-      char textMessage[100]; // Make sure this is long enough!
-      char sensorBuff[16];
-      dtostrf(sensorVal, 1, 2, sensorBuff); // float_val, min_width, digits_after_decimal, char_buffer
-      strcpy(textMessage, "Sensor reading: ");
-      strcat(textMessage, sensorBuff);
-      
-      if (!fona.sendSMS(callerIDbuffer, textMessage)) {
-        Serial.println(F("Failed"));
-      } else {
-        Serial.println(F("Sent!"));
-      }
-      
-      // delete the original msg after it is processed
-      //   otherwise, we will fill up all the slots
-      //   and then we won't be able to receive SMS anymore
-      if (fona.deleteSMS(slot)) {
-        Serial.println(F("OK!"));
-      } else {
-        Serial.print(F("Couldn't delete SMS in slot ")); Serial.println(slot);
-        fona.print(F("AT+CMGD=?\r\n"));
+          sendText(textMessage);
+        }
       }
     }
+  }
+}
+
+// Send an SMS response
+void sendText(char* textMessage) {
+  Serial.println("Sending reponse...");
+  
+  if (!fona.sendSMS(callerIDbuffer, textMessage)) {
+    Serial.println(F("Failed"));
+  } else {
+    Serial.println(F("Sent!"));
+  }
+  
+  // Delete the original message after it is processed.
+  // Otherwise we will fill up all the slots and
+  // then we won't be able to receive any more!
+  if (fona.deleteSMS(slot)) {
+    Serial.println(F("OK!"));
+  } else {
+    Serial.print(F("Couldn't delete SMS in slot ")); Serial.println(slot);
+    fona.print(F("AT+CMGD=?\r\n"));
   }
 }
