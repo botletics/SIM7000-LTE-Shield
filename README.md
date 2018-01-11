@@ -19,12 +19,11 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Post to a web API via LTE CAT-M1
 
 ### To-Do List
-- Test phone functionality (maybe on a later product version with voice support)
-- Test with Verizon SIM card
-- Measure current consumption
-- Fully test voice support
+- Measure current consumption with uCurrent Gold
+- Test voice support?
 
 ### Completed Tasks
+- Added HTTP status and data length verification in postData() function
 - Added driver files in documentation folder
 - Added voice and audio support on revision v5
 - Added baud rate setup in the setup() function in example sketches to eliminate the need for a separate "setbaud" sketch.
