@@ -1436,7 +1436,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
   if (status != 200) return false;
 
-  HTTP_readall(strlen(body));
+  getReply(F("AT+HTTPREAD"));
 
   // Terminate HTTP service
   sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
