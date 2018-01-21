@@ -13227,7 +13227,7 @@ connect ALERT pin</text>
 <text x="154.94" y="114.3" size="1.778" layer="97">Operating current: 200uA
 Shutdown current: 0.1uA</text>
 <text x="147.32" y="246.38" size="1.778" layer="97">MCU logic voltage
-(1.8V - 5V)</text>
+(1.8V - 5.5V)</text>
 <text x="205.74" y="243.84" size="1.778" layer="97">5V logic by default.
 Cut trace and bridge
 jumper for other
