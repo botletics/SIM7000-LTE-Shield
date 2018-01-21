@@ -1466,7 +1466,7 @@ Please make sure your boards conform to these design rules.</description>
 </element>
 <element name="FID2" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" package="FIDUCIAL_1MM" package3d_urn="urn:adsk.eagle:package:502130/2" value="FIDUCIAL" x="6.35" y="6.35" smashed="yes"/>
 <element name="FID1" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" package="FIDUCIAL_1MM" package3d_urn="urn:adsk.eagle:package:502130/2" value="FIDUCIAL" x="48.26" y="44.45" smashed="yes"/>
-<element name="J6" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="USB-B-MICRO-SMD" package3d_urn="urn:adsk.eagle:package:1036780/3" value="microUSB" x="2.032" y="30.48" smashed="yes">
+<element name="J7" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="USB-B-MICRO-SMD" package3d_urn="urn:adsk.eagle:package:1036780/3" value="microUSB" x="2.032" y="30.48" smashed="yes">
 <attribute name="NAME" x="3.556" y="34.925" size="0.8128" layer="25" font="vector" ratio="16"/>
 <attribute name="VALUE" x="0.762" y="35.941" size="0.4064" layer="27" font="vector" ratio="16"/>
 </element>
@@ -1599,7 +1599,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="LOGO1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" package="OSHW-LOGO-L" package3d_urn="urn:adsk.eagle:package:37097/1" value="OSHW-LOGOL" x="26.67" y="19.05" rot="MR0"/>
 <element name="Q1" library="TimWoo-MOSFETs" library_urn="urn:adsk.eagle:library:501962" package="SOT23-3" package3d_urn="urn:adsk.eagle:package:501973/2" value="BSS138L" x="47.244" y="36.322" rot="R90"/>
 <element name="Q2" library="TimWoo-MOSFETs" library_urn="urn:adsk.eagle:library:501962" package="SOT23-3" package3d_urn="urn:adsk.eagle:package:501973/2" value="BSS138L" x="47.117" y="14.351" rot="R270"/>
-<element name="JP3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="SMT-JUMPER_2_NC_TRACE_SILK" package3d_urn="urn:adsk.eagle:package:1036528/1" value="" x="45.72" y="42.799" smashed="yes" rot="R180">
+<element name="JP4" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="SMT-JUMPER_2_NC_TRACE_SILK" package3d_urn="urn:adsk.eagle:package:1036528/1" value="" x="45.72" y="42.799" smashed="yes" rot="R180">
 <attribute name="NAME" x="47.244" y="42.799" size="0.6096" layer="25" font="vector" ratio="20" rot="R270" align="bottom-center"/>
 <attribute name="VALUE" x="45.72" y="43.942" size="0.6096" layer="27" font="vector" ratio="20" rot="R180" align="top-center"/>
 </element>
@@ -1619,7 +1619,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="1.8288" y="47.5488" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="-0.635" y="46.99" size="1.27" layer="27" rot="R270"/>
 </element>
-<element name="JP4" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:500889" package="SMT-JUMPER_2_NO_SILK" package3d_urn="urn:adsk.eagle:package:501659/1" value="" x="36.576" y="46.736" smashed="yes" rot="R270">
+<element name="JP3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:500889" package="SMT-JUMPER_2_NO_SILK" package3d_urn="urn:adsk.eagle:package:501659/1" value="" x="36.576" y="46.736" smashed="yes" rot="R270">
 <attribute name="NAME" x="35.306" y="46.736" size="0.6096" layer="25" font="vector" ratio="20" rot="R90" align="bottom-center"/>
 <attribute name="VALUE" x="35.433" y="46.736" size="0.6096" layer="27" font="vector" ratio="20" rot="R270" align="top-center"/>
 </element>
@@ -1627,7 +1627,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="27.305" y="41.91" size="0.6096" layer="26" font="vector" ratio="20" rot="MR90" align="bottom-center"/>
 <attribute name="VALUE" x="25.4" y="43.053" size="0.6096" layer="28" font="vector" ratio="20" rot="MR180" align="top-center"/>
 </element>
-<element name="J7" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="1X02" package3d_urn="urn:adsk.eagle:package:1036544/1" value="V_logic" x="19.05" y="41.91" smashed="yes">
+<element name="J6" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="1X02" package3d_urn="urn:adsk.eagle:package:1036544/1" value="V_logic" x="19.05" y="41.91" smashed="yes">
 <attribute name="VALUE" x="17.78" y="38.735" size="1.27" layer="27"/>
 </element>
 </elements>
@@ -1635,10 +1635,10 @@ Please make sure your boards conform to these design rules.</description>
 <signal name="GND">
 <contactref element="C2" pad="2"/>
 <contactref element="C1" pad="2"/>
-<contactref element="J6" pad="GND"/>
-<contactref element="J6" pad="SHIELD1"/>
-<contactref element="J6" pad="SHIELD2"/>
-<contactref element="J6" pad="SHIELD3"/>
+<contactref element="J7" pad="GND"/>
+<contactref element="J7" pad="SHIELD1"/>
+<contactref element="J7" pad="SHIELD2"/>
+<contactref element="J7" pad="SHIELD3"/>
 <contactref element="U1" pad="18"/>
 <contactref element="U1" pad="17"/>
 <contactref element="U1" pad="2"/>
@@ -1773,14 +1773,14 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="J3" pad="3"/>
 <via x="44.069" y="45.72" extent="1-16" drill="0.508" diameter="1.016"/>
 <via x="39.37" y="19.05" extent="1-16" drill="0.508" diameter="1.016"/>
-<contactref element="J6" pad="SHIELD4"/>
+<contactref element="J7" pad="SHIELD4"/>
 <via x="2.032" y="29.21" extent="1-16" drill="0.508" diameter="1.016"/>
 <contactref element="X3" pad="GND@1"/>
 <contactref element="X3" pad="GND@2"/>
 <contactref element="X3" pad="GND@3"/>
 <contactref element="X3" pad="GND@5"/>
 <contactref element="X3" pad="GND@6"/>
-<contactref element="J7" pad="1"/>
+<contactref element="J6" pad="1"/>
 </signal>
 <signal name="VIN">
 <contactref element="C2" pad="1"/>
@@ -1801,7 +1801,7 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="44.639" y1="21.336" x2="45.02" y2="20.955" width="2.032" layer="1"/>
 <wire x1="45.02" y1="21.4" x2="45.02" y2="20.955" width="1.905" layer="1"/>
 <contactref element="LED2" pad="A"/>
-<contactref element="JP3" pad="1"/>
+<contactref element="JP4" pad="1"/>
 <wire x1="42.799" y1="40.894" x2="44.704" y2="42.799" width="0.3048" layer="1"/>
 <wire x1="44.704" y1="42.799" x2="46.228" y2="42.799" width="0.3048" layer="1"/>
 <wire x1="42.799" y1="21.336" x2="42.799" y2="40.894" width="0.3048" layer="1"/>
@@ -1827,20 +1827,20 @@ Please make sure your boards conform to these design rules.</description>
 </signal>
 <signal name="V_USB">
 <contactref element="U1" pad="24"/>
-<contactref element="J6" pad="VBUS"/>
+<contactref element="J7" pad="VBUS"/>
 <wire x1="4.907" y1="31.78" x2="10.13" y2="31.78" width="0.3048" layer="1"/>
 <wire x1="14.51" y1="27.4" x2="21.02" y2="27.4" width="0.3048" layer="1"/>
 <wire x1="10.13" y1="31.78" x2="14.51" y2="27.4" width="0.3048" layer="1"/>
 </signal>
 <signal name="D-">
-<contactref element="J6" pad="D-"/>
+<contactref element="J7" pad="D-"/>
 <contactref element="U1" pad="28"/>
 <wire x1="21.02" y1="23.4" x2="15.97" y2="23.4" width="0.3048" layer="1"/>
 <wire x1="8.24" y1="31.13" x2="4.907" y2="31.13" width="0.3048" layer="1"/>
 <wire x1="15.97" y1="23.4" x2="8.24" y2="31.13" width="0.3048" layer="1"/>
 </signal>
 <signal name="D+">
-<contactref element="J6" pad="D+"/>
+<contactref element="J7" pad="D+"/>
 <contactref element="U1" pad="27"/>
 <wire x1="21.02" y1="24.4" x2="16.24" y2="24.4" width="0.3048" layer="1"/>
 <wire x1="16.24" y1="24.4" x2="11.43" y2="29.21" width="0.3048" layer="1"/>
@@ -2082,9 +2082,10 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="17.78" y1="11.772" x2="20.359" y2="11.772" width="0.3048" layer="1"/>
 <wire x1="20.359" y1="11.772" x2="20.955" y2="11.176" width="0.3048" layer="1"/>
 <contactref element="JP5" pad="3"/>
-<wire x1="20.955" y1="36.83" x2="25.4" y2="41.275" width="0.3048" layer="16"/>
-<wire x1="25.4" y1="41.275" x2="25.4" y2="41.91" width="0.3048" layer="16"/>
 <wire x1="25.4" y1="41.91" x2="26.416" y2="41.91" width="0.3048" layer="16"/>
+<wire x1="26.416" y1="41.91" x2="26.416" y2="40.386" width="0.3048" layer="16"/>
+<wire x1="22.86" y1="36.83" x2="20.955" y2="36.83" width="0.3048" layer="16"/>
+<wire x1="26.416" y1="40.386" x2="22.86" y2="36.83" width="0.3048" layer="16"/>
 </signal>
 <signal name="SDA">
 <contactref element="IC3" pad="1"/>
@@ -2194,13 +2195,13 @@ Please make sure your boards conform to these design rules.</description>
 </signal>
 <signal name="UC_DTR">
 <contactref element="IC2" pad="10"/>
-<contactref element="JP4" pad="2"/>
+<contactref element="JP3" pad="2"/>
 <wire x1="35.933" y1="44.397" x2="35.933" y2="45.077" width="0.3048" layer="1"/>
 <wire x1="36.576" y1="45.72" x2="36.576" y2="46.3296" width="0.3048" layer="1"/>
 <wire x1="35.933" y1="45.077" x2="36.576" y2="45.72" width="0.3048" layer="1"/>
 </signal>
 <signal name="N$12">
-<contactref element="JP3" pad="2"/>
+<contactref element="JP4" pad="2"/>
 <contactref element="LED1" pad="A"/>
 <wire x1="46.24" y1="40.386" x2="46.24" y2="42.787" width="0.3048" layer="1"/>
 <wire x1="46.24" y1="42.787" x2="46.228" y2="42.799" width="0.3048" layer="1"/>
@@ -2223,7 +2224,7 @@ Please make sure your boards conform to these design rules.</description>
 </signal>
 <signal name="N$8">
 <contactref element="J4" pad="1"/>
-<contactref element="JP4" pad="1"/>
+<contactref element="JP3" pad="1"/>
 <wire x1="31.496" y1="50.8" x2="31.496" y2="48.387" width="0.3048" layer="1"/>
 <wire x1="31.496" y1="48.387" x2="32.7406" y2="47.1424" width="0.3048" layer="1"/>
 <wire x1="32.7406" y1="47.1424" x2="36.576" y2="47.1424" width="0.3048" layer="1"/>
@@ -2245,7 +2246,7 @@ Please make sure your boards conform to these design rules.</description>
 </signal>
 <signal name="N$13">
 <contactref element="JP5" pad="1"/>
-<contactref element="J7" pad="2"/>
+<contactref element="J6" pad="2"/>
 <wire x1="24.384" y1="41.91" x2="21.59" y2="41.91" width="0.3048" layer="16"/>
 </signal>
 </signals>
