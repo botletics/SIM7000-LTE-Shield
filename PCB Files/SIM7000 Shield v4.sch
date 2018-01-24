@@ -714,6 +714,12 @@ round, layers 1 + 16 + 21 + 39 + 49</description>
 <text x="-1.016" y="3.556" size="1.778" layer="96">&gt;VALUE</text>
 <pin name="VIN" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 </symbol>
+<symbol name="VCC" urn="urn:adsk.eagle:symbol:502101/1" library_version="3" library_locally_modified="yes">
+<wire x1="0.762" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
+<wire x1="0" y1="2.54" x2="-0.762" y2="1.27" width="0.254" layer="94"/>
+<text x="-1.016" y="3.556" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="VCC" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="FIDUCIAL" urn="urn:adsk.eagle:component:502135/2" locally_modified="yes" prefix="FID" library_version="2" library_locally_modified="yes">
@@ -808,6 +814,19 @@ Standard 11x14 US Ledger frame</description>
 <description>Vin supply symbol</description>
 <gates>
 <gate name="G$1" symbol="VIN" x="0" y="0"/>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="VCC" urn="urn:adsk.eagle:component:502121/1" prefix="SUPPLY" library_version="3" library_locally_modified="yes">
+<description>&lt;b&gt;SUPPLY SYMBOL&lt;/b&gt;</description>
+<gates>
+<gate name="G$1" symbol="VCC" x="0" y="0"/>
 </gates>
 <devices>
 <device name="">
@@ -13094,13 +13113,13 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="IC3" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" deviceset="MCP9808" device="-MSOP" package3d_urn="urn:adsk.eagle:package:1035421/1" value="MCP9808"/>
 <part name="R5" library="TimWoo-Resistors" library_urn="urn:adsk.eagle:library:500711" deviceset="RESISTOR" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500751/2" value="10k"/>
 <part name="R3" library="TimWoo-Resistors" library_urn="urn:adsk.eagle:library:500711" deviceset="RESISTOR" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500751/2" value="10k"/>
-<part name="SUPPLY9" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="5V" device=""/>
-<part name="SUPPLY8" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="5V" device=""/>
-<part name="SUPPLY12" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="5V" device=""/>
+<part name="SUPPLY9" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VCC" device=""/>
+<part name="SUPPLY8" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VCC" device=""/>
+<part name="SUPPLY12" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VCC" device=""/>
 <part name="GND10" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
 <part name="GND14" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
 <part name="R2" library="TimWoo-Resistors" library_urn="urn:adsk.eagle:library:500711" deviceset="RESISTOR" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500751/2" value="10k"/>
-<part name="SUPPLY6" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="5V" device=""/>
+<part name="SUPPLY6" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VCC" device=""/>
 <part name="C5" library="TimWoo-Capacitors" deviceset="CAP" device="MARKED-0603" package3d_urn="urn:adsk.eagle:package:500792/2" value="0.1uF"/>
 <part name="GND15" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
 <part name="R6" library="TimWoo-Resistors" library_urn="urn:adsk.eagle:library:500711" deviceset="RESISTOR_ARRAY_4X" device="0603-ARV" package3d_urn="urn:adsk.eagle:package:500754/2" value="10k"/>
@@ -13117,12 +13136,13 @@ Standard 4-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="JP1" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="JUMPER-SMT_2_NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:1036528/1"/>
 <part name="J3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="M04" device="PTH-ROUND" package3d_urn="urn:adsk.eagle:package:1352189/1"/>
 <part name="GND4" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
-<part name="SUPPLY3" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="5V" device=""/>
+<part name="SUPPLY3" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VCC" device=""/>
 <part name="JP3" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:500889" deviceset="JUMPER-SMT_2_NO" device="_SILK" package3d_urn="urn:adsk.eagle:package:501659/1"/>
 <part name="JP5" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="JUMPER-SMT_3_1-NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:1036527/1"/>
 <part name="SUPPLY11" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="5V" device=""/>
 <part name="J6" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" deviceset="M02" device="PTH" package3d_urn="urn:adsk.eagle:package:1036544/1" value="V_logic"/>
 <part name="GND11" library="TimWoo-Aesthetics" deviceset="GND" device=""/>
+<part name="SUPPLY19" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" deviceset="VCC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -13228,7 +13248,7 @@ connect ALERT pin</text>
 Shutdown current: 0.1uA</text>
 <text x="147.32" y="246.38" size="1.778" layer="97">MCU logic voltage
 (1.8V - 5.5V)</text>
-<text x="205.74" y="243.84" size="1.778" layer="97">5V logic by default.
+<text x="205.74" y="248.92" size="1.778" layer="97">5V logic by default.
 Cut trace and bridge
 jumper for other
 logic voltages</text>
@@ -13337,6 +13357,7 @@ logic voltages</text>
 <instance part="SUPPLY11" gate="G$1" x="200.66" y="251.46"/>
 <instance part="J6" gate="G$1" x="175.26" y="243.84"/>
 <instance part="GND11" gate="1" x="185.42" y="238.76"/>
+<instance part="SUPPLY19" gate="G$1" x="205.74" y="241.3"/>
 </instances>
 <busses>
 </busses>
@@ -13916,41 +13937,10 @@ logic voltages</text>
 <wire x1="40.64" y1="40.64" x2="38.1" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="R3" gate="G$1" pin="2"/>
-<pinref part="SUPPLY8" gate="G$1" pin="5V"/>
-<wire x1="165.1" y1="157.48" x2="165.1" y2="160.02" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="SUPPLY9" gate="G$1" pin="5V"/>
-<pinref part="R5" gate="G$1" pin="2"/>
-<wire x1="172.72" y1="160.02" x2="172.72" y2="157.48" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="SUPPLY6" gate="G$1" pin="5V"/>
-<pinref part="R2" gate="G$1" pin="2"/>
-<wire x1="157.48" y1="160.02" x2="157.48" y2="157.48" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="J1" gate="G$1" pin="4"/>
 <pinref part="SUPPLY1" gate="G$1" pin="5V"/>
 <wire x1="25.4" y1="208.28" x2="20.32" y2="208.28" width="0.1524" layer="91"/>
 <wire x1="20.32" y1="208.28" x2="20.32" y2="210.82" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="IC3" gate="G$1" pin="VDD"/>
-<pinref part="SUPPLY12" gate="G$1" pin="5V"/>
-<wire x1="200.66" y1="144.78" x2="203.2" y2="144.78" width="0.1524" layer="91"/>
-<wire x1="203.2" y1="144.78" x2="203.2" y2="152.4" width="0.1524" layer="91"/>
-<pinref part="C5" gate="G$1" pin="1"/>
-<wire x1="203.2" y1="152.4" x2="203.2" y2="157.48" width="0.1524" layer="91"/>
-<wire x1="205.74" y1="152.4" x2="203.2" y2="152.4" width="0.1524" layer="91"/>
-<junction x="203.2" y="152.4"/>
-</segment>
-<segment>
-<pinref part="J3" gate="G$1" pin="4"/>
-<wire x1="76.2" y1="119.38" x2="78.74" y2="119.38" width="0.1524" layer="91"/>
-<pinref part="SUPPLY3" gate="G$1" pin="5V"/>
-<wire x1="78.74" y1="119.38" x2="78.74" y2="124.46" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="JP5" gate="G$1" pin="3"/>
@@ -14135,19 +14125,55 @@ logic voltages</text>
 <wire x1="101.6" y1="200.66" x2="104.14" y2="200.66" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="V_LOGIC" class="0">
+<net name="VCC" class="0">
 <segment>
+<pinref part="SUPPLY6" gate="G$1" pin="VCC"/>
+<pinref part="R2" gate="G$1" pin="2"/>
+<wire x1="157.48" y1="160.02" x2="157.48" y2="157.48" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="R3" gate="G$1" pin="2"/>
+<pinref part="SUPPLY8" gate="G$1" pin="VCC"/>
+<wire x1="165.1" y1="157.48" x2="165.1" y2="160.02" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="SUPPLY9" gate="G$1" pin="VCC"/>
+<pinref part="R5" gate="G$1" pin="2"/>
+<wire x1="172.72" y1="160.02" x2="172.72" y2="157.48" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="VDD"/>
+<pinref part="SUPPLY12" gate="G$1" pin="VCC"/>
+<wire x1="200.66" y1="144.78" x2="203.2" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="203.2" y1="144.78" x2="203.2" y2="152.4" width="0.1524" layer="91"/>
+<pinref part="C5" gate="G$1" pin="1"/>
+<wire x1="203.2" y1="152.4" x2="203.2" y2="157.48" width="0.1524" layer="91"/>
+<wire x1="205.74" y1="152.4" x2="203.2" y2="152.4" width="0.1524" layer="91"/>
+<junction x="203.2" y="152.4"/>
+</segment>
+<segment>
+<pinref part="J3" gate="G$1" pin="4"/>
+<wire x1="76.2" y1="119.38" x2="78.74" y2="119.38" width="0.1524" layer="91"/>
+<pinref part="SUPPLY3" gate="G$1" pin="VCC"/>
+<wire x1="78.74" y1="119.38" x2="78.74" y2="124.46" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="SUPPLY19" gate="G$1" pin="VCC"/>
+<wire x1="205.74" y1="241.3" x2="205.74" y2="238.76" width="0.1524" layer="91"/>
 <wire x1="190.5" y1="223.52" x2="193.04" y2="223.52" width="0.1524" layer="91"/>
 <wire x1="193.04" y1="223.52" x2="193.04" y2="228.6" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="1"/>
 <wire x1="195.58" y1="228.6" x2="193.04" y2="228.6" width="0.1524" layer="91"/>
 <pinref part="IC2" gate="G$1" pin="VCCB"/>
 <pinref part="JP5" gate="G$1" pin="2"/>
-<wire x1="193.04" y1="241.3" x2="193.04" y2="228.6" width="0.1524" layer="91"/>
+<wire x1="193.04" y1="241.3" x2="193.04" y2="238.76" width="0.1524" layer="91"/>
 <junction x="193.04" y="228.6"/>
+<wire x1="193.04" y1="238.76" x2="193.04" y2="228.6" width="0.1524" layer="91"/>
+<wire x1="205.74" y1="238.76" x2="193.04" y2="238.76" width="0.1524" layer="91"/>
+<junction x="193.04" y="238.76"/>
 </segment>
 </net>
-<net name="N$13" class="0">
+<net name="V_LOGIC" class="0">
 <segment>
 <pinref part="JP5" gate="G$1" pin="1"/>
 <pinref part="J6" gate="G$1" pin="2"/>
