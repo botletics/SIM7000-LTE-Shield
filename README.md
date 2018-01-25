@@ -19,7 +19,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Post to a web API via LTE CAT-M1
 
 ### To-Do List
-- Include FTP example
+- Add FTP functions and examples
 - Test SSL
 - Test voice support?
 
