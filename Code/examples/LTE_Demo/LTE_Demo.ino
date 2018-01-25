@@ -202,9 +202,9 @@ void printMenu(void) {
   Serial.println(F("[Y] Enable NTP time sync (GPRS FONA 800 & 808)"));
   Serial.println(F("[t] Get network time"));
 
-  // GPRS
-  Serial.println(F("[G] Enable GPRS"));
-  Serial.println(F("[g] Disable GPRS"));
+  // GPRS/4G Connection
+  Serial.println(F("[G] Enable GPRS/4G")); // Automatically determined by module info
+  Serial.println(F("[g] Disable GPRS/4G")); // Automatically determined by module info
   Serial.println(F("[l] Query GSMLOC (GPRS)"));
   Serial.println(F("[w] Read webpage (GPRS)"));
   Serial.println(F("[W] Post to website (GPRS)"));
