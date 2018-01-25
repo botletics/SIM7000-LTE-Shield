@@ -896,7 +896,8 @@ void loop() {
         // Use IMEI as device ID for this example
         
         // GET request
-        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff);
+        sprintf(URL, "dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // No need to specify http:// or https://
+//        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // But this works too
 
         if (!fona.postData("GET", URL, "")) // No body field required
           Serial.println(F("Failed to complete HTTP GET..."));
