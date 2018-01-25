@@ -165,7 +165,7 @@ void setup() {
 void printMenu(void) {
   Serial.println(F("-------------------------------------"));
   Serial.println(F("[?] Print this menu"));
-  Serial.println(F("[a] read the ADC 2.8V max (FONA800 & 808), 1.7V max for LTE shield"));
+  Serial.println(F("[a] read the ADC 2.8V max for SIM800/808, 1.7V max for LTE shield"));
   Serial.println(F("[b] read the Battery V and % charged"));
   Serial.println(F("[C] read the SIM CCID"));
   Serial.println(F("[U] Unlock SIM with PIN code"));
@@ -173,17 +173,17 @@ void printMenu(void) {
   Serial.println(F("[n] get Network status"));
   Serial.println(F("[v] set audio Volume"));
   Serial.println(F("[V] get Volume"));
-  Serial.println(F("[H] set Headphone audio (FONA800 & 808)"));
-  Serial.println(F("[e] set External audio (FONA800 & 808)"));
+  Serial.println(F("[H] set Headphone audio (SIM800/808)"));
+  Serial.println(F("[e] set External audio (SIM800/808)"));
   Serial.println(F("[T] play audio Tone"));
-  Serial.println(F("[P] PWM/Buzzer out (FONA800 & 808)"));
+  Serial.println(F("[P] PWM/Buzzer out (SIM800/808)"));
 
   // FM (SIM800 only!)
-  Serial.println(F("[f] tune FM radio (FONA800)"));
-  Serial.println(F("[F] turn off FM (FONA800)"));
-  Serial.println(F("[m] set FM volume (FONA800)"));
-  Serial.println(F("[M] get FM volume (FONA800)"));
-  Serial.println(F("[q] get FM station signal level (FONA800)"));
+  Serial.println(F("[f] tune FM radio (SIM800)"));
+  Serial.println(F("[F] turn off FM (SIM800)"));
+  Serial.println(F("[m] set FM volume (SIM800)"));
+  Serial.println(F("[M] get FM volume (SIM800)"));
+  Serial.println(F("[q] get FM station signal level (SIM800)"));
 
   // Phone
   Serial.println(F("[c] make phone Call"));
@@ -218,20 +218,20 @@ void printMenu(void) {
   // GPS
   if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2) || 
       (type == FONA_LTE_A) || (type == FONA_LTE_C) || (type == FONA_LTE_E)) {
-    Serial.println(F("[O] Turn GPS on (FONA 808 & 3G & LTE)"));
-    Serial.println(F("[o] Turn GPS off (FONA 808 & 3G & LTE)"));
-    Serial.println(F("[L] Query GPS location (FONA 808 & 3G & LTE)"));
+    Serial.println(F("[O] Turn GPS on (SIM808/5320/7000)"));
+    Serial.println(F("[o] Turn GPS off (SIM808/5320/7000)"));
+    Serial.println(F("[L] Query GPS location (SIM808/5320/7000)"));
     if (type == FONA808_V1) {
       Serial.println(F("[x] GPS fix status (FONA808 v1 only)"));
     }
-    Serial.println(F("[E] Raw NMEA out (FONA808)"));
+    Serial.println(F("[E] Raw NMEA out (SIM808)"));
   }
   
-  Serial.println(F("[S] create Serial passthru tunnel"));
+  Serial.println(F("[S] create serial passthru tunnel"));
   Serial.println(F("-------------------------------------"));
   Serial.println(F(""));
-
 }
+
 void loop() {
   Serial.print(F("FONA> "));
   while (! Serial.available() ) {
