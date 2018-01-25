@@ -24,6 +24,8 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test voice support?
 
 ### Completed Tasks
+- Added "getUEInfo()" function (command "1" in LTE_Demo sketch) to get connection info, connection status, cellular band, etc.
+- Eliminated unnecessary AT commands from "enableGPRS()" function for LTE versions (SIM7000)
 - Added HTTP status and data length verification in postData() function
 - Added driver files in documentation folder
 - Added voice and audio support on revision v5
