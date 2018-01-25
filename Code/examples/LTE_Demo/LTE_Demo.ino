@@ -868,9 +868,7 @@ void loop() {
       }
     case '1': {
         // Get UE system info (connection type, cellular band, etc.)
-        if (!fona.getUEInfo())
-          Serial.println(F("Failed to get UE system info"));
-        
+        fona.getUEInfo();        
         break;
       }
     case '2': {
