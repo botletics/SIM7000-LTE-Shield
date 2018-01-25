@@ -205,8 +205,8 @@ void printMenu(void) {
   Serial.println(F("[t] Get network time")); // Works just by being connected to network
 
   // GPRS/4G Connection
-  Serial.println(F("[G] Enable GPRS/4G")); // Automatically determined by module info
-  Serial.println(F("[g] Disable GPRS/4G")); // Automatically determined by module info
+  Serial.println(F("[G] Enable GPRS/4G"));
+  Serial.println(F("[g] Disable GPRS/4G"));
   Serial.println(F("[l] Query GSMLOC (GPRS)"));
   Serial.println(F("[w] Read webpage (GPRS)"));
   Serial.println(F("[W] Post to website (GPRS)"));
