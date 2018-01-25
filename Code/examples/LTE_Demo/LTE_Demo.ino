@@ -200,9 +200,9 @@ void printMenu(void) {
   Serial.println(F("[u] Send USSD"));
   
   // Time
-  Serial.println(F("[y] Enable network time sync (FONA 800 & 808)"));
-  Serial.println(F("[Y] Enable NTP time sync (GPRS FONA 800 & 808)"));
-  Serial.println(F("[t] Get network time"));
+  Serial.println(F("[y] Enable local time stamp (SIM800/808/7000)"));
+  Serial.println(F("[Y] Enable NTP time sync (SIM800/808/7000)"));
+  Serial.println(F("[t] Get network time")); // Need to use "G" command first!
 
   // GPRS/4G Connection
   Serial.println(F("[G] Enable GPRS/4G")); // Automatically determined by module info
