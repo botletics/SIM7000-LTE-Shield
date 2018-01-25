@@ -144,7 +144,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean getGSMLoc(float *lat, float *lon);
   void setGPRSNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
   boolean postData(const char *request_type, const char *URL, const char *body);
-  void getUEInfo(void);
+  void getNetworkInfo(void);
 
   // GPS handling
   boolean enableGPS(boolean onoff);
