@@ -14,12 +14,12 @@ All other software is released under the [GNU General Public License v3.0](https
 The code for this LTE shield is an altered library built upon the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added LTE functionality for the SIM7000 module. The following list is a summary of the updates:
 
 ### Confirmed functionalities
+- NTP time sync works!
 - GPS works without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20-30s from cold start and even less (a couple seconds or so) when the device has already been on! However, this may differ based on your location and how deep you're buried inside a building.
 - Read a webpage via LTE CAT-M1
 - Post to a web API via LTE CAT-M1
 
 ### To-Do List
-- Add NTP time sync
 - Add FTP functions and examples
 - Test SSL
 - Test voice support?
