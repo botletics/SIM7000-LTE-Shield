@@ -42,14 +42,29 @@ the commented section below at the end of the setup() function.
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield v4
-#define FONA_PWRKEY 6
-#define FONA_RST 7
-//#define FONA_DTR 8 // Connect with solder jumper
-//#define FONA_RI 9 // Need to enable via AT commands
-#define FONA_TX 10 // Microcontroller RX
-#define FONA_RX 11 // Microcontroller TX
+// For LTE shield v1
+//#define FONA_PWRKEY 4
+//#define FONA_TX 6
+//#define FONA_RX 7
+//#define FONA_RST 8
+
+// For LTE shield v3
+#define FONA_PWRKEY 3
+//#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
+#define FONA_RI 5 // Need to enable via AT commands
+#define FONA_RX 7
+#define FONA_TX 6
+#define FONA_RST 8
 //#define T_ALERT 12 // Connect with solder jumper
+
+// For LTE shield v4
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 8 // Connect with solder jumper
+////#define FONA_RI 9 // Need to enable via AT commands
+//#define FONA_TX 10 // Microcontroller RX
+//#define FONA_RX 11 // Microcontroller TX
+////#define T_ALERT 12 // Connect with solder jumper
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -59,6 +74,8 @@ char replybuffer[255];
 // and uncomment the HardwareSerial line
 #include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+// Use the following line for ESP8266
+//SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
 SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
@@ -208,6 +225,7 @@ void printMenu(void) {
   Serial.println(F("[l] Query GSMLOC (GPRS)"));
   Serial.println(F("[w] Read webpage (GPRS)"));
   Serial.println(F("[W] Post to website (GPRS)"));
+  Serial.println(F("[1] Get connection info")); // See what connection type and band you're on! Works on SIM7000
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
   // FONA_IoT_example sketch for an actual application of this function!
   Serial.println(F("[2] Post to dweet.io (via 2G or LTE)")); // This can be either 2G or LTE (SIM800/808/900/7000) but not 3G (SIM5320)
@@ -846,6 +864,13 @@ void loop() {
         }
         Serial.println(F("\n****"));
         fona.HTTP_POST_end();
+        break;
+      }
+    case '1': {
+        // Get UE system info (connection type, cellular band, etc.)
+        if (!fona.getUEInfo())
+          Serial.println(F("Failed to get UE system info"));
+        
         break;
       }
     case '2': {
