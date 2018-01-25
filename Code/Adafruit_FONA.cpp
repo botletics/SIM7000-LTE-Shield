@@ -614,7 +614,7 @@ boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
 
   DEBUG_PRINTLN("^Z");
 
-  if ( (_type == FONA3G_A) || (_type == FONA3G_E) || (_type == FONA_LTE_A) || (_type == FONA_LTE_C) || (_type == FONA_LTE_E) ) {
+  if ( (_type == FONA3G_A) || (_type == FONA3G_E) || (_type >= FONA_LTE_A) ) {
     // Eat two sets of CRLF
     readline(200);
     //DEBUG_PRINT("Line 1: "); DEBUG_PRINTLN(strlen(replybuffer));
@@ -1170,17 +1170,18 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 
   if (onoff) {
-    // disconnect all sockets
-    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
+  	if (_type < FONA_LTE_A) {
+	    // disconnect all sockets
+	    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
 
-    if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
-      return false;
+	    if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
+	      return false;
 
-    // set bearer profile! connection type GPRS
-    if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""),
-			   ok_reply, 10000))
-      return false;
-
+		// set bearer profile! connection type GPRS
+		if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
+	  		return false;
+    }
+    
     // set bearer profile access point name
     if (apn) {
       // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
@@ -1193,12 +1194,12 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       mySerial->print(F("AT+CSTT=\""));
       mySerial->print(apn);
       if (apnusername) {
-	mySerial->print("\",\"");
-	mySerial->print(apnusername);
+		mySerial->print("\",\"");
+		mySerial->print(apnusername);
       }
       if (apnpassword) {
-	mySerial->print("\",\"");
-	mySerial->print(apnpassword);
+		mySerial->print("\",\"");
+		mySerial->print(apnpassword);
       }
       mySerial->println("\"");
 
@@ -1206,12 +1207,12 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       DEBUG_PRINT(apn); 
       
       if (apnusername) {
-	DEBUG_PRINT("\",\"");
-	DEBUG_PRINT(apnusername); 
+		DEBUG_PRINT("\",\"");
+		DEBUG_PRINT(apnusername); 
       }
       if (apnpassword) {
-	DEBUG_PRINT("\",\"");
-	DEBUG_PRINT(apnpassword); 
+		DEBUG_PRINT("\",\"");
+		DEBUG_PRINT(apnpassword); 
       }
       DEBUG_PRINTLN("\"");
       
@@ -1230,25 +1231,29 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       }
     }
 
-    // open GPRS context
+    // open bearer
     if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
       return false;
 
-    // bring up wireless connection
-    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
-      return false;
+  	if (_type < FONA_LTE_A) {
+	    // bring up wireless connection
+	    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+	      return false;
+	}
 
   } else {
     // disconnect all sockets
     if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000))
       return false;
 
-    // close GPRS context
+    // close bearer
     if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
       return false;
 
-    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
-      return false;
+  	if (_type < FONA_LTE_A) {
+	    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
+	      return false;
+	}
 
   }
   return true;
@@ -1313,6 +1318,95 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 
   return true;
 }
+
+// boolean Adafruit_FONA_LTE::enableGPRS(boolean onoff) {
+
+//   if (onoff) {
+//     // disconnect all sockets
+//    //  if (_type < FONA_LTE_A) { // No need to do this for LTE types
+// 	  //   sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
+
+// 	  //   if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
+// 	  //     return false;
+
+//    //  // set bearer profile! connection type GPRS
+//   	// // if (_type < FONA_LTE_A) { // No need to do this for LTE types
+//   	// 	if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
+//    //    		return false;
+//   	// }
+    
+//     // set bearer profile access point name
+//     if (apn) {
+//       // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
+//       if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
+//         return false;
+
+//       // send AT+CSTT,"apn","user","pass"
+//       flushInput();
+
+//       mySerial->print(F("AT+CSTT=\""));
+//       mySerial->print(apn);
+//       if (apnusername) {
+// 		mySerial->print("\",\"");
+// 		mySerial->print(apnusername);
+//       }
+//       if (apnpassword) {
+// 		mySerial->print("\",\"");
+// 		mySerial->print(apnpassword);
+//       }
+//       mySerial->println("\"");
+
+//       DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
+//       DEBUG_PRINT(apn); 
+      
+//       if (apnusername) {
+// 		DEBUG_PRINT("\",\"");
+// 		DEBUG_PRINT(apnusername); 
+//       }
+//       if (apnpassword) {
+// 		DEBUG_PRINT("\",\"");
+// 		DEBUG_PRINT(apnpassword); 
+//       }
+//       DEBUG_PRINTLN("\"");
+      
+//       if (! expectReply(ok_reply)) return false;
+    
+//       // set username/password
+//       if (apnusername) {
+//         // Send command AT+SAPBR=3,1,"USER","<user>" where <user> is the configured APN username.
+//         if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"USER\","), apnusername, ok_reply, 10000))
+//           return false;
+//       }
+//       if (apnpassword) {
+//         // Send command AT+SAPBR=3,1,"PWD","<password>" where <password> is the configured APN password.
+//         if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"PWD\","), apnpassword, ok_reply, 10000))
+//           return false;
+//       }
+//     }
+
+//     // open bearer
+//     if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
+//       return false;
+
+//     // bring up wireless connection
+//     // if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+//     //   return false;
+
+//   } else {
+//     // disconnect all sockets
+//     if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000))
+//       return false;
+
+//     // close bearer
+//     if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
+//       return false;
+
+//     // if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
+//     //   return false;
+
+//   }
+//   return true;
+// }
 
 uint8_t Adafruit_FONA::GPRSstate(void) {
   uint16_t state;

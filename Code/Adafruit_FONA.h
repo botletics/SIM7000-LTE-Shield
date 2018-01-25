@@ -277,17 +277,10 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
   Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = FONA_LTE_A; }
 
     boolean setBaudrate(uint16_t baud);
+    // boolean enableGPRS(boolean onoff);
  //    boolean playToolkitTone(uint8_t t, uint16_t len);
     boolean hangUp(void);
  //    boolean pickUp(void);
-
- // protected:
- //    boolean parseReply(FONAFlashStringPtr toreply,
- //           float *f, char divider, uint8_t index);
-
- //    boolean sendParseReply(FONAFlashStringPtr tosend,
- //         FONAFlashStringPtr toreply,
- //         float *f, char divider = ',', uint8_t index=0);
 };
 
 #endif
