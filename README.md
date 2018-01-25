@@ -28,7 +28,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 
 ### Completed Tasks
 - Added "getNetworkInfo()" function (command "1" in LTE_Demo sketch) to get connection info, connection status, cellular band, etc.
-- Eliminated unnecessary AT commands from "enableGPRS()" function for LTE versions (SIM7000)
+- Added if statements that can be uncommented to eliminate unnecessary AT commands from "enableGPRS()" function for LTE modules (SIM7000) in case GPRS isn't being used at all
 - Added HTTP status and data length verification in postData() function
 - Added driver files in documentation folder
 - Added voice and audio support on revision v5
