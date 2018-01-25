@@ -201,8 +201,8 @@ void printMenu(void) {
   
   // Time
   Serial.println(F("[y] Enable local time stamp (SIM800/808/7000)"));
-  Serial.println(F("[Y] Enable NTP time sync (SIM800/808/7000)"));
-  Serial.println(F("[t] Get network time")); // Need to use "G" command first!
+  Serial.println(F("[Y] Enable NTP time sync (SIM800/808/7000)")); // Need to use "G" command first!
+  Serial.println(F("[t] Get network time")); // Works just by being connected to network
 
   // GPRS/4G Connection
   Serial.println(F("[G] Enable GPRS/4G")); // Automatically determined by module info
