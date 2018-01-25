@@ -1170,7 +1170,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 
   if (onoff) {
-  	if (_type < FONA_LTE_A) {
+  	// if (_type < FONA_LTE_A) {
 	    // disconnect all sockets
 	    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
 
@@ -1180,7 +1180,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 		// set bearer profile! connection type GPRS
 		if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
 	  		return false;
-    }
+    // }
     
     // set bearer profile access point name
     if (apn) {
@@ -1235,11 +1235,11 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
     if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
       return false;
 
-  	if (_type < FONA_LTE_A) {
+  	// if (_type < FONA_LTE_A) {
 	    // bring up wireless connection
 	    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
 	      return false;
-	}
+	// }
 
   } else {
     // disconnect all sockets
@@ -1250,10 +1250,10 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
     if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
       return false;
 
-  	if (_type < FONA_LTE_A) {
+  	// if (_type < FONA_LTE_A) {
 	    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
 	      return false;
-	}
+	// }
 
   }
   return true;
