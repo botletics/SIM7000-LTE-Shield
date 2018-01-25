@@ -3,8 +3,7 @@ The LTE Shield uses SIMCOM's SIM7000-series LTE module which is a low-power 4G L
 
 You can buy the shield on [my website](https://www.botletics.com/products/sim7000-shield).
 
-Check out the [comprehensive wiki](https://github.com/botletics/LTE-Shield/wiki)! (Note: still under development)
-You can also use [this Instructables](https://www.instructables.com/id/LTE-NB-IoT-Shield-for-Arduino/) if that works better for you!
+Check out the [comprehensive wiki](https://github.com/botletics/LTE-Shield/wiki) or use [this Instructables](https://www.instructables.com/id/LTE-NB-IoT-Shield-for-Arduino/) to get started if that works better for you!
 
 All PCB design files and hardware are released under the [Creative Commons Attribution Share Alike 4.0 license](https://choosealicense.com/licenses/cc-by-sa-4.0/).
 
