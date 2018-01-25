@@ -19,7 +19,8 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Post to a web API via LTE CAT-M1
 
 ### To-Do List
-- Measure current consumption with uCurrent Gold
+- Include FTP example
+- Test SSL
 - Test voice support?
 
 ### Completed Tasks
