@@ -21,8 +21,9 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Post to a web API via LTE CAT-M1
 
 ### To-Do List
-- Test NTP time sync (I think SIMCom recently updated their firmware to support it)
+- Add MQTT functions and examples
 - Add FTP functions and examples
+- Test NTP time sync (I think SIMCom recently updated their firmware to support it)
 - Test SSL
 - Test voice support?
 
