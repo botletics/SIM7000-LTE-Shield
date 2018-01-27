@@ -103,7 +103,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 // The following line is used for applications that require repeated data posting, like GPS trackers
 // Comment it out if you only want it to post once, not repeatedly every so often
-//#define samplingRate 10 // The time in between posts, in seconds
+#define samplingRate 10 // The time in between posts, in seconds
 
 // The following line can be used to turn off the shield after posting data. This
 // could be useful for saving energy for sparse readings but keep in mind that it
