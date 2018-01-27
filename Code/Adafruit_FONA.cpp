@@ -1383,7 +1383,6 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-/********************************* HTTP FUNCTION *********************************/
 boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
@@ -1453,7 +1452,179 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   return true;
 }
 
-/********************************* END OF HTTP FUNCTION *********************************/
+/********* MQTT FUNCTIONS  ************************************/
+
+////////////////////////////////////////////////////////////
+// MQTT helper functions
+void Adafruit_FONA::mqtt_connect_message(byte *mqtt_message, char *clientID, char *username, char *password) {
+  uint8_t i = 0;
+  byte ID_length = strlen(clientID);
+  byte username_length = strlen(username);
+  byte password_length = strlen(password);
+
+	mqtt_message[0] = 16;                      // MQTT message type CONNECT
+	mqtt_message[1] = 18 + ID_length + username_length + password_length;   // Remaining length of message
+	mqtt_message[2] = 0;                       // Protocol name length MSB
+	mqtt_message[3] = 6;                       // Protocol name length LSB
+	mqtt_message[4] = 77;                      // ASCII Code for M
+	mqtt_message[5] = 81;                      // ASCII Code for Q
+	mqtt_message[6] = 73;                      // ASCII Code for I
+	mqtt_message[7] = 115;                     // ASCII Code for s
+	mqtt_message[8] = 100;                     // ASCII Code for d
+	mqtt_message[9] = 112;                     // ASCII Code for p
+	mqtt_message[10] = 3;                      // MQTT protocol version
+	mqtt_message[11] = 194;                    // Connection flag with username and password
+	mqtt_message[12] = 0;                      // Keep-alive time MSB
+	mqtt_message[13] = 15;                     // Keep-alive time LSB
+	mqtt_message[14] = 0;                      // Client ID length MSB
+	mqtt_message[15] = ID_length;       			 // Client ID length LSB
+
+  // Client ID
+  for(i = 0; i < ID_length; i++) {
+      mqtt_message[16 + i] = clientID[i];
+  }
+
+  mqtt_message[16 + ID_length] = 0;                     // username length MSB
+	mqtt_message[17 + ID_length] = username_length;       // username length LSB
+
+	// Username
+  for(i = 0; i < username_length; i++) {
+      mqtt_message[18 + ID_length + i] = username[i];
+  }
+
+  mqtt_message[18 + ID_length + username_length] = 0;                     // password length MSB
+	mqtt_message[19 + ID_length + username_length] = password_length;       // password length LSB
+
+	// Password
+  for(i = 0; i < password_length; i++) {
+      mqtt_message[20 + ID_length + username_length + i] = password[i];
+  }
+}
+
+void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, char *topic, char *message) {
+  uint8_t i = 0;
+  byte topic_length = strlen(topic);
+  byte message_length = strlen(message);
+
+	mqtt_message[0] = 48;                                  // MQTT Message Type PUBLISH
+	mqtt_message[1] = 2 + topic_length + message_length;   // Remaining length
+	mqtt_message[2] = 0;                                   // 
+	mqtt_message[3] = topic_length;                    
+
+  // Topic
+  for(i = 0; i < topic_length; i++) {
+      mqtt_message[4 + i] = topic[i];
+  }
+
+  // Message
+  for(i = 0; i < message_length; i++) {
+      mqtt_message[4 + topic_length + i] = message[i];
+  }
+}
+
+void Adafruit_FONA::mqtt_subscribe_message(byte *mqtt_message, char *topic, byte QoS) {
+  uint8_t i = 0;
+  byte topic_length = strlen(topic);
+
+	mqtt_message[0] = 130;                // MQTT Message Type SUBSCRIBE
+	mqtt_message[1] = 5 + topic_length;   // Remaining length
+	mqtt_message[2] = 0;                  // Packet ID MSB   
+	mqtt_message[3] = 1;                  // Packet ID LSB
+	mqtt_message[4] = 0;                  // Topic length MSB      
+	mqtt_message[5] = topic_length;       // Topic length LSB          
+
+  // Topic
+  for(i = 0; i < topic_length; i++) {
+      mqtt_message[6 + i] = topic[i];
+  }
+
+  mqtt_message[6 + topic_length] = QoS;   // QoS byte
+}
+
+void Adafruit_FONA::mqtt_disconnect_message(byte *mqtt_message) {
+	mqtt_message[0] = 0xE0; // msgtype = connect
+	mqtt_message[1] = 0x00; // length of message (?)
+}
+
+boolean Adafruit_FONA::mqtt_sendPacket(byte *packet, byte len) {
+	// Send packet and get response
+	DEBUG_PRINT(F("\t---> "));
+
+	for (int j = 0; j < len; j++) {
+		// if (packet[j] == NULL) break; // We've reached the end of the actual content
+	  mySerial->write(packet[j]); // Needs to be "write" not "print"
+	  DEBUG_PRINT(packet[j]); // Message contents
+	  DEBUG_PRINT(" "); // Space out the bytes
+  }
+  mySerial->write(byte(26)); // End of packet
+  DEBUG_PRINT(byte(26));
+
+  readline(3000); // Wait up to 3 seconds to send the data
+	DEBUG_PRINTLN("");
+  DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+
+	return (strcmp(replybuffer, "SEND OK") == 0);
+}
+
+////////////////////////////////////////////////////////////
+
+boolean Adafruit_FONA::MQTTconnect(char *clientID, char *username, char *password) {
+	flushInput();
+	mySerial->println(F("AT+CIPSEND"));
+	readline();
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  if (replybuffer[0] != '>') return false;
+
+  byte mqtt_message[127];
+  mqtt_connect_message(mqtt_message, clientID, username, password);
+
+  if (! mqtt_sendPacket(mqtt_message, 20+strlen(clientID)+strlen(username)+strlen(password))) return false;
+
+  return true;
+}
+
+boolean Adafruit_FONA::MQTTpublish(char *clientID, char* topic, char* message) {
+	flushInput();
+	mySerial->println(F("AT+CIPSEND"));
+	readline();
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  if (replybuffer[0] != '>') return false;
+
+  byte mqtt_message[127];
+  mqtt_publish_message(mqtt_message, topic, message);
+
+  if (!mqtt_sendPacket(mqtt_message, 4+strlen(topic)+strlen(message))) return false;
+
+  return true;
+}
+
+boolean Adafruit_FONA::MQTTsubscribe(char* topic, byte QoS) {
+	flushInput();
+	mySerial->println(F("AT+CIPSEND"));
+	readline();
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  if (replybuffer[0] != '>') return false;
+
+  byte mqtt_message[127];
+  mqtt_subscribe_message(mqtt_message, topic, QoS);
+
+  if (!mqtt_sendPacket(mqtt_message, 7+strlen(topic))) return false;
+
+  return true;
+}
+
+boolean Adafruit_FONA::MQTTunsubscribe(char* topic) {
+
+}
+
+boolean Adafruit_FONA::MQTTreceive(char* topic, char* buf, int maxlen) {
+
+}
+
+boolean Adafruit_FONA::MQTTdisconnect(void) {
+	
+}
+
 
 /********* TCP FUNCTIONS  ************************************/
 
@@ -1492,7 +1663,7 @@ boolean Adafruit_FONA::TCPconnect(char *server, uint16_t port) {
 }
 
 boolean Adafruit_FONA::TCPclose(void) {
-  return sendCheckReply(F("AT+CIPCLOSE"), ok_reply);
+  return sendCheckReply(F("AT+CIPCLOSE"), F("CLOSE OK"));
 }
 
 boolean Adafruit_FONA::TCPconnected(void) {

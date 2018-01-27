@@ -161,6 +161,14 @@ class Adafruit_FONA : public FONAStreamType {
   uint16_t TCPavailable(void);
   uint16_t TCPread(uint8_t *buff, uint8_t len);
 
+  // MQTT
+  boolean MQTTconnect(char *clientID, char *username, char *password);
+  boolean MQTTdisconnect(void);
+  boolean MQTTpublish(char *clientID, char* topic, char* message);
+  boolean MQTTsubscribe(char* topic, byte QoS);
+  boolean MQTTunsubscribe(char* topic);
+  boolean MQTTreceive(char* topic, char* buf, int maxlen);
+
   // HTTP low level interface (maps directly to SIM800 commands).
   boolean HTTP_init();
   boolean HTTP_term();
@@ -231,6 +239,12 @@ class Adafruit_FONA : public FONAStreamType {
   boolean sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix, int32_t suffix2, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReplyQuoted(FONAFlashStringPtr prefix, FONAFlashStringPtr suffix, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
+
+  void mqtt_connect_message(byte *mqtt_message, char *client_id, char *username, char *password);
+  void mqtt_publish_message(byte *mqtt_message, char *topic, char *message);
+  void mqtt_subscribe_message(byte *mqtt_message, char *topic, byte QoS);
+  void mqtt_disconnect_message(byte *mqtt_message);
+  boolean mqtt_sendPacket(byte *packet, byte len);
 
 
   boolean parseReply(FONAFlashStringPtr toreply,
