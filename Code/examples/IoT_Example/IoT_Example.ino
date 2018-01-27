@@ -31,7 +31,7 @@
 #include "Adafruit_FONA.h"
 
 // MQTT parameters (if you're using it, that is)
-// Find the things listed below in the cloudMQTT "Details" page
+// You can find the things listed below on the cloudMQTT "Details" page
 #define MQTT_server    "m10.cloudmqtt.com"
 #define MQTT_port      16644
 #define MQTT_username  "xxxxxxxx"          
@@ -65,6 +65,16 @@ Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 //#define FONA_TX 3
 //#define FONA_RST 4
 //#define PWRKEY 5
+
+// For Feather FONA (SIM800) specifically
+//#define FONA_RX  9
+//#define FONA_TX  8
+//#define FONA_RST 4
+//#define FONA_RI  7
+// For the PWRKEY pin, use any available digital pin, but cut the
+// PWRKEY trace on the Feather FONA for this to work. YOu can't sleep
+// the SIM800 if the trace isn't cut.
+//#define PWRKEY 0
 
 // For LTE shield v4
 #define FONA_PWRKEY 6
@@ -107,6 +117,7 @@ char replybuffer[255]; // Large buffer for replies
 uint8_t type;
 uint16_t battLevel = 0; // Battery level (percentage)
 float latitude, longitude, speed_kph, heading, altitude;
+uint8_t counter = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -249,7 +260,7 @@ void loop() {
   sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
 
-  uint8_t counter = 0; // This counts the number of failed attempts tries
+  counter = 0; // This counts the number of failed attempts tries
   // Try a total of three times if the post was unsuccessful (try additional 2 times)
   while (counter < 3 && !fona.postData("GET", URL, "")) { // Add the quotes "" as third input because for GET request there's no "body"
     Serial.println(F("Failed to post data, retrying..."));
@@ -263,7 +274,7 @@ void loop() {
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
   sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
 
-  uint8_t counter = 0;
+  counter = 0;
   while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++
@@ -279,7 +290,7 @@ void loop() {
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
 //  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
 
-  uint8_t counter = 0;
+  counter = 0;
   while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++;
@@ -341,7 +352,7 @@ void loop() {
   // instead of completely turning it off. Experiment different ways depending on your application!
   // You should see the "PWR" LED turn off after this command
 //  if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!")); // No retries
-  uint8_t counter = 0;
+  counter = 0;
   while (counter < 3 && !fona.powerDown()) { // Try shutting down 
     Serial.println(F("Failed to power down FONA!"));
     counter++; // Increment counter
