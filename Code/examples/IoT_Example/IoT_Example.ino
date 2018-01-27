@@ -1,13 +1,26 @@
 /* This is an example sketch to send battery, temperature, and GPS location data to
- *  dweet.io, a free cloud API. You can choose to post only once or to post periodically
+ *  the cloud via either HTTP GET and POST requests or via MQTT protocol. In this 
+ *  sketch we will send to dweet.io, a free cloud API, as well as to ThingsBoard.io,
+ *  a very powerful and free IoT platform that allows you to visualize data on dashboards.
+ *  
+ *  SETTINGS: You can choose to post only once or to post periodically
  *  by commenting/uncommenting line 57 ("#define samplingRate 30"). When this line is 
  *  commented out the AVR microcontroller and MCP9808 temperature sensor are put to 
  *  sleep to conserve power, but when the line is being used data will be sent to the
  *  cloud periodically. This makes it operate like a GPS tracker!
  *  
- *  To check if the data was successfully sent, go to http://dweet.io/get/latest/dweet/for/{IMEI}
- *  and the IMEI number is printed at the beginning of the code but can also be found printed
- *  on the SIMCOM module itself.
+ *  PROTOCOL: You can use HTTP GET or POST requests and you can change the URL to pretty
+ *  much anything you want. You can also use MQTT, although currently functionalities are
+ *  limited and still under development but connecting and publishing with username/pass
+ *  have been verified!
+ *  
+ *  DWEET.IO: To check if the data was successfully sent to dweet, go to
+ *  http://dweet.io/get/latest/dweet/for/{IMEI} and the IMEI number is printed at the
+ *  beginning of the code but can also be found printed on the SIMCOM module itself.
+ *  
+ *  GPS Tracker Tutorial Part 1: https://www.instructables.com/id/Arduino-LTE-Shield-GPS-Tracking-Freeboardio/
+ *  GPS Tracker Tutorial Part 2: https://www.instructables.com/id/LTE-Arduino-GPS-Tracker-IoT-Dashboard-Part-2/
+ *  MQTT Tutorial: Coming soon!
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
@@ -16,10 +29,31 @@
   */
 
 #include "Adafruit_FONA.h"
+
+// MQTT parameters (if you're using it, that is)
+// You can find the things listed below on the cloudMQTT "Details" page
+#define MQTT_server    "m10.cloudmqtt.com"
+#define MQTT_port      16644
+#define MQTT_username  "dikqpxhj"          
+#define MQTT_key       "26HsV6JYx9h0"
+
+// User-defined:
+char MQTT_client[16] = " ";  // We'll change this to the IMEI
+#define MQTT_topic1    "lat"
+#define MQTT_topic2    "long"
+#define MQTT_topic3    "speed"
+#define MQTT_topic4    "head"
+#define MQTT_topic5    "alt"
+#define MQTT_topic6    "temp"
+#define MQTT_topic7    "voltage"
+
+#define sub_topic      "command"  // Maybe you're subscribing for commands from someone
+
+// For sleeping the AVR
 #include <avr/sleep.h>
 #include <avr/power.h>
 
-// Libraries for temperature sensor
+// For temperature sensor
 #include <Wire.h>
 #include "Adafruit_MCP9808.h"
 
@@ -32,17 +66,7 @@ Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 //#define FONA_RST 4
 //#define PWRKEY 5
 
-// For Feather FONA (SIM800) specifically
-//#define FONA_RX  9
-//#define FONA_TX  8
-//#define FONA_RST 4
-//#define FONA_RI  7
-// For the PWRKEY pin, use any available digital pin, but cut the
-// PWRKEY trace on the Feather FONA for this to work. YOu can't sleep
-// the SIM800 if the trace isn't cut.
-//#define PWRKEY 0
-
-// For LTE shield
+// For LTE shield v4
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -69,13 +93,13 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 // The following line is used for applications that require repeated data posting, like GPS trackers
 // Comment it out if you only want it to post once, not repeatedly every so often
-#define samplingRate 10 // The time in between posts, in seconds
+//#define samplingRate 10 // The time in between posts, in seconds
 
 // The following line can be used to turn off the shield after posting data. This
 // could be useful for saving energy for sparse readings but keep in mind that it
 // will take longer to get a fix on location after turning back on than if it had
 // already been on. Comment out to leave the shield on after it posts data.
-//#define turnOffShield // Turn off shield after posting data
+#define turnOffShield // Turn off shield after posting data
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
@@ -225,7 +249,7 @@ void loop() {
   sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
 
-  int counter = 0; // This counts the number of failed attempts tries
+  uint8_t counter = 0; // This counts the number of failed attempts tries
   // Try a total of three times if the post was unsuccessful (try additional 2 times)
   while (counter < 3 && !fona.postData("GET", URL, "")) { // Add the quotes "" as third input because for GET request there's no "body"
     Serial.println(F("Failed to post data, retrying..."));
@@ -239,7 +263,7 @@ void loop() {
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
   sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
 
-  int counter = 0;
+  uint8_t counter = 0;
   while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++
@@ -249,18 +273,58 @@ void loop() {
 
   // Let's try a POST request to thingsboard.io
   /*
-  const char* token = "YOUR_DEVICE_TOKEN"; // From thingsboard.io device
+  const char* token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
   sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
   sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
 //  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
 
-  int counter = 0;
+  uint8_t counter = 0;
   while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++;
     delay(1000);
   }
+  */
+
+  // Let's use MQTT! NOTE: connecting and publishing work, but everything else
+  // still under development!!!
+  /*
+  // Let's begin by changing the client name to the IMEI number to better identify
+  strcpy(MQTT_client, imei); // Copy the contents of the imei into the char array "MQTT_client"
+
+  // Connect to MQTT broker
+  if (!fona.TCPconnect(MQTT_server, MQTT_port)) Serial.println(F("Failed to connect to TCP/IP!"));
+  if (!fona.MQTTconnect(MQTT_client, MQTT_username, MQTT_key)) Serial.println(F("Failed to connect to MQTT broker!"));
+  
+  // Publish topic
+  Serial.print(F("Publishing to topic: ")); Serial.println(MQTT_topic1);
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic1, latBuff)) Serial.println(F("Failed to publish data!"));
+
+  // Publish each data point under a different topic!
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic2, longBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic3, speedBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic4, headBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic5, altBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic6, tempBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_client, MQTT_topic7, battBuff)) Serial.println(F("Failed to publish data!"));
+  
+  // Subscribe to topic
+//  Serial.print(F("Subscribing to topic: ")); Serial.println(sub_topic);
+//  if (!fona.MQTTsubscribe(sub_topic, 0)) Serial.println(F("Failed to subscribe!"));
+
+  // Unsubscribe to topic
+//  Serial.print(F("Unsubscribing from topic: ")); Serial.println(sub_topic);
+//  if (!fona.MQTTunsubscribe(sub_topic)) Serial.println(F("Failed to receive data!")); // Topic, quality of service (QoS)
+
+  // Receive data
+//  if (!fona.MQTTreceive(MQTT_topic)) Serial.println(F("Failed to unsubscribe!"));
+  
+  // Disconnect from MQTT broker
+//  if (!fona.MQTTdisconnect()) Serial.println(F("Failed to close connection!"));
+
+  // Close TCP connection
+  if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
   */
 
   //Only run the code below if you want to turn off the shield after posting data
@@ -277,7 +341,7 @@ void loop() {
   // instead of completely turning it off. Experiment different ways depending on your application!
   // You should see the "PWR" LED turn off after this command
 //  if (!fona.powerDown()) Serial.println(F("Failed to power down FONA!")); // No retries
-  counter = 0;
+  uint8_t counter = 0;
   while (counter < 3 && !fona.powerDown()) { // Try shutting down 
     Serial.println(F("Failed to power down FONA!"));
     counter++; // Increment counter
