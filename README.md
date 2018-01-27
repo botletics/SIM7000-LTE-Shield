@@ -21,13 +21,14 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Post to a web API via LTE CAT-M1
 
 ### To-Do List
-- Add MQTT functions and examples
+- Test MQTT subscribe and receive
 - Add FTP functions and examples
 - Test NTP time sync (I think SIMCom recently updated their firmware to support it)
 - Test SSL
 - Test voice support?
 
 ### Completed Tasks
+- Successfully tested MQTT connect and publish using TCP/IP!
 - Added "getNetworkInfo()" function (command "1" in LTE_Demo sketch) to get connection info, connection status, cellular band, etc.
 - Added if statements that can be uncommented to eliminate unnecessary AT commands from "enableGPRS()" function for LTE modules (SIM7000) in case GPRS isn't being used at all
 - Added HTTP status and data length verification in postData() function
