@@ -31,11 +31,11 @@
 #include "Adafruit_FONA.h"
 
 // MQTT parameters (if you're using it, that is)
-// You can find the things listed below on the cloudMQTT "Details" page
+// Find the things listed below in the cloudMQTT "Details" page
 #define MQTT_server    "m10.cloudmqtt.com"
 #define MQTT_port      16644
-#define MQTT_username  "dikqpxhj"          
-#define MQTT_key       "26HsV6JYx9h0"
+#define MQTT_username  "xxxxxxxx"          
+#define MQTT_key       "xxxxxxxxxxxx"
 
 // User-defined:
 char MQTT_client[16] = " ";  // We'll change this to the IMEI
