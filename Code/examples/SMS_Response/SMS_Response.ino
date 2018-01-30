@@ -4,7 +4,7 @@
  *   like remote sensors, SMS-activated controls, and many other things!
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Github: https://github.com/botletics/SIM7000-LTE-Shield
  *  Last Updated: 1/8/2017
  *  License: GNU GPL v3.0
   */
