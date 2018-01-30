@@ -12,7 +12,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 11/22/2017
+ *  Last Updated: 1/30/2018
  *  License: GNU GPL v3.0
  */
 
@@ -22,7 +22,7 @@
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
-//#define FONA_RI 9
+//#define FONA_RI 9 // Need to enable via AT commands
 #define FONA_TX 10 // Microcontroller RX
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
@@ -40,7 +40,12 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);
 
-  fona.begin(115200); // Choose the right baud rate, 115200 by default
+  // Hard-code baud rate
+  fona.begin(115200); // Default baud rate
+//  fona.begin(4800);
+
+  Serial.println("Turning off echo!");
+  fona.println("ATE0"); // Turn off echo
 }
 
 void loop() {
@@ -50,6 +55,7 @@ void loop() {
     if (userCmd == "ON") FONApower(true);
     else if (userCmd == "OFF") FONApower(false);
     else if (userCmd == "RESET") FONAreset();
+    else if (userCmd == "FACTORY") facReset();
     else if (userCmd.indexOf("BAUD") != -1) {
       baudRate = userCmd.substring(4).toInt();
       Serial.print("*** Switching to "); Serial.print(baudRate); Serial.println(" baud");
@@ -102,4 +108,11 @@ void FONAreset() {
   digitalWrite(FONA_RST, LOW);
   delay(100); // Between 50-500ms
   digitalWrite(FONA_RST, HIGH);
+}
+
+// This function factory resets the SIM7000
+void facReset() {
+  Serial.println("*** Factory resetting...");
+  Serial.print(" --> AT&F0");
+  fona.println("AT&F0");
 }
