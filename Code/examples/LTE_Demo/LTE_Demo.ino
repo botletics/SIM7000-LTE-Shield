@@ -2,7 +2,7 @@
  *  This code supports the SIM7000-series modules (LTE/NB-IoT shields) for low-power IoT devices!
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Github: https://github.com/botletics/SIM7000-LTE-Shield
  *  Last Updated: 1/24/2018
  *  License: GNU GPL v3.0
   */
