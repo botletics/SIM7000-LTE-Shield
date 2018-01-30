@@ -39,6 +39,8 @@ void setup() {
   digitalWrite(FONA_PWRKEY, HIGH);
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);
+  
+  delay(3000); // Let the shield boot up
 
   // Hard-code baud rate
   fona.begin(115200); // Default baud rate
