@@ -39,15 +39,10 @@ void setup() {
   digitalWrite(FONA_PWRKEY, HIGH);
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);
-  
-  delay(3000); // Let the shield boot up
 
   // Hard-code baud rate
   fona.begin(115200); // Default baud rate
 //  fona.begin(4800);
-
-  Serial.println("Turning off echo!");
-  fona.println("ATE0"); // Turn off echo
 }
 
 void loop() {
@@ -92,6 +87,9 @@ void FONApower(bool option) {
     digitalWrite(FONA_PWRKEY, LOW);
     delay(100); // At least 72ms
     digitalWrite(FONA_PWRKEY, HIGH);
+    delay(3000); // Let the shield power up
+    Serial.println("Turning off echo!");
+    fona.println("ATE0"); // Turn off echo
   }
   else {
     Serial.println("*** Turning OFF (takes about 1.3s)");
