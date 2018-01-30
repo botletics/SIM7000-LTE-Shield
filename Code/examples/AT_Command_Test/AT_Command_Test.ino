@@ -11,7 +11,7 @@
  *  "AT Command Library" here: https://github.com/botletics/AT-Command-Library
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Github: https://github.com/botletics/SIM7000-LTE-Shield
  *  Last Updated: 1/30/2018
  *  License: GNU GPL v3.0
  */
@@ -21,11 +21,8 @@
 // For LTE shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
-//#define FONA_DTR 8 // Connect with solder jumper
-//#define FONA_RI 9 // Need to enable via AT commands
 #define FONA_TX 10 // Microcontroller RX
 #define FONA_RX 11 // Microcontroller TX
-//#define T_ALERT 12 // Connect with solder jumper
 
 SoftwareSerial fona = SoftwareSerial(FONA_TX, FONA_RX);
 
@@ -87,7 +84,7 @@ void FONApower(bool option) {
     digitalWrite(FONA_PWRKEY, LOW);
     delay(100); // At least 72ms
     digitalWrite(FONA_PWRKEY, HIGH);
-    delay(3000); // Let the shield power up
+    delay(4000); // Let the shield power up
     Serial.println("Turning off echo!");
     fona.println("ATE0"); // Turn off echo
   }
