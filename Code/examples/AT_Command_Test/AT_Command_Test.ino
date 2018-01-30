@@ -11,7 +11,7 @@
  *  "AT Command Library" here: https://github.com/botletics/AT-Command-Library
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/SIM7000-LTE-Shield
+ *  Github: https://github.com/botletics/NB-IoT-Shield
  *  Last Updated: 1/30/2018
  *  License: GNU GPL v3.0
  */
@@ -37,9 +37,15 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);
 
+  FONApower(true); // Turn on the shield
+  delay(4000); // Let the shield power up
+
   // Hard-code baud rate
   fona.begin(115200); // Default baud rate
 //  fona.begin(4800);
+  
+  Serial.println("Turning off echo!");
+  fona.println("ATE0"); // Turn off echo
 }
 
 void loop() {
@@ -84,9 +90,6 @@ void FONApower(bool option) {
     digitalWrite(FONA_PWRKEY, LOW);
     delay(100); // At least 72ms
     digitalWrite(FONA_PWRKEY, HIGH);
-    delay(4000); // Let the shield power up
-    Serial.println("Turning off echo!");
-    fona.println("ATE0"); // Turn off echo
   }
   else {
     Serial.println("*** Turning OFF (takes about 1.3s)");
