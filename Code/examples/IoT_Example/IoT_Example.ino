@@ -23,7 +23,7 @@
  *  MQTT Tutorial: Coming soon!
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Github: https://github.com/botletics/SIM7000-LTE-Shield
  *  Last Updated: 12/30/2017
  *  License: GNU GPL v3.0
   */
