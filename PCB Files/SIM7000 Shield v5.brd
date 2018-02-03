@@ -254,8 +254,8 @@ Released under CC-BY-SA-4.0 license</text>
 <text x="24.638" y="43.307" size="0.8128" layer="22" font="vector" ratio="16" rot="MR0">VCC</text>
 <text x="17.653" y="38.989" size="1.27" layer="21" font="vector" ratio="16">-VCC+</text>
 <text x="18.034" y="43.688" size="1.27" layer="21" font="vector" ratio="16">LOGIC</text>
-<text x="8.636" y="9.906" size="1.27" layer="21" font="vector" ratio="16">+</text>
-<text x="37.973" y="8.255" size="1.016" layer="21" font="vector" ratio="16" rot="R90">DONE</text>
+<text x="8.636" y="9.398" size="1.27" layer="21" font="vector" ratio="16">+</text>
+<text x="38.1" y="8.255" size="1.016" layer="21" font="vector" ratio="16" rot="R90">DONE</text>
 <text x="18.415" y="4.318" size="1.27" layer="21" font="vector" ratio="16" rot="R90">VBAT</text>
 </plain>
 <libraries>
@@ -289,8 +289,8 @@ Released under CC-BY-SA-4.0 license</text>
 </library>
 <library name="TimWoo-Aesthetics" urn="urn:adsk.eagle:library:502097">
 <packages>
-<package name="FIDUCIAL_1MM" urn="urn:adsk.eagle:footprint:502113/1" library_version="2" library_locally_modified="yes">
-<smd name="1" x="0" y="0" dx="1" dy="1" layer="1" roundness="100" stop="no" cream="no"/>
+<package name="FIDUCIAL_1MM" urn="urn:adsk.eagle:footprint:502113/1" locally_modified="yes" library_version="3" library_locally_modified="yes">
+<smd name="1" x="0" y="0" dx="1" dy="1" layer="1" roundness="100" cream="no"/>
 <wire x1="-0.75" y1="0" x2="0" y2="0.75" width="0.5" layer="29" curve="-90"/>
 <wire x1="0" y1="0.75" x2="0.75" y2="0" width="0.5" layer="29" curve="-90"/>
 <wire x1="0.75" y1="0" x2="0" y2="-0.75" width="0.5" layer="29" curve="-90"/>
@@ -312,13 +312,22 @@ Released under CC-BY-SA-4.0 license</text>
 </library>
 <library name="TimWoo-IC" urn="urn:adsk.eagle:library:500796">
 <packages>
-<package name="VQFN-14" library_version="6" library_locally_modified="yes">
+<package name="VQFN-14" urn="urn:adsk.eagle:footprint:1035348/1" library_version="10">
 <smd name="PAD" x="0" y="0" dx="2.05" dy="2.05" layer="1" cream="no"/>
 <smd name="4" x="0" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
 <smd name="14" x="-1.725" y="0.75" dx="0.85" dy="0.28" layer="1" rot="R180" cream="no"/>
 <smd name="7" x="1.725" y="-0.75" dx="0.85" dy="0.28" layer="1" rot="R180" cream="no"/>
 <smd name="8" x="1.725" y="0.75" dx="0.85" dy="0.28" layer="1" rot="R180" cream="no"/>
 <smd name="1" x="-1.725" y="-0.75" dx="0.85" dy="0.28" layer="1" rot="R180" cream="no"/>
+<smd name="5" x="0.5" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="6" x="1" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="3" x="-0.5" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="2" x="-1" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="11" x="0" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="10" x="0.5" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="9" x="1" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="12" x="-0.5" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
+<smd name="13" x="-1" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
 <text x="-1.905" y="2.54" size="0.4064" layer="25" font="vector" ratio="16">&gt;NAME</text>
 <text x="-1.905" y="-2.921" size="0.4064" layer="27" font="vector" ratio="16">&gt;VALUE</text>
 <wire x1="-1.875" y1="1.875" x2="1.875" y2="1.875" width="0.127" layer="51"/>
@@ -340,15 +349,6 @@ Released under CC-BY-SA-4.0 license</text>
 <rectangle x1="-0.97" y1="0.15" x2="-0.15" y2="0.97" layer="31"/>
 <rectangle x1="-0.97" y1="-0.97" x2="-0.15" y2="-0.15" layer="31"/>
 <rectangle x1="0.15" y1="-0.97" x2="0.97" y2="-0.15" layer="31"/>
-<smd name="5" x="0.5" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="6" x="1" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="3" x="-0.5" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="2" x="-1" y="-1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="11" x="0" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="10" x="0.5" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="9" x="1" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="12" x="-0.5" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
-<smd name="13" x="-1" y="1.725" dx="0.85" dy="0.28" layer="1" rot="R90" cream="no"/>
 <rectangle x1="1.35" y1="-0.84" x2="2.1" y2="-0.66" layer="31"/>
 <rectangle x1="1.35" y1="0.66" x2="2.1" y2="0.84" layer="31"/>
 <rectangle x1="-2.1" y1="0.66" x2="-1.35" y2="0.84" layer="31"/>
@@ -364,7 +364,7 @@ Released under CC-BY-SA-4.0 license</text>
 <rectangle x1="-0.59" y1="1.35" x2="-0.41" y2="2.1" layer="31"/>
 <rectangle x1="-1.09" y1="1.35" x2="-0.91" y2="2.1" layer="31"/>
 </package>
-<package name="8-TSSOP" urn="urn:adsk.eagle:footprint:1035361/1" locally_modified="yes" library_version="8" library_locally_modified="yes">
+<package name="8-TSSOP" urn="urn:adsk.eagle:footprint:1035361/3" library_version="10">
 <wire x1="-1.45" y1="1.25" x2="1.55" y2="1.25" width="0.127" layer="21"/>
 <wire x1="1.55" y1="1.25" x2="1.55" y2="-1.25" width="0.127" layer="21"/>
 <wire x1="1.55" y1="-1.25" x2="-0.7" y2="-1.25" width="0.127" layer="21"/>
@@ -387,7 +387,9 @@ Released under CC-BY-SA-4.0 license</text>
 </package>
 </packages>
 <packages3d>
-<package3d name="8-TSSOP" urn="urn:adsk.eagle:package:1035421/1" type="box" library_version="8" library_locally_modified="yes">
+<package3d name="8-TSSOP" urn="urn:adsk.eagle:package:1035421/3" type="box" library_version="10">
+</package3d>
+<package3d name="VQFN-14" urn="urn:adsk.eagle:package:1035405/1" type="box" library_version="10">
 </package3d>
 </packages3d>
 </library>
@@ -502,7 +504,7 @@ Source: RS Components</description>
 </library>
 <library name="TimWoo-Diodes" urn="urn:adsk.eagle:library:501758">
 <packages>
-<package name="SOD-323" urn="urn:adsk.eagle:footprint:501761/1" library_version="3">
+<package name="SOD-323" urn="urn:adsk.eagle:footprint:501761/2" library_version="4">
 <wire x1="-0.9" y1="0.65" x2="-0.5" y2="0.65" width="0.2032" layer="21"/>
 <wire x1="-0.5" y1="0.65" x2="0.9" y2="0.65" width="0.2032" layer="21"/>
 <wire x1="-0.9" y1="-0.65" x2="-0.5" y2="-0.65" width="0.2032" layer="21"/>
@@ -510,10 +512,10 @@ Source: RS Components</description>
 <wire x1="-0.5" y1="0.65" x2="-0.5" y2="-0.65" width="0.2032" layer="21"/>
 <smd name="C" x="-1.15" y="0" dx="0.63" dy="0.83" layer="1"/>
 <smd name="A" x="1.15" y="0" dx="0.63" dy="0.83" layer="1"/>
-<text x="-0.889" y="1.016" size="0.4064" layer="25">&gt;NAME</text>
-<text x="-1.016" y="-1.397" size="0.4064" layer="27">&gt;VALUE</text>
+<text x="-0.889" y="1.016" size="0.4064" layer="25" font="vector" ratio="16">&gt;NAME</text>
+<text x="-1.016" y="-1.397" size="0.4064" layer="27" font="vector" ratio="16">&gt;VALUE</text>
 </package>
-<package name="SOT-353" library_version="3" library_locally_modified="yes">
+<package name="SOT-353" urn="urn:adsk.eagle:footprint:1036039/1" library_version="4">
 <smd name="4" x="0.65" y="0.95" dx="0.4" dy="0.5" layer="1" rot="R180"/>
 <smd name="3" x="0.65" y="-0.95" dx="0.4" dy="0.5" layer="1" rot="R180"/>
 <smd name="2" x="0" y="-0.95" dx="0.4" dy="0.5" layer="1" rot="R180"/>
@@ -532,7 +534,9 @@ Source: RS Components</description>
 </package>
 </packages>
 <packages3d>
-<package3d name="SOD-323" urn="urn:adsk.eagle:package:501784/2" type="model" library_version="3">
+<package3d name="SOD-323" urn="urn:adsk.eagle:package:501784/3" type="model" library_version="4">
+</package3d>
+<package3d name="SOT-353" urn="urn:adsk.eagle:package:1036040/1" type="box" library_version="4">
 </package3d>
 </packages3d>
 </library>
@@ -1481,7 +1485,7 @@ Please make sure your boards conform to these design rules.</description>
 </autorouter>
 <elements>
 <element name="FID2" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" package="FIDUCIAL_1MM" package3d_urn="urn:adsk.eagle:package:502130/2" value="FIDUCIAL" x="3.81" y="6.35" smashed="yes"/>
-<element name="FID1" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" package="FIDUCIAL_1MM" package3d_urn="urn:adsk.eagle:package:502130/2" value="FIDUCIAL" x="48.26" y="44.45" smashed="yes"/>
+<element name="FID1" library="TimWoo-Aesthetics" library_urn="urn:adsk.eagle:library:502097" package="FIDUCIAL_1MM" package3d_urn="urn:adsk.eagle:package:502130/2" value="FIDUCIAL" x="47.625" y="46.355" smashed="yes"/>
 <element name="J8" library="TimWoo-Connectors" library_urn="urn:adsk.eagle:library:1036184" package="USB-B-MICRO-SMD" package3d_urn="urn:adsk.eagle:package:1036780/3" value="microUSB" x="2.032" y="30.48" smashed="yes">
 <attribute name="NAME" x="3.556" y="34.925" size="0.8128" layer="25" font="vector" ratio="16"/>
 <attribute name="VALUE" x="0.762" y="35.941" size="0.4064" layer="27" font="vector" ratio="16"/>
@@ -1502,7 +1506,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="18.288" y="13.97" size="0.8128" layer="25" font="vector" ratio="16" rot="R180"/>
 <attribute name="VALUE" x="16.764" y="13.843" size="0.4064" layer="27" font="vector"/>
 </element>
-<element name="D3" library="TimWoo-Diodes" library_urn="urn:adsk.eagle:library:501758" package="SOT-353" value="MSQA6V1W5T2G" x="17.145" y="19.177" smashed="yes" rot="R180">
+<element name="D3" library="TimWoo-Diodes" library_urn="urn:adsk.eagle:library:501758" package="SOT-353" package3d_urn="urn:adsk.eagle:package:1036040/1" value="MSQA6V1W5T2G" x="17.145" y="19.177" smashed="yes" rot="R180">
 <attribute name="NAME" x="17.907" y="17.526" size="0.8128" layer="25" font="vector" ratio="16" rot="R180"/>
 <attribute name="VALUE" x="18.161" y="20.955" size="0.4064" layer="27" font="vector" ratio="16" rot="R180"/>
 </element>
@@ -1530,7 +1534,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="29.21" y="43.18" size="0.8128" layer="25" font="vector" ratio="16" rot="R90"/>
 <attribute name="VALUE" x="32.131" y="44.831" size="0.4064" layer="27" font="vector" rot="R180"/>
 </element>
-<element name="IC2" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" package="VQFN-14" value="TXB0104" x="35.433" y="42.672" smashed="yes">
+<element name="IC2" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" package="VQFN-14" package3d_urn="urn:adsk.eagle:package:1035405/1" value="TXB0104" x="35.433" y="42.672" smashed="yes">
 <attribute name="NAME" x="37.592" y="43.942" size="0.8128" layer="25" font="vector" ratio="16"/>
 <attribute name="VALUE" x="33.528" y="39.751" size="0.4064" layer="27" font="vector" ratio="16"/>
 </element>
@@ -1538,12 +1542,12 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="50.927" y="19.431" size="0.4064" layer="25" font="vector"/>
 <attribute name="VALUE" x="52.197" y="19.558" size="0.4064" layer="27" font="vector" rot="R180"/>
 </element>
-<element name="D1" library="TimWoo-Diodes" library_urn="urn:adsk.eagle:library:501758" package="SOD-323" package3d_urn="urn:adsk.eagle:package:501784/2" value="1N4148" x="41.021" y="43.18" smashed="yes" rot="R270">
+<element name="D1" library="TimWoo-Diodes" library_urn="urn:adsk.eagle:library:501758" package="SOD-323" package3d_urn="urn:adsk.eagle:package:501784/3" value="250mA/100V" x="41.021" y="43.18" smashed="yes" rot="R270">
 <attribute name="NAME" x="41.91" y="43.815" size="0.8128" layer="25" font="vector" ratio="16" rot="R270"/>
 <attribute name="PROD_ID" value="DIO-09646" x="41.021" y="43.18" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" x="39.624" y="44.196" size="0.4064" layer="27" rot="R270"/>
 </element>
-<element name="D2" library="TimWoo-Diodes" library_urn="urn:adsk.eagle:library:501758" package="SOD-323" package3d_urn="urn:adsk.eagle:package:501784/2" value="1N4148" x="26.035" y="43.18" smashed="yes" rot="R270">
+<element name="D2" library="TimWoo-Diodes" library_urn="urn:adsk.eagle:library:501758" package="SOD-323" package3d_urn="urn:adsk.eagle:package:501784/3" value="250mA/100V" x="26.035" y="43.18" smashed="yes" rot="R270">
 <attribute name="NAME" x="25.019" y="42.545" size="0.8128" layer="25" font="vector" ratio="16" rot="R90"/>
 <attribute name="PROD_ID" value="DIO-09646" x="26.035" y="43.18" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" x="24.638" y="44.196" size="0.4064" layer="27" rot="R270"/>
@@ -1584,7 +1588,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="48.26" y="9.271" size="0.8128" layer="25" font="vector" ratio="16" rot="R180"/>
 <attribute name="VALUE" x="46.101" y="8.89" size="0.4064" layer="27"/>
 </element>
-<element name="IC3" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" package="8-TSSOP" package3d_urn="urn:adsk.eagle:package:1035421/1" value="MCP9808" x="9.652" y="39.878" smashed="yes" rot="R180">
+<element name="IC3" library="TimWoo-IC" library_urn="urn:adsk.eagle:library:500796" package="8-TSSOP" package3d_urn="urn:adsk.eagle:package:1035421/3" value="MCP9808" x="9.652" y="39.878" smashed="yes" rot="R180">
 <attribute name="NAME" x="7.979" y="39.743" size="0.8128" layer="25" font="vector" ratio="16" rot="R180"/>
 <attribute name="VALUE" x="11.662" y="43.958" size="0.8128" layer="27" font="vector" ratio="16" rot="R180"/>
 </element>
