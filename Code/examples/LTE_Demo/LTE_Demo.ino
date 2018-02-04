@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/24/2018
+ *  Last Updated: 2/3/2018
  *  License: GNU GPL v3.0
   */
 
@@ -22,7 +22,7 @@
   Adafruit invests time and resources providing this open source code,
   please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
-
+h
   Written by Limor Fried/Ladyada for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
@@ -42,7 +42,7 @@ the commented section below at the end of the setup() function.
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield v4
+// For LTE shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -79,7 +79,7 @@ uint8_t type;
 char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
 
 void setup() {
-  while (!Serial);
+//  while (!Serial);
 
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH); // Default state
@@ -95,6 +95,20 @@ void setup() {
   Serial.begin(115200);
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take 3 seconds)"));
+
+  // Configure a GPRS APN, username, and password.
+  // You might need to do this to access your network's GPRS/data
+  // network.  Contact your provider for the exact APN, username,
+  // and password values.  Username and password are optional and
+  // can be removed, but APN is required.
+  //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
+
+  // Optionally configure HTTP gets to follow redirects over SSL.
+  // Default is not to follow SSL redirects, however if you uncomment
+  // the following line then redirects over SSL will be followed.
+  //fona.setHTTPSRedirect(true);
 
   // The baud rate always resets back to default (115200) after
   // being powered down so let's try 115200 first. Hats off to
@@ -144,21 +158,7 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-
-  // Configure a GPRS APN, username, and password.
-  // You might need to do this to access your network's GPRS/data
-  // network.  Contact your provider for the exact APN, username,
-  // and password values.  Username and password are optional and
-  // can be removed, but APN is required.
-  //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-//  fona.setGPRSNetworkShettings(F("m2m.com.attz")); // For AT&T IoT SIM card
-  fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
-
-  // Optionally configure HTTP gets to follow redirects over SSL.
-  // Default is not to follow SSL redirects, however if you uncomment
-  // the following line then redirects over SSL will be followed.
-  //fona.setHTTPSRedirect(true);
-
+  
   printMenu();
 }
 
