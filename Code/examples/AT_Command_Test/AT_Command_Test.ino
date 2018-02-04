@@ -45,7 +45,7 @@ void setup() {
 //  fona.begin(4800);
   
   Serial.println("Turning off echo!");
-  fona.println("ATE0"); // Turn off echo
+  fona.println(" --> ATE0"); // Turn off echo
 }
 
 void loop() {
