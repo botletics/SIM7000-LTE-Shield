@@ -69,13 +69,15 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 // Uncomment *one* of the following protocols you want to use
 // to send data to the cloud! Leave the other commented out
-#define PROTOCOL_HTTP_GET
-//#define PROTOCOL_HTTP_POST
-//#define PROTOCOL_MQTT
+#define PROTOCOL_HTTP_GET         // Generic
+//#define PROTOCOL_HTTP_POST        // Generic
+//#define PROTOCOL_MQTT_AIO         // Adafruit IO
+//#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
 
-#ifdef PROTOCOL_MQTT
+#ifdef PROTOCOL_MQTT_AIO
   /************************* MQTT SETUP *********************************/
   // MQTT setup (if you're using it, that is)
+  // For Adafruit IO:
   #define AIO_SERVER      "io.adafruit.com"
   #define AIO_SERVERPORT  1883
   #define AIO_USERNAME    "YOUR_AIO_USERNAME"
@@ -102,6 +104,15 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
   Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/command");
 #endif
 
+#ifdef PROTOCOL_MQTT_CLOUDMQTT
+  /************************* MQTT SETUP *********************************/
+  // For CloudMQTT find these under the "Details" tab:
+  #define MQTT_SERVER      "m10.cloudmqtt.com"
+  #define MQTT_SERVERPORT  16644
+  #define MQTT_USERNAME    "CLOUD_MQTT_USERNAME"
+  #define MQTT_KEY         "CLOUD_MQTT_KEY"
+#endif
+
 /****************************** OTHER STUFF ***************************************/
 // For sleeping the AVR
 #include <avr/sleep.h>
@@ -122,7 +133,7 @@ Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 // could be useful for saving energy for sparse readings but keep in mind that it
 // will take longer to get a fix on location after turning back on than if it had
 // already been on. Comment out to leave the shield on after it posts data.
-// #define turnOffShield // Turn off shield after posting data
+//#define turnOffShield // Turn off shield after posting data
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
@@ -183,7 +194,7 @@ void setup() {
   Serial.println(F("Enabled GPRS!"));
 #endif
 
-#ifdef PROTOCOL_MQTT
+#ifdef PROTOCOL_MQTT_AIO
   mqtt.subscribe(&onoffbutton); // Only if you're using MQTT
 #endif
 }
@@ -317,7 +328,7 @@ void loop() {
   */
 #endif
 
-#ifdef PROTOCOL_MQTT
+#ifdef PROTOCOL_MQTT_AIO
   // Let's use MQTT!
   
   // Ensure the connection to the MQTT server is alive (this will make the first
@@ -411,6 +422,46 @@ void loop() {
       Serial.println((char *)onoffbutton.lastread);
     }
   }
+#endif
+
+#ifdef PROTOCOL_MQTT_CLOUDMQTT
+  // Let's use CloudMQTT! NOTE: connecting and publishing work, but everything else
+  // still under development!!!
+  char MQTT_CLIENT[16] = " ";  // We'll change this to the IMEI
+  
+  // Let's begin by changing the client name to the IMEI number to better identify
+  strcpy(MQTT_CLIENT, imei); // Copy the contents of the imei into the char array "MQTT_client"
+
+  // Connect to MQTT broker
+  if (!fona.TCPconnect(MQTT_SERVER, MQTT_SERVERPORT)) Serial.println(F("Failed to connect to TCP/IP!"));
+  if (!fona.MQTTconnect(MQTT_CLIENT, MQTT_USERNAME, MQTT_KEY)) Serial.println(F("Failed to connect to MQTT broker!"));
+  
+  // Publish each data point under a different topic!
+  Serial.print(F("Publishing data to their respective topics!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "latitude", latBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "longitude", longBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "speed", speedBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "heading", headBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "altitude", altBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "temperature", tempBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish(MQTT_CLIENT, "voltage", battBuff)) Serial.println(F("Failed to publish data!"));
+  
+  // Subscribe to topic
+//  Serial.print(F("Subscribing to topic: ")); Serial.println(sub_topic);
+//  if (!fona.MQTTsubscribe(sub_topic, 0)) Serial.println(F("Failed to subscribe!"));
+
+  // Unsubscribe to topic
+//  Serial.print(F("Unsubscribing from topic: ")); Serial.println(sub_topic);
+//  if (!fona.MQTTunsubscribe(sub_topic)) Serial.println(F("Failed to receive data!")); // Topic, quality of service (QoS)
+
+  // Receive data
+//  if (!fona.MQTTreceive(MQTT_topic)) Serial.println(F("Failed to unsubscribe!"));
+  
+  // Disconnect from MQTT broker
+//  if (!fona.MQTTdisconnect()) Serial.println(F("Failed to close connection!"));
+
+  // Close TCP connection
+  if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
 #endif
 
   //Only run the code below if you want to turn off the shield after posting data
@@ -559,7 +610,7 @@ bool netStatus() {
 
 // Function to connect and reconnect as necessary to the MQTT server.
 // Should be called in the loop function and it will take care if connecting.
-#ifdef PROTOCOL_MQTT
+#ifdef PROTOCOL_MQTT_AIO
   void MQTT_connect() {
     int8_t ret;
   
