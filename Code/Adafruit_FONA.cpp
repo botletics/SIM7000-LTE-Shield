@@ -1181,6 +1181,9 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	  		return false;
     // } // UNCOMMENT FOR 4G ONLY!
     
+
+    delay(100); // I found that this short delay helps the next command to run
+
     // set bearer profile access point name
     if (apn) {
       // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
