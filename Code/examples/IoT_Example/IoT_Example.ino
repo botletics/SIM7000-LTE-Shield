@@ -85,9 +85,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
   Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
   
   // How many transmission failures in a row we're OK with before reset
-  uint8_t txfailures = 0;
-  #define MAXTXFAILURES 3
-  
+  uint8_t txfailures = 0;  
   
   /****************************** MQTT FEEDS ***************************************/
   // Setup feeds for publishing.
