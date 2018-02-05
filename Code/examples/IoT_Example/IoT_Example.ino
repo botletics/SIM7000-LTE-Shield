@@ -43,7 +43,7 @@
 //#define FONA_RST 4
 //#define PWRKEY 5
 
-// For SIM7000 shield v4
+// For SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
