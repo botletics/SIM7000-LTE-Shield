@@ -10,9 +10,10 @@
  *  cloud periodically. This makes it operate like a GPS tracker!
  *  
  *  PROTOCOL: You can use HTTP GET or POST requests and you can change the URL to pretty
- *  much anything you want. You can also use MQTT, although currently functionalities are
- *  limited and still under development but connecting and publishing with username/pass
- *  have been verified!
+ *  much anything you want. You can also use MQTT to publish data to different feeds
+ *  on Adafruit IO. You can also subscribe to Adafruit IO feeds to command the device
+ *  to do something! In order to select a protocol, simply uncomment a line in the #define
+ *  section below!
  *  
  *  DWEET.IO: To check if the data was successfully sent to dweet, go to
  *  http://dweet.io/get/latest/dweet/for/{IMEI} and the IMEI number is printed at the
@@ -24,59 +25,25 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 12/30/2017
+ *  Last Updated: 2/5/2018
  *  License: GNU GPL v3.0
   */
 
 #include "Adafruit_FONA.h"
+#include <SoftwareSerial.h>
 
-// MQTT parameters (if you're using it, that is)
-// You can find the things listed below on the cloudMQTT "Details" page
-#define MQTT_server    "m10.cloudmqtt.com"
-#define MQTT_port      16644
-#define MQTT_username  "xxxxxxxx"          
-#define MQTT_key       "xxxxxxxxxxxx"
+// You don't need the following includes if you're not using MQTT:
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_FONA.h"
 
-// User-defined:
-char MQTT_client[16] = " ";  // We'll change this to the IMEI
-#define MQTT_topic1    "lat"
-#define MQTT_topic2    "long"
-#define MQTT_topic3    "speed"
-#define MQTT_topic4    "head"
-#define MQTT_topic5    "alt"
-#define MQTT_topic6    "temp"
-#define MQTT_topic7    "voltage"
-
-#define sub_topic      "command"  // Maybe you're subscribing for commands from someone
-
-// For sleeping the AVR
-#include <avr/sleep.h>
-#include <avr/power.h>
-
-// For temperature sensor
-#include <Wire.h>
-#include "Adafruit_MCP9808.h"
-
-// Create the MCP9808 temperature sensor object
-Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
-
+/************************* PIN DEFINITIONS *********************************/
 // Default
 //#define FONA_RX 2
 //#define FONA_TX 3
 //#define FONA_RST 4
 //#define PWRKEY 5
 
-// For Feather FONA (SIM800) specifically
-//#define FONA_RX  9
-//#define FONA_TX  8
-//#define FONA_RST 4
-//#define FONA_RI  7
-// For the PWRKEY pin, use any available digital pin, but cut the
-// PWRKEY trace on the Feather FONA for this to work. YOu can't sleep
-// the SIM800 if the trace isn't cut.
-//#define PWRKEY 0
-
-// For LTE shield v4
+// For SIM7000 shield v4
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -85,8 +52,7 @@ Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
 
-// Using SoftwareSerial:
-#include <SoftwareSerial.h>
+// Using SoftwareSerial
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 SoftwareSerial *fonaSerial = &fonaSS;
 
@@ -100,6 +66,55 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Use this one for FONA LTE
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
+
+// Uncomment *one* of the following protocols you want to use
+// to send data to the cloud! Leave the other commented out
+#define PROTOCOL_HTTP_GET
+//#define PROTOCOL_HTTP_POST
+//#define PROTOCOL_MQTT
+
+#ifdef PROTOCOL_MQTT
+  /************************* MQTT SETUP *********************************/
+  // MQTT setup (if you're using it, that is)
+  #define AIO_SERVER      "io.adafruit.com"
+  #define AIO_SERVERPORT  1883
+  #define AIO_USERNAME    "YOUR_AIO_USERNAME"
+  #define AIO_KEY         "YOUR_AIO_KEY"
+
+  // Setup the FONA MQTT class by passing in the FONA class and MQTT server and login details.
+  Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
+  
+  // How many transmission failures in a row we're OK with before reset
+  uint8_t txfailures = 0;
+  #define MAXTXFAILURES 3
+  
+  
+  /****************************** MQTT FEEDS ***************************************/
+  // Setup feeds for publishing.
+  // Notice MQTT paths for Adafruit IO follow the form: <username>/feeds/<feedname>
+  Adafruit_MQTT_Publish feed_lat = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/latitude");
+  Adafruit_MQTT_Publish feed_long = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/longitude");
+  Adafruit_MQTT_Publish feed_speed = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/speed");
+  Adafruit_MQTT_Publish feed_head = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/heading");
+  Adafruit_MQTT_Publish feed_alt = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/altitude");
+  Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperature");
+  Adafruit_MQTT_Publish feed_voltage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/voltage");
+  
+  // Setup a feed called 'command' for subscribing to changes.
+  Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/command");
+#endif
+
+/****************************** OTHER STUFF ***************************************/
+// For sleeping the AVR
+#include <avr/sleep.h>
+#include <avr/power.h>
+
+// For temperature sensor
+#include <Wire.h>
+#include "Adafruit_MCP9808.h"
+
+// Create the MCP9808 temperature sensor object
+Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 
 // The following line is used for applications that require repeated data posting, like GPS trackers
 // Comment it out if you only want it to post once, not repeatedly every so often
@@ -169,6 +184,10 @@ void setup() {
   }
   Serial.println(F("Enabled GPRS!"));
 #endif
+
+#ifdef PROTOCOL_MQTT
+  mqtt.subscribe(&onoffbutton); // Only if you're using MQTT
+#endif
 }
 
 void loop() {
@@ -200,6 +219,8 @@ void loop() {
 
   float temperature = tempC; // Select what unit you want to use for this example
 
+  delay(500); // I found that this helps
+
   // Turn on GPS if it wasn't on already (e.g., if the module wasn't turned off)
 #ifdef turnOffShield
   while (!fona.enableGPS(true)) {
@@ -215,13 +236,13 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Found 'eeeeem!"));
-  Serial.println("---------------------");
-  Serial.print("Latitude: "); Serial.println(latitude, 6);
-  Serial.print("Longitude: "); Serial.println(longitude, 6);
-  Serial.print("Speed: "); Serial.println(speed_kph);
-  Serial.print("Heading: "); Serial.println(heading);
-  Serial.print("Altitude: "); Serial.println(altitude);
-  Serial.println("---------------------");
+  Serial.println(F("---------------------"));
+  Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+  Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+  Serial.print(F("Speed: ")); Serial.println(speed_kph);
+  Serial.print(F("Heading: ")); Serial.println(heading);
+  Serial.print(F("Altitude: ")); Serial.println(altitude);
+  Serial.println(F("---------------------"));
 
 #ifdef turnOffShield // If the shield was already on, no need to re-enable
   // Disable GPRS just to make sure it was actually off so that we can turn it on
@@ -254,8 +275,8 @@ void loop() {
   // Construct the appropriate URL's and body, depending on request type
   // In this example we use the IMEI as device ID
 
+#ifdef PROTOCOL_HTTP_GET
   // GET request
-  
   // You can adjust the contents of the request if you don't need certain things like speed, altitude, etc.
   sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
@@ -267,20 +288,19 @@ void loop() {
     counter++; // Increment counter
     delay(1000);
   }
-  
-  
+#endif
+
+#ifdef PROTOCOL_HTTP_POST
   // You can also do a POST request instead
-  /*
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
-  sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
+  sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
 
   counter = 0;
   while (!fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
-    counter++
+    counter++;
     delay(1000);
   }
-  */
 
   // Let's try a POST request to thingsboard.io
   /*
@@ -297,46 +317,103 @@ void loop() {
     delay(1000);
   }
   */
+#endif
 
-  // Let's use MQTT! NOTE: connecting and publishing work, but everything else
-  // still under development!!!
-  /*
-  // Let's begin by changing the client name to the IMEI number to better identify
-  strcpy(MQTT_client, imei); // Copy the contents of the imei into the char array "MQTT_client"
-
-  // Connect to MQTT broker
-  if (!fona.TCPconnect(MQTT_server, MQTT_port)) Serial.println(F("Failed to connect to TCP/IP!"));
-  if (!fona.MQTTconnect(MQTT_client, MQTT_username, MQTT_key)) Serial.println(F("Failed to connect to MQTT broker!"));
+#ifdef PROTOCOL_MQTT
+  // Let's use MQTT!
   
-  // Publish topic
-  Serial.print(F("Publishing to topic: ")); Serial.println(MQTT_topic1);
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic1, latBuff)) Serial.println(F("Failed to publish data!"));
+  // Ensure the connection to the MQTT server is alive (this will make the first
+  // connection and automatically reconnect when disconnected). See the MQTT_connect
+  // function definition further below.
+  MQTT_connect();
 
-  // Publish each data point under a different topic!
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic2, longBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic3, speedBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic4, headBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic5, altBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic6, tempBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_client, MQTT_topic7, battBuff)) Serial.println(F("Failed to publish data!"));
-  
-  // Subscribe to topic
-//  Serial.print(F("Subscribing to topic: ")); Serial.println(sub_topic);
-//  if (!fona.MQTTsubscribe(sub_topic, 0)) Serial.println(F("Failed to subscribe!"));
+  // Now publish all the data to different feeds!
+  // Send latitude data
+  Serial.println(F("Sending latitude..."));
+  if (! feed_lat.publish(latBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
 
-  // Unsubscribe to topic
-//  Serial.print(F("Unsubscribing from topic: ")); Serial.println(sub_topic);
-//  if (!fona.MQTTunsubscribe(sub_topic)) Serial.println(F("Failed to receive data!")); // Topic, quality of service (QoS)
+  // Send longitude data
+  Serial.println(F("Sending longitude..."));
+  if (! feed_long.publish(longBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
 
-  // Receive data
-//  if (!fona.MQTTreceive(MQTT_topic)) Serial.println(F("Failed to unsubscribe!"));
-  
-  // Disconnect from MQTT broker
-//  if (!fona.MQTTdisconnect()) Serial.println(F("Failed to close connection!"));
+  // Send speed data
+  Serial.println(F("Sending speed..."));
+  if (! feed_speed.publish(speedBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
 
-  // Close TCP connection
-  if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
-  */
+  // Send heading data
+  Serial.println(F("Sending heading..."));
+  if (! feed_head.publish(headBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
+
+  // Send altitude data
+  Serial.println(F("Sending altitude..."));
+  if (! feed_alt.publish(altBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
+
+  // Send temperature data
+  Serial.println(F("Sending temperature..."));
+  if (! feed_temp.publish(tempBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
+
+  // Send voltage data
+  Serial.println(F("Sending supply voltage..."));
+  if (! feed_voltage.publish(battBuff)) {
+    Serial.println(F("Failed"));
+    txfailures++;
+  }
+  else {
+    Serial.println(F("OK!"));
+    txfailures = 0;
+  }
+
+  // This is our 'wait for incoming subscription packets' busy subloop
+  Adafruit_MQTT_Subscribe *subscription;
+  while ((subscription = mqtt.readSubscription(5000))) {
+    if (subscription == &onoffbutton) {
+      Serial.print(F("Got: "));
+      Serial.println((char *)onoffbutton.lastread);
+    }
+  }
+#endif
 
   //Only run the code below if you want to turn off the shield after posting data
 #ifdef turnOffShield
@@ -481,6 +558,29 @@ bool netStatus() {
   if (!(n == 1 || n == 5)) return false;
   else return true;
 }
+
+// Function to connect and reconnect as necessary to the MQTT server.
+// Should be called in the loop function and it will take care if connecting.
+#ifdef PROTOCOL_MQTT
+  void MQTT_connect() {
+    int8_t ret;
+  
+    // Stop if already connected.
+    if (mqtt.connected()) {
+      return;
+    }
+  
+    Serial.println("Connecting to MQTT... ");
+  
+    while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+      Serial.println(mqtt.connectErrorString(ret));
+      Serial.println("Retrying MQTT connection in 5 seconds...");
+      mqtt.disconnect();
+      delay(5000);  // wait 5 seconds
+    }
+    Serial.println("MQTT Connected!");
+  }
+#endif
 
 // Turn off the MCU completely. Can only wake up from RESET button
 // However, this can be altered to wake up via a pin change interrupt
