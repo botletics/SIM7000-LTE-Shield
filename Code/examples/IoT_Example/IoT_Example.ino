@@ -32,7 +32,8 @@
 #include "Adafruit_FONA.h"
 #include <SoftwareSerial.h>
 
-// You don't need the following includes if you're not using MQTT:
+// You don't need the following includes if you're not using MQTT
+// You can find the Adafruit MQTT library here: https://github.com/adafruit/Adafruit_MQTT_Library
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_FONA.h"
 
