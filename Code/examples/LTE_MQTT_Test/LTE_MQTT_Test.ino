@@ -190,7 +190,7 @@ void MQTT_connect() {
     return;
   }
 
-  Serial.print("Connecting to MQTT... ");
+  Serial.println("Connecting to MQTT... ");
 
   while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
     Serial.println(mqtt.connectErrorString(ret));
