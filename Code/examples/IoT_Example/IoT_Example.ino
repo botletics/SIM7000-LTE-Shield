@@ -19,9 +19,9 @@
  *  http://dweet.io/get/latest/dweet/for/{IMEI} and the IMEI number is printed at the
  *  beginning of the code but can also be found printed on the SIMCOM module itself.
  *  
+ *  IoT Example Getting-Started Tutorial: https://github.com/botletics/SIM7000-LTE-Shield/wiki/GPS-Tracker-Example
  *  GPS Tracker Tutorial Part 1: https://www.instructables.com/id/Arduino-LTE-Shield-GPS-Tracking-Freeboardio/
  *  GPS Tracker Tutorial Part 2: https://www.instructables.com/id/LTE-Arduino-GPS-Tracker-IoT-Dashboard-Part-2/
- *  MQTT Tutorial: Coming soon!
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
