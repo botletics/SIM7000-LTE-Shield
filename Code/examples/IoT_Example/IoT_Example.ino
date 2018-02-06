@@ -435,17 +435,18 @@ void loop() {
 
   // Connect to MQTT broker
   if (!fona.TCPconnect(MQTT_SERVER, MQTT_SERVERPORT)) Serial.println(F("Failed to connect to TCP/IP!"));
-  if (!fona.MQTTconnect(MQTT_CLIENT, MQTT_USERNAME, MQTT_KEY)) Serial.println(F("Failed to connect to MQTT broker!"));
+  // CloudMQTT requires "MQIsdp" instead of "MQTT"
+  if (!fona.MQTTconnect("MQIsdp", MQTT_CLIENT, MQTT_USERNAME, MQTT_KEY)) Serial.println(F("Failed to connect to MQTT broker!"));
   
   // Publish each data point under a different topic!
-  Serial.print(F("Publishing data to their respective topics!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "latitude", latBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "longitude", longBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "speed", speedBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "heading", headBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "altitude", altBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "temperature", tempBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish(MQTT_CLIENT, "voltage", battBuff)) Serial.println(F("Failed to publish data!"));
+  Serial.println(F("Publishing data to their respective topics!"));  
+  if (!fona.MQTTpublish("latitude", latBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("longitude", longBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("speed", speedBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("heading", headBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("altitude", altBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("temperature", tempBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("voltage", battBuff)) Serial.println(F("Failed to publish data!"));
   
   // Subscribe to topic
 //  Serial.print(F("Subscribing to topic: ")); Serial.println(sub_topic);
