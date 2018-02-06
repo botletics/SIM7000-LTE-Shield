@@ -892,7 +892,7 @@ void loop() {
         sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
         sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
         
-        if (!fona.postData("POST", URL, body))
+        if (!fona.postData("POST", URL, body)) // Can also add authorization token parameter!
           Serial.println(F("Failed to complete HTTP POST..."));
         */
       
