@@ -1181,9 +1181,6 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	  		return false;
     // } // UNCOMMENT FOR 4G ONLY!
     
-
-    delay(100); // I found that this short delay helps the next command to run
-
     // set bearer profile access point name
     if (apn) {
       // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
@@ -1386,7 +1383,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body) {
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Make sure HTTP service is terminated so initialization will run
@@ -1409,29 +1406,36 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // Perform request based on specified request type
   if (request_type == "GET") {
   	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
-    return false;
+    	return false;
   }
   else if (request_type == "POST" && strlen(body) > 0) { // POST with content body
   	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
-    return false;
+    	return false;
 
-	sprintf(auxStr, "AT+HTTPDATA=%d,10000", strlen(body));
-	if (! sendCheckReply(auxStr, "DOWNLOAD", 10000))
-    return false;
+    if (strlen(token) > 0) {
+	  	sprintf(auxStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
 
-	if (! sendCheckReply(body, ok_reply, 10000))
-    return false;
+	  	if (! sendCheckReply(auxStr, ok_reply, 10000))
+	  		return false;
+	  }
+
+		sprintf(auxStr, "AT+HTTPDATA=%d,10000", strlen(body));
+		if (! sendCheckReply(auxStr, "DOWNLOAD", 10000))
+	    return false;
+
+		if (! sendCheckReply(body, ok_reply, 10000))
+	    return false;
 
   	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-    return false;
+    	return false;
   }
   else if (request_type == "POST" && strlen(body) == 0) { // POST with query parameters
   	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-    return false;
+    	return false;
   }
   else if (request_type == "HEAD") {
   	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
-    return false;
+    	return false;
   }
 
   // Parse response status and size
