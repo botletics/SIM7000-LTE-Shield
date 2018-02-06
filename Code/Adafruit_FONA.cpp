@@ -1463,49 +1463,77 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
 ////////////////////////////////////////////////////////////
 // MQTT helper functions
-void Adafruit_FONA::mqtt_connect_message(byte *mqtt_message, char *clientID, char *username, char *password) {
+void Adafruit_FONA::mqtt_connect_message(char *protocol, byte *mqtt_message, char *clientID, char *username, char *password) {
   uint8_t i = 0;
+  byte protocol_length = strlen(protocol);
   byte ID_length = strlen(clientID);
   byte username_length = strlen(username);
   byte password_length = strlen(password);
 
 	mqtt_message[0] = 16;                      // MQTT message type CONNECT
-	mqtt_message[1] = 18 + ID_length + username_length + password_length;   // Remaining length of message
+
+	byte rem_length = 6 + protocol_length;
+	// Each parameter will add 2 bytes + parameter length
+	if (ID_length > 0) {
+		rem_length += 2 + ID_length;
+	}
+	if (username_length > 0) {
+		rem_length += 2 + username_length;
+	}
+	if (password_length > 0) {
+		rem_length += 2 + password_length;
+	}
+
+	mqtt_message[1] = rem_length;             // Remaining length of message
 	mqtt_message[2] = 0;                       // Protocol name length MSB
 	mqtt_message[3] = 6;                       // Protocol name length LSB
-	mqtt_message[4] = 77;                      // ASCII Code for M
-	mqtt_message[5] = 81;                      // ASCII Code for Q
-	mqtt_message[6] = 73;                      // ASCII Code for I
-	mqtt_message[7] = 115;                     // ASCII Code for s
-	mqtt_message[8] = 100;                     // ASCII Code for d
-	mqtt_message[9] = 112;                     // ASCII Code for p
-	mqtt_message[10] = 3;                      // MQTT protocol version
-	mqtt_message[11] = 194;                    // Connection flag with username and password
-	mqtt_message[12] = 0;                      // Keep-alive time MSB
-	mqtt_message[13] = 15;                     // Keep-alive time LSB
-	mqtt_message[14] = 0;                      // Client ID length MSB
-	mqtt_message[15] = ID_length;       			 // Client ID length LSB
+
+	// Use the given protocol name (for example, "MQTT" or "MQIsdp")
+	for (int i=0; i<protocol_length; i++) {
+		mqtt_message[4 + i] = byte(protocol[i]);
+	}
+
+	mqtt_message[4 + protocol_length] = 3;                      // MQTT protocol version
+
+	if (username_length > 0 && password_length > 0) { // has everything
+		mqtt_message[5 + protocol_length] = 194;                  // Connection flag with username and password (11000010)
+	}
+	else if (password_length == 0) { // Only has username
+		mqtt_message[5 + protocol_length] = 130;										 // Connection flag with username only (10000010)
+	}
+	else if (username_length == 0) {	// Only has password
+		mqtt_message[5 + protocol_length] = 66;										 // Connection flag with password only (01000010)
+	}
+	
+	mqtt_message[6 + protocol_length] = 0;                      // Keep-alive time MSB
+	mqtt_message[7 + protocol_length] = 15;                     // Keep-alive time LSB
+	mqtt_message[8 + protocol_length] = 0;                      // Client ID length MSB
+	mqtt_message[9 + protocol_length] = ID_length;       			 // Client ID length LSB
 
   // Client ID
-  for(i = 0; i < ID_length; i++) {
-      mqtt_message[16 + i] = clientID[i];
-  }
-
-  mqtt_message[16 + ID_length] = 0;                     // username length MSB
-	mqtt_message[17 + ID_length] = username_length;       // username length LSB
+	for(i = 0; i < ID_length; i++) {
+    mqtt_message[10 + protocol_length + i] = clientID[i];
+	}
 
 	// Username
-  for(i = 0; i < username_length; i++) {
-      mqtt_message[18 + ID_length + i] = username[i];
-  }
+	if (username_length > 0) {
+		mqtt_message[10 + protocol_length + ID_length] = 0;                     // username length MSB
+		mqtt_message[11 + protocol_length + ID_length] = username_length;       // username length LSB
 
-  mqtt_message[18 + ID_length + username_length] = 0;                     // password length MSB
-	mqtt_message[19 + ID_length + username_length] = password_length;       // password length LSB
-
+		for(i = 0; i < username_length; i++) {
+      mqtt_message[12 + protocol_length + ID_length + i] = username[i];
+  	}
+	}
+  
 	// Password
-  for(i = 0; i < password_length; i++) {
-      mqtt_message[20 + ID_length + username_length + i] = password[i];
-  }
+	if (password_length > 0) {
+		mqtt_message[12 + protocol_length + ID_length + username_length] = 0;                     // password length MSB
+		mqtt_message[13 + protocol_length + ID_length + username_length] = password_length;       // password length LSB
+
+		for(i = 0; i < password_length; i++) {
+      mqtt_message[14 + protocol_length + ID_length + username_length + i] = password[i];
+  	}
+	}
 }
 
 void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, char *topic, char *message) {
@@ -1515,17 +1543,17 @@ void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, char *topic, char *
 
 	mqtt_message[0] = 48;                                  // MQTT Message Type PUBLISH
 	mqtt_message[1] = 2 + topic_length + message_length;   // Remaining length
-	mqtt_message[2] = 0;                                   // 
-	mqtt_message[3] = topic_length;                    
+	mqtt_message[2] = 0;                                   // Topic length MSB
+	mqtt_message[3] = topic_length;                    		 // Topic length LSB
 
   // Topic
   for(i = 0; i < topic_length; i++) {
-      mqtt_message[4 + i] = topic[i];
+    mqtt_message[4 + i] = topic[i];
   }
 
   // Message
   for(i = 0; i < message_length; i++) {
-      mqtt_message[4 + topic_length + i] = message[i];
+    mqtt_message[4 + topic_length + i] = message[i];
   }
 }
 
@@ -1575,7 +1603,7 @@ boolean Adafruit_FONA::mqtt_sendPacket(byte *packet, byte len) {
 
 ////////////////////////////////////////////////////////////
 
-boolean Adafruit_FONA::MQTTconnect(char *clientID, char *username, char *password) {
+boolean Adafruit_FONA::MQTTconnect(char *protocol, char *clientID, char *username, char *password) {
 	flushInput();
 	mySerial->println(F("AT+CIPSEND"));
 	readline();
@@ -1583,7 +1611,8 @@ boolean Adafruit_FONA::MQTTconnect(char *clientID, char *username, char *passwor
   if (replybuffer[0] != '>') return false;
 
   byte mqtt_message[127];
-  mqtt_connect_message(mqtt_message, clientID, username, password);
+	mqtt_connect_message(protocol, mqtt_message, clientID, username, password);
+
 
   if (! mqtt_sendPacket(mqtt_message, 20+strlen(clientID)+strlen(username)+strlen(password))) return false;
 
