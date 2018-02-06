@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 2/3/2018
+ *  Last Updated: 2/6/2018
  *  License: GNU GPL v3.0
   */
 
@@ -884,7 +884,7 @@ void loop() {
         sprintf(URL, "dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // No need to specify http:// or https://
 //        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // But this works too
 
-        if (!fona.postData("GET", URL, "")) // No body field required
+        if (!fona.postData("GET", URL))
           Serial.println(F("Failed to complete HTTP GET..."));
         
         // POST request
