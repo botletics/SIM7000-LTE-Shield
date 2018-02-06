@@ -338,82 +338,15 @@ void loop() {
   MQTT_connect();
 
   // Now publish all the data to different feeds!
-  // Send latitude data
-  Serial.println(F("Sending latitude..."));
-  if (! feed_lat.publish(latBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
-
-  // Send longitude data
-  Serial.println(F("Sending longitude..."));
-  if (! feed_long.publish(longBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
-
-  // Send speed data
-  Serial.println(F("Sending speed..."));
-  if (! feed_speed.publish(speedBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
-
-  // Send heading data
-  Serial.println(F("Sending heading..."));
-  if (! feed_head.publish(headBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
-
-  // Send altitude data
-  Serial.println(F("Sending altitude..."));
-  if (! feed_alt.publish(altBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
-
-  // Send temperature data
-  Serial.println(F("Sending temperature..."));
-  if (! feed_temp.publish(tempBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
-
-  // Send voltage data
-  Serial.println(F("Sending supply voltage..."));
-  if (! feed_voltage.publish(battBuff)) {
-    Serial.println(F("Failed"));
-    txfailures++;
-  }
-  else {
-    Serial.println(F("OK!"));
-    txfailures = 0;
-  }
+  // The MQTT_publish_checkSuccess handles repetitive stuff.
+  // You can see the function near the end of this sketch.
+  MQTT_publish_checkSuccess(feed_lat, latBuff);
+  MQTT_publish_checkSuccess(feed_long, longBuff);
+  MQTT_publish_checkSuccess(feed_speed, speedBuff);
+  MQTT_publish_checkSuccess(feed_head, headBuff);
+  MQTT_publish_checkSuccess(feed_alt, altBuff);
+  MQTT_publish_checkSuccess(feed_temp, tempBuff);
+  MQTT_publish_checkSuccess(feed_voltage, battBuff);
 
   // This is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
@@ -630,6 +563,20 @@ bool netStatus() {
       delay(5000);  // wait 5 seconds
     }
     Serial.println("MQTT Connected!");
+  }
+#endif
+
+#ifdef PROTOCOL_MQTT_AIO
+  void MQTT_publish_checkSuccess(Adafruit_MQTT_Publish &feed, const char *feedContent) {
+    Serial.println(F("Sending data..."));
+    if (! feed.publish(feedContent)) {
+      Serial.println(F("Failed"));
+      txfailures++;
+    }
+    else {
+      Serial.println(F("OK!"));
+      txfailures = 0;
+    }
   }
 #endif
 
