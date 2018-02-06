@@ -1590,7 +1590,7 @@ boolean Adafruit_FONA::MQTTconnect(char *clientID, char *username, char *passwor
   return true;
 }
 
-boolean Adafruit_FONA::MQTTpublish(char *clientID, char* topic, char* message) {
+boolean Adafruit_FONA::MQTTpublish(char* topic, char* message) {
 	flushInput();
 	mySerial->println(F("AT+CIPSEND"));
 	readline();
