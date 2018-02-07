@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 2/5/2018
+ *  Last Updated: 2/7/2018
  *  License: GNU GPL v3.0
   */
 
@@ -93,8 +93,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
   /****************************** MQTT FEEDS ***************************************/
   // Setup feeds for publishing.
   // Notice MQTT paths for Adafruit IO follow the form: <username>/feeds/<feedname>
-  Adafruit_MQTT_Publish feed_lat = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/latitude");
-  Adafruit_MQTT_Publish feed_long = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/longitude");
+  Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location"); // Group lat/long for AIO map in dashboard
   Adafruit_MQTT_Publish feed_speed = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/speed");
   Adafruit_MQTT_Publish feed_head = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/heading");
   Adafruit_MQTT_Publish feed_alt = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/altitude");
@@ -270,8 +269,8 @@ void loop() {
   // Construct URL and post the data to the web API
   char URL[200]; // Make sure this is long enough for your request URL
   char body[200];
-  char latBuff[16], longBuff[16], speedBuff[16], headBuff[16], altBuff[16],
-       tempBuff[16], battBuff[16];
+  char latBuff[16], longBuff[16], locBuff[16], speedBuff[16], headBuff[16], 
+       altBuff[16], tempBuff[16], battBuff[16];
 
   // Format the floating point numbers
   dtostrf(latitude, 1, 6, latBuff);
@@ -282,6 +281,10 @@ void loop() {
   dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
   dtostrf(battLevel, 1, 0, battBuff);
 
+  // Also construct a combined, comma-separated lat/long location array
+  // (many platforms require this for dashboards, like Adafruit IO):
+  sprintf(locBuff, "%s, %s", latBuff, longBuff); // This could look like "33.123456, -85.123456"
+  
   // Construct the appropriate URL's and body, depending on request type
   // In this example we use the IMEI as device ID
 
@@ -293,7 +296,7 @@ void loop() {
 
   counter = 0; // This counts the number of failed attempts tries
   // Try a total of three times if the post was unsuccessful (try additional 2 times)
-  while (counter < 3 && !fona.postData("GET", URL, "")) { // Add the quotes "" as third input because for GET request there's no "body"
+  while (counter < 3 && !fona.postData("GET", URL)) {
     Serial.println(F("Failed to post data, retrying..."));
     counter++; // Increment counter
     delay(1000);
@@ -302,15 +305,17 @@ void loop() {
 
 #ifdef PROTOCOL_HTTP_POST
   // You can also do a POST request instead
+
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
   sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
 
   counter = 0;
-  while (!fona.postData("POST", URL, body)) {
+  while (counter < 3 && !fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++;
     delay(1000);
   }
+
 
   // Let's try a POST request to thingsboard.io
   /*
@@ -321,7 +326,7 @@ void loop() {
 //  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
 
   counter = 0;
-  while (!fona.postData("POST", URL, body)) {
+  while (counter < 3 && !fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
     counter++;
     delay(1000);
@@ -340,14 +345,14 @@ void loop() {
   // Now publish all the data to different feeds!
   // The MQTT_publish_checkSuccess handles repetitive stuff.
   // You can see the function near the end of this sketch.
-  MQTT_publish_checkSuccess(feed_lat, latBuff);
-  MQTT_publish_checkSuccess(feed_long, longBuff);
+  // For the Adafruit IO dashboard map we send the combined lat/long buffer
+  MQTT_publish_checkSuccess(feed_location, locBuff);
   MQTT_publish_checkSuccess(feed_speed, speedBuff);
   MQTT_publish_checkSuccess(feed_head, headBuff);
   MQTT_publish_checkSuccess(feed_alt, altBuff);
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_voltage, battBuff);
-
+ 
   // This is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(5000))) {
@@ -373,8 +378,9 @@ void loop() {
   
   // Publish each data point under a different topic!
   Serial.println(F("Publishing data to their respective topics!"));  
-  if (!fona.MQTTpublish("latitude", latBuff)) Serial.println(F("Failed to publish data!"));
-  if (!fona.MQTTpublish("longitude", longBuff)) Serial.println(F("Failed to publish data!"));
+//  if (!fona.MQTTpublish("latitude", latBuff)) Serial.println(F("Failed to publish data!")); // Can send individually if needed
+//  if (!fona.MQTTpublish("longitude", longBuff)) Serial.println(F("Failed to publish data!"));
+  if (!fona.MQTTpublish("location", locBuff)) Serial.println(F("Failed to publish data!")); // Combined lat/long
   if (!fona.MQTTpublish("speed", speedBuff)) Serial.println(F("Failed to publish data!"));
   if (!fona.MQTTpublish("heading", headBuff)) Serial.println(F("Failed to publish data!"));
   if (!fona.MQTTpublish("altitude", altBuff)) Serial.println(F("Failed to publish data!"));
