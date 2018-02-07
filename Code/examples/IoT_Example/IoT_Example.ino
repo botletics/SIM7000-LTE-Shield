@@ -93,7 +93,9 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
   /****************************** MQTT FEEDS ***************************************/
   // Setup feeds for publishing.
   // Notice MQTT paths for Adafruit IO follow the form: <username>/feeds/<feedname>
-  Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location"); // Group lat/long for AIO map in dashboard
+  // Also notice that the combined lat/long "location" feed requires "/csv" in the name
+  // The Adafruit IO map requires this format: sensor_val, lat, long, altitude
+  Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location/csv"); // Group GPS data for AIO map in dashboard
   Adafruit_MQTT_Publish feed_speed = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/speed");
   Adafruit_MQTT_Publish feed_head = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/heading");
   Adafruit_MQTT_Publish feed_alt = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/altitude");
@@ -269,7 +271,7 @@ void loop() {
   // Construct URL and post the data to the web API
   char URL[200]; // Make sure this is long enough for your request URL
   char body[200];
-  char latBuff[16], longBuff[16], locBuff[16], speedBuff[16], headBuff[16], 
+  char latBuff[16], longBuff[16], locBuff[32], speedBuff[16], headBuff[16], 
        altBuff[16], tempBuff[16], battBuff[16];
 
   // Format the floating point numbers
@@ -281,9 +283,9 @@ void loop() {
   dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
   dtostrf(battLevel, 1, 0, battBuff);
 
-  // Also construct a combined, comma-separated lat/long location array
+  // Also construct a combined, comma-separated location array
   // (many platforms require this for dashboards, like Adafruit IO):
-  sprintf(locBuff, "%s, %s", latBuff, longBuff); // This could look like "33.123456, -85.123456"
+  sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff); // This could look like "10,33.123456,-85.123456,120.5"
   
   // Construct the appropriate URL's and body, depending on request type
   // In this example we use the IMEI as device ID
@@ -347,9 +349,9 @@ void loop() {
   // You can see the function near the end of this sketch.
   // For the Adafruit IO dashboard map we send the combined lat/long buffer
   MQTT_publish_checkSuccess(feed_location, locBuff);
-  MQTT_publish_checkSuccess(feed_speed, speedBuff);
+//  MQTT_publish_checkSuccess(feed_speed, speedBuff); // Included in "location" feed
   MQTT_publish_checkSuccess(feed_head, headBuff);
-  MQTT_publish_checkSuccess(feed_alt, altBuff);
+//  MQTT_publish_checkSuccess(feed_alt, altBuff); // Included in "location" feed
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_voltage, battBuff);
  
