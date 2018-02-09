@@ -221,6 +221,8 @@ void loop() {
   // and use that instead, but for now we will use the function below
   // only for testing.
   battLevel = readVcc(); // Get voltage in mV
+ 
+  delay(1000); // Once in a while the temperature code gets stuck without this
 
   // Measure temperature
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
