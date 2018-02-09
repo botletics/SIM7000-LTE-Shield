@@ -53,6 +53,8 @@
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
 
+#define LED 13 // Just for testing if needed!
+
 // Using SoftwareSerial
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 SoftwareSerial *fonaSerial = &fonaSS;
@@ -148,7 +150,9 @@ uint8_t counter = 0;
 void setup() {
   Serial.begin(115200);
 
+  pinMode(LED, OUTPUT);
   pinMode(FONA_RST, OUTPUT);
+  digitalWrite(LED, LOW);
   digitalWrite(FONA_RST, HIGH); // Default state
 
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
@@ -367,11 +371,11 @@ void loop() {
  // Control an LED based on what we receive from the command feed subscription!
   if (strcmp(feed_command.lastread, "ON") == 0) {
     Serial.println(F("*** Commanded to turn on LED!"));
-    digitalWrite(13, HIGH);
+    digitalWrite(LED, HIGH);
   }
   else if (strcmp(feed_command.lastread, "OFF") == 0) {
     Serial.println(F("*** Commanded to turn off LED!"));
-    digitalWrite(13, LOW);
+    digitalWrite(LED, LOW);
   }
 #endif
 
