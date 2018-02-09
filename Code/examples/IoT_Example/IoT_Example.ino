@@ -154,6 +154,8 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(LED, LOW);
   digitalWrite(FONA_RST, HIGH); // Default state
+ 
+  delay(100); // This helps the temperature sensor code run properly!
 
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
   if (!tempsensor.begin()) {
@@ -222,8 +224,6 @@ void loop() {
   // only for testing.
   battLevel = readVcc(); // Get voltage in mV
  
-  delay(1000); // Once in a while the temperature code gets stuck without this
-
   // Measure temperature
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
   float tempC = tempsensor.readTempC();
