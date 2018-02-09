@@ -12,7 +12,7 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
 
   Serial.println(F("Initializing FONA....(May take 3 seconds)"));
 
-  // The baud rate always resets back to default (115200) after
+  // The baud rate seems to reset back to default (115200) after
   // being powered down so let's try 115200 first. Hats off to
   // anyone who can figure out how to make it remember the new
   // baud rate even after being power cycled! If you are using

@@ -42,14 +42,31 @@
 //#define FONA_TX  8
 //#define FONA_RST 4
 
-// For SIM7000 shield
-#define FONA_PWRKEY 6
-#define FONA_RST 7
-//#define FONA_DTR 8 // Connect with solder jumper
-//#define FONA_RI 9 // Need to enable via AT commands
-#define FONA_TX 10 // Microcontroller RX
-#define FONA_RX 11 // Microcontroller TX
-//#define T_ALERT 12 // Connect with solder jumper
+// For SIM7000 shield v1
+#define FONA_PWRKEY 4
+#define FONA_RX 7
+#define FONA_TX 6
+#define FONA_RST 8
+
+// For SIM7000 shield v3
+//#define FONA_PWRKEY 3
+////#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
+//#define FONA_RI 5 // Need to enable via AT commands
+//#define FONA_RX 7
+//#define FONA_TX 6
+//#define FONA_RST 8
+////#define T_ALERT 12 // Connect with solder jumper
+
+// For SIM7000 shield v4
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 8 // Connect with solder jumper
+////#define FONA_RI 9 // Need to enable via AT commands
+//#define FONA_TX 10 // Microcontroller RX
+//#define FONA_RX 11 // Microcontroller TX
+////#define T_ALERT 12 // Connect with solder jumper
+
+#define LED 13
 
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 
@@ -71,8 +88,8 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE(); // For SIM7000
 
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "YOUR_ADAFRUIT_USERNAME"
-#define AIO_KEY         "YOUR_ADAFRUIT_IO_KEY"
+#define AIO_USERNAME    "ArduinoGuru"
+#define AIO_KEY         "450a3ef9db96445dac2ffe22893c4939"
 
 /************ Global State (you don't need to change this!) ******************/
 
@@ -92,20 +109,21 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 Adafruit_MQTT_Publish sensor = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/sensor");
 
-// Setup a feed called 'onoff' for subscribing to changes.
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/onoff");
+// Setup a feed called 'command' for subscribing to changes.
+Adafruit_MQTT_Subscribe feed_command = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/command");
 
 /*************************** Sketch Code ************************************/
 
 // How many transmission failures in a row we're willing to be ok with before reset
 uint8_t txfailures = 0;
-#define MAXTXFAILURES 3
 
 void setup() {
   while (!Serial);
 
   pinMode(FONA_RST, OUTPUT);
+  pinMode(LED, OUTPUT);
   digitalWrite(FONA_RST, HIGH); // Default state
+  digitalWrite(LED, LOW);
   
   pinMode(FONA_PWRKEY, OUTPUT);
   // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
@@ -121,7 +139,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println(F("********** MQTT demo **********"));
 
-  mqtt.subscribe(&onoffbutton);
+  mqtt.subscribe(&feed_command);
 
   Watchdog.reset();
   delay(5000);  // wait a few seconds to stabilize connection
@@ -167,10 +185,20 @@ void loop() {
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(5000))) {
-    if (subscription == &onoffbutton) {
-      Serial.print(F("Got: "));
-      Serial.println((char *)onoffbutton.lastread);
+    if (subscription == &feed_command) {
+      Serial.print(F("*** Got: "));
+      Serial.println((char *)feed_command.lastread);
     }
+  }
+
+  // Control an LED based on what we receive from the command feed subscription!
+  if (strcmp(feed_command.lastread, "ON") == 0) {
+    Serial.println(F("*** Commanded to turn on LED!"));
+    digitalWrite(LED, HIGH);
+  }
+  else if (strcmp(feed_command.lastread, "OFF") == 0) {
+    Serial.println(F("*** Commanded to turn off LED!"));
+    digitalWrite(LED, LOW);
   }
 
   // ping the server to keep the mqtt connection alive, only needed if we're not publishing
