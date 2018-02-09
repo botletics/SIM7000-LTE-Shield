@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 2/7/2018
+ *  Last Updated: 2/9/2018
  *  License: GNU GPL v3.0
   */
 
@@ -484,24 +484,39 @@ void powerOn() {
 }
 
 void moduleSetup() {
-  // The baud rate always resets back to default (115200) after being powered
-  // powered down or shutting off, so let's try 115200 first. Hats off to
-  // anyone who can figure out how to make it remember the new baud rate even
-  // after being power cycled!
-  fonaSerial->begin(115200); // Default LTE shield baud rate
-  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
-  // If you are using hardware serial you can uncomment the lines below
-  // and comment the one right above
-//  if (!fona.begin(*fonaSerial)) { 
-//    Serial.println(F("Couldn't find FONA at 115200 baud"));
+//  // The baud rate always resets back to default (115200) after being powered
+//  // powered down or shutting off, so let's try 115200 first. Hats off to
+//  // anyone who can figure out how to make it remember the new baud rate even
+//  // after being power cycled!
+//  fonaSerial->begin(115200); // Default LTE shield baud rate
+//  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+//  // If you are using hardware serial you can uncomment the lines below
+//  // and comment the one right above
+////  if (!fona.begin(*fonaSerial)) { 
+////    Serial.println(F("Couldn't find FONA at 115200 baud"));
+////  }
+//
+//  Serial.println(F("Configuring to 4800 baud"));
+//  fona.setBaudrate(4800); // Set to 4800 baud
+//  fonaSerial->begin(4800);
+//  if (!fona.begin(*fonaSerial)) {
+//    Serial.println(F("Couldn't find FONA"));
+//    while(1); // Don't proceed if it couldn't find the device
 //  }
 
+  // ALTERNATIVE METHOD:
+  // With the 5s delay before this function is called
+  // we can simply change the baud rate to 4800 since
+  // the delay ensures the module is on
+  delay(5000); // Ensure the module has time to turn on
+  fonaSS.begin(115200); // Default SIM7000 shield baud rate
+  
   Serial.println(F("Configuring to 4800 baud"));
-  fona.setBaudrate(4800); // Set to 4800 baud
-  fonaSerial->begin(4800);
-  if (!fona.begin(*fonaSerial)) {
+  fonaSS.println("AT+IPR=4800");
+  fonaSS.begin(4800);
+  if (! fona.begin(fonaSS)) {
     Serial.println(F("Couldn't find FONA"));
-    while(1); // Don't proceed if it couldn't find the device
+    return false; // Don't proceed if it couldn't find the device
   }
 
   type = fona.type();
