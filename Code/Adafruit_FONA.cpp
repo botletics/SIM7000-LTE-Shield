@@ -1461,6 +1461,63 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   return true;
 }
 
+/********************************* 3G HTTPS FUNCTION *********************************/
+boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, const char *URL) {
+  // NOTE: Need to open socket/enable GPRS before using this function
+
+  // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n"
+
+  // Start HTTPS stack
+  if (! sendCheckReply(F("AT+CHTTPSSTART"), ok_reply, 10000))
+    return false;
+
+  // Construct the AT command based on function parameters
+  char auxStr[64];
+  uint8_t connTypeNum = 1;
+  
+  if (strcmp(connType, "HTTP") == 0) {
+  	connTypeNum = 1;
+  }
+  if (strcmp(connType, "HTTPS") == 0) {
+  	connTypeNum = 2;
+  }
+
+  sprintf(auxStr, "AT+CHTTPSOPSE=\"%s\",%s,%s", server, port, connTypeNum);
+
+  // Connect to HTTPS server
+  // if (! sendCheckReply(F("AT+CHTTPSOPSE=\"www.dweet.io\",443,2"), ok_reply, 10000)) // Use port 443 and HTTPS
+  //   return false;
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  // Send data to server (takes about 10s to send to dweet.io)
+  sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL));
+
+  if (! sendCheckReply(auxStr, ">", 10000))
+    return false;
+
+  if (! sendCheckReply(URL, ok_reply, 10000))
+    return false;
+
+  // Request URL
+  if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
+    return false;
+
+  // Receive HTTPS response
+  if (! sendCheckReply(F("AT+CHTTPSRECV=1"), ok_reply, 10000))
+    return false;
+
+  // Close HTTP/HTTPS Session
+  if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+    return false;
+
+  // Stop HTTP/HTTPS stack
+  if (! sendCheckReply(F("AT+CHTTPSSTOP"), ok_reply, 10000))
+    return false;
+
+  return true;
+}
+
 /********* MQTT FUNCTIONS  ************************************/
 
 ////////////////////////////////////////////////////////////
