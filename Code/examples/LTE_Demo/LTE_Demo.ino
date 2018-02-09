@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 2/6/2018
+ *  Last Updated: 2/9/2018
  *  License: GNU GPL v3.0
   */
 
@@ -37,12 +37,17 @@ the commented section below at the end of the setup() function.
 */
 #include "Adafruit_FONA.h"
 
+// Define *one* of the following lines:
+//#define SIMCOM_2G // SIM800/808/900/908, etc.
+//#define SIMCOM_3G // SIM5320, etc.
+#define SIMCOM_LTE  // SIM7000
+
 // Default Adafruit settings
 //#define FONA_RX 2
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield
+// For SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -66,13 +71,21 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Hardware serial is also possible!
 //  HardwareSerial *fonaSerial = &Serial1;
 
-// Use this for FONA 800 and 808s
-//Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-// Use this one for FONA 3G
-//Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
-// Use this one for FONA LTE
+// Use this for 2G modules
+#ifdef SIMCOM_2G
+  Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
+#endif
+
+// Use this one for 3G modules
+#ifdef SIMCOM_3G
+  Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
+#endif
+
+// Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
+#ifdef SIMCOM_LTE
+  Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
+#endif
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 uint8_t type;
@@ -85,12 +98,10 @@ void setup() {
   digitalWrite(FONA_RST, HIGH); // Default state
   
   pinMode(FONA_PWRKEY, OUTPUT);
-  // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
-  // This won't hurt even if the module is already on, because you need
-  // to pulse PWRKEY for at least 1.2s to turn it off!
-  pinMode(FONA_PWRKEY, LOW);
-  delay(100);
-  pinMode(FONA_PWRKEY, HIGH);
+  
+  // Turn on the module by pulsing PWRKEY low for a little bit
+  // This amount of time depends on the specific module that's used
+  powerOn(); // See function definition at the very end of the sketch
 
   Serial.begin(115200);
   Serial.println(F("FONA basic test"));
@@ -102,7 +113,7 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+//  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
   fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
 
   // Optionally configure HTTP gets to follow redirects over SSL.
@@ -213,7 +224,8 @@ void printMenu(void) {
   Serial.println(F("[1] Get connection info")); // See what connection type and band you're on! Works on SIM7000
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
   // FONA_IoT_example sketch for an actual application of this function!
-  Serial.println(F("[2] Post to dweet.io (via 2G or LTE)")); // This can be either 2G or LTE (SIM800/808/900/7000) but not 3G (SIM5320)
+  Serial.println(F("[2] Post to dweet.io via 2G or CAT-M/NB-IoT")); // This can be SIM800/808/900/7000
+  Serial.println(F("[3] Post to dweet.io via 3G")); // This is mainly for SIM5320 and other SIMCom 3G modules
 
   // GPS
   if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2) || 
@@ -857,7 +869,7 @@ void loop() {
         break;
       }
     case '2': {
-        // Post data to website via 2G or 4G LTE
+        // Post data to website via 2G or LTE CAT-M/NB-IoT
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
         // Voltage in mV, just for testing. Use the read battery function instead.
@@ -898,6 +910,36 @@ void loop() {
       
         break;
       }
+#ifdef SIMCOM_3G
+    case '3': {
+        // Post data to website via 3G
+        float temperature = analogRead(A0)*1.23; // Change this to suit your needs
+        
+        // Voltage in mV, just for testing. Use the read battery function instead for real applications.
+        uint16_t battLevel = 3700;
+
+        // Create char buffers for the floating point numbers for sprintf
+        // Make sure these buffers are long enough for your request URL
+        char URL[150];
+        char tempBuff[16];
+        char battLevelBuff[16];
+      
+        // Format the floating point numbers as needed
+        dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
+        dtostrf(battLevel, 1, 0, battLevelBuff);
+
+        // Construct the appropriate URL's and body, depending on request type
+        // Use IMEI as device ID for this example
+        
+        // GET request
+        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n", imei, tempBuff, battLevelBuff);
+
+        if (!fona.postData3G("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
+          Serial.println(F("Failed to complete 3G HTTP/HTTPS request..."));
+      
+        break;
+      }
+#endif
     /*****************************************/
 
     case 'S': {
@@ -990,4 +1032,21 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout) {
   }
   buff[buffidx] = 0;  // null term
   return buffidx;
+}
+
+// Power on the module
+void powerOn() {
+  digitalWrite(FONA_PWRKEY, LOW);
+  // See spec sheets for your particular module
+  #ifdef SIMCOM_2G
+    delay(1050);
+  #endif
+  #ifdef SIMCOM_3G
+    delay(180); // For SIM5320
+  #endif
+  #ifdef SIMCOM_LTE
+    delay(100); // For SIM7000
+  #endif
+  
+  digitalWrite(FONA_PWRKEY, HIGH);
 }
