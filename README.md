@@ -28,6 +28,7 @@ The code for this LTE shield is an altered library built upon the [Adafruit FONA
 - Test voice support?
 
 ### Completed Tasks
+- Added "postData3G" function for SIM5320 and other 3G modules
 - Successfully tested MQTT connect and publish using TCP/IP!
 - Added "getNetworkInfo()" function (command "1" in LTE_Demo sketch) to get connection info, connection status, cellular band, etc.
 - Added if statements that can be uncommented to eliminate unnecessary AT commands from "enableGPRS()" function for LTE modules (SIM7000) in case GPRS isn't being used at all
