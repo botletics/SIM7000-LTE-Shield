@@ -11,8 +11,8 @@ All PCB design files and hardware are released under the [Creative Commons Attri
 
 All other software is released under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/).
 
-## Adafruit FONA Library Updates
-The code for this LTE shield is an altered library built upon the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added LTE functionality for the SIM7000 module. The following list is a summary of the updates:
+## Adafruit FONA Arduino Library Updates
+The code for this LTE shield is an altered library built upon the original [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added functionality for the SIM7000 LTE CAT-M/NB-IoT module as well as the SIM5320 3G module. The following list is a summary of the updates:
 
 ### Confirmed functionalities
 - Network time works
