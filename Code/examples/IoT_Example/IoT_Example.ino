@@ -103,7 +103,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
   Adafruit_MQTT_Publish feed_voltage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/voltage");
   
   // Setup a feed called 'command' for subscribing to changes.
-  Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/command");
+  Adafruit_MQTT_Subscribe feed_command = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/command");
 #endif
 
 #ifdef PROTOCOL_MQTT_CLOUDMQTT
@@ -197,7 +197,7 @@ void setup() {
 #endif
 
 #ifdef PROTOCOL_MQTT_AIO
-  mqtt.subscribe(&onoffbutton); // Only if you're using MQTT
+  mqtt.subscribe(&feed_command); // Only if you're using MQTT
 #endif
 }
 
@@ -358,10 +358,20 @@ void loop() {
   // This is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(5000))) {
-    if (subscription == &onoffbutton) {
+    if (subscription == &feed_command) {
       Serial.print(F("*** Got: "));
-      Serial.println((char *)onoffbutton.lastread);
+      Serial.println((char *)feed_command.lastread);
     }
+  }
+ 
+ // Control an LED based on what we receive from the command feed subscription!
+  if (strcmp(feed_command.lastread, "ON") == 0) {
+    Serial.println(F("*** Commanded to turn on LED!"));
+    digitalWrite(13, HIGH);
+  }
+  else if (strcmp(feed_command.lastread, "OFF") == 0) {
+    Serial.println(F("*** Commanded to turn off LED!"));
+    digitalWrite(13, LOW);
   }
 #endif
 
