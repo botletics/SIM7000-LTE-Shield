@@ -1180,6 +1180,8 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 		if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
 	  		return false;
     // } // UNCOMMENT FOR 4G ONLY!
+
+	 	delay(100); // This seems to help the next line run the first time
     
     // set bearer profile access point name
     if (apn) {
