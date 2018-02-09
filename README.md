@@ -9,11 +9,13 @@ All PCB design files and hardware are released under the [Creative Commons Attri
 
 All other software is released under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/).
 
-## Adafruit FONA Arduino Library Updates
-The code for this LTE shield is an altered library built upon the original [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added functionality for the SIM7000 LTE CAT-M/NB-IoT module as well as the SIM5320 3G module. The following list is a summary of the updates:
+## Arduino Library Support
+The library in this repo is an altered library built upon the original [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added functionality for 2G (SIM800/808/900/908), 3G (SIM5320), and the SIM7000 LTE CAT-M/NB-IoT module. As such, it's probably the best Arduino library for SIMCom modules available so far and I've also included examples and library functions focusing on sending data to the cloud via HTTP/HTTPS/MQTT with more functionalities always being tested!
+
+The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
-- HTTP and HTTPS via 3G with SIM5320
+- Being tested: HTTP and HTTPS via 3G with SIM5320
 - MQTT working with SIM7000
 - HTTP functions on SIM808 and other 2G modules
 - Network time works
