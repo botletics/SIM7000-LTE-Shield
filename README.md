@@ -15,17 +15,19 @@ All other software is released under the [GNU General Public License v3.0](https
 The code for this LTE shield is an altered library built upon the original [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) with added functionality for the SIM7000 LTE CAT-M/NB-IoT module as well as the SIM5320 3G module. The following list is a summary of the updates:
 
 ### Confirmed functionalities
+- HTTP and HTTPS via 3G with SIM5320
+- MQTT working with SIM7000
+- HTTP functions on SIM808 and other 2G modules
 - Network time works
-- GPS works without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20-30s from cold start and even less (a couple seconds or so) when the device has already been on! However, this may differ based on your location and how deep you're buried inside a building.
-- Read a webpage via LTE CAT-M1
-- Post to a web API via LTE CAT-M1
+- GPS works on SIM7000 without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20-30s from cold start and even less (a couple seconds or so) when the device has already been on! However, this may differ based on your location and how deep you're buried inside a building.
+- HTTP functions via LTE CAT-M1 with SIM7000
 
 ### To-Do List
 - Test MQTT subscribe and receive
-- Add FTP functions and examples
-- Test NTP time sync (I think SIMCom recently updated their firmware to support it)
-- Test SSL
-- Test voice support?
+- Add FTP functions and examples on SIM7000
+- Test NTP time sync on SIM7000 (I think SIMCom recently updated their firmware to support it)
+- Test SSL on SIM7000
+- Voice support on SIM7000?
 
 ### Completed Tasks
 - Added "postData3G" function for SIM5320 and other 3G modules
