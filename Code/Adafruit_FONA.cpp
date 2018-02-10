@@ -1385,7 +1385,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token) {
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char *body, const char *token) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Make sure HTTP service is terminated so initialization will run
@@ -1462,7 +1462,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 }
 
 /********************************* 3G HTTPS FUNCTION *********************************/
-boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, const char *URL) {
+boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n"
