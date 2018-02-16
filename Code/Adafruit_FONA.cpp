@@ -758,9 +758,9 @@ boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
 boolean Adafruit_FONA::enableGPS(boolean onoff) {
   uint16_t state;
 
-  // first check if its already on or off
+  // First check if its already on or off
 
-  if (_type == FONA808_V2) {
+  if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
     if (! sendParseReply(F("AT+CGNSPWR?"), F("+CGNSPWR: "), &state) )
       return false;
   } else {
@@ -769,7 +769,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
   }
 
   if (onoff && !state) {
-    if (_type == FONA808_V2) {
+    if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
       if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))  // try GNS command
 	return false;
     } else {
@@ -777,7 +777,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 	return false;
     }
   } else if (!onoff && state) {
-    if (_type == FONA808_V2) {
+    if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
       if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply)) // try GNS command
 	return false;
     } else {
@@ -787,7 +787,6 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
   }
   return true;
 }
-
 
 
 boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
@@ -1153,7 +1152,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
   i %= 10;
   sendbuff[13] = i + '0';
 
-  if (_type == FONA808_V2) {
+  if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
     if (i)
       return sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
     else
@@ -1165,6 +1164,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 
 
 /********* GPRS **********************************************************/
+
 
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 
