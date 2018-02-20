@@ -1153,8 +1153,11 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
   sendbuff[13] = i + '0';
 
   if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
-    if (i)
-      return sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
+    if (i) {
+    	sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
+      sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
+      return true;
+    }
     else
       return sendCheckReply(F("AT+CGNSTST=0"), ok_reply);
   } else {
@@ -1482,7 +1485,7 @@ boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const ch
   	connTypeNum = 2;
   }
 
-  sprintf(auxStr, "AT+CHTTPSOPSE=\"%s\",%s,%s", server, port, connTypeNum);
+  sprintf(auxStr, "AT+CHTTPSOPSE=\"%s\",%d,%d", server, port, connTypeNum);
 
   // Connect to HTTPS server
   // if (! sendCheckReply(F("AT+CHTTPSOPSE=\"www.dweet.io\",443,2"), ok_reply, 10000)) // Use port 443 and HTTPS
