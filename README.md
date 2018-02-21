@@ -15,7 +15,7 @@ The library in this repo is an altered library built upon the original [Adafruit
 The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
-- Being tested: HTTP and HTTPS via 3G with SIM5320
+- HTTP and HTTPS via 3G with SIM5320
 - MQTT working with SIM7000
 - HTTP functions on SIM808 and other 2G modules
 - Network time works
