@@ -24,11 +24,18 @@ The following list is a summary of the things I've done so far:
 - HTTP functions via LTE CAT-M1 with SIM7000
 
 ### To-Do List
-- Add newly-supported MQTT commands (and test with 2G/3G modules as well)
+- Add newly-supported MQTT commands (and test with 3G modules as well, like SIM5320)
 - Add FTP functions
 - Test NTP on SIM7000
 - Test SSL on SIM7000 (waiting for SIMCom to add it)
 - VoLTE support on SIM7000?
+- Test GNSS XTRA feature that was recently added?
+- Test "AT+HTTPTOPS" command recently added
+- Test "AT+CRRCSTATE" recently added
+- Test/add "AT+CAPNMODE" to set APN manually
+- Test to see if auto-bauding was fixed in latest firmware (claims to be)
+- Test "AT+CIPOPTION" to toggle TCP nagle algorithm
+- Test "AT+CBANDCFG" to configure CAT-M or NB-IoT bands
 
 ### Completed Tasks
 - Added "postData3G" function for SIM5320 and other 3G modules
