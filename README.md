@@ -24,11 +24,11 @@ The following list is a summary of the things I've done so far:
 - HTTP functions via LTE CAT-M1 with SIM7000
 
 ### To-Do List
-- Test MQTT subscribe and receive
-- Add FTP functions and examples on SIM7000
-- Test NTP time sync on SIM7000 (I think SIMCom recently updated their firmware to support it)
-- Test SSL on SIM7000
-- Voice support on SIM7000?
+- Add newly-supported MQTT commands (and test with 2G/3G modules as well)
+- Add FTP functions
+- Test NTP on SIM7000
+- Test SSL on SIM7000 (waiting for SIMCom to add it)
+- VoLTE support on SIM7000?
 
 ### Completed Tasks
 - Added "postData3G" function for SIM5320 and other 3G modules
