@@ -1,7 +1,7 @@
 ## Overview
 This shield uses SIMCOM's SIM7000-series LTE module which is a low-power cellular module that supports the new LTE CAT-M1 and NB-IoT technology and also has integrated high-speed, multi-GNSS (GPS, GLONASS and BeiDou/Compass, Galileo, QZSS standards) for location tracking. The shield can be used in different regions around the world simply by using the appropriate module version, either the SIM7000A (American), SIM7000C (Chinese), or SIM7000E (European) as detailed in my [Github wiki](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Board-Versions). The shield also includes a high-accuracy I2C temperature sensor for IoT monitoring applications. To use the shield, simply follow the [step-by-step wiki](https://github.com/botletics/SIM7000-LTE-Shield/wiki) to attach the headers, plug the shield into an Arduino, insert a compatible SIM card (the kit comes with a free [Hologram.io](https://hologram.io/) global SIM card), attach the dual LTE/GPS antenna, and you're ready to load the example code!
 
-Normally you can buy the shield on [my website](https://www.botletics.com/products/sim7000-shield) but check out my [my Indiegogo campaign](https://www.indiegogo.com/projects/open-source-nb-iot-shield-for-arduino/coming_soon) with an exclusive deal to get $40 of Hologram.io credit for each order on the campaign!
+You can buy the shield on [my website](https://www.botletics.com/products/sim7000-shield)
 
 Check out the [comprehensive wiki](https://github.com/botletics/LTE-Shield/wiki) or use [this Instructables](https://www.instructables.com/id/LTE-NB-IoT-Shield-for-Arduino/) to get started if that works better for you!
 
