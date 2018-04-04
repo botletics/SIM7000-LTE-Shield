@@ -30,30 +30,18 @@
 
 #if (ARDUINO >= 100)
   #include "Arduino.h"
-  #if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD)  // Arduino Due doesn't support     #include <SoftwareSerial.h>
+  #if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD)  // Arduino Due doesn't support #include <SoftwareSerial.h>
   #endif
 #else
   #include "WProgram.h"
   #include <NewSoftSerial.h>
 #endif
 
-// #include <avr/pgmspace.h>
-
-// #if (defined(__AVR__))
-// #include <avr/pgmspace.h>
-// #else
-// #include <pgmspace.h>
-// #endif
-
-#if defined(__AVR__)
+#if (defined(__AVR__))
   #include <avr/pgmspace.h>
-#endif
-
-#if defined(__ARM__)
-  #define PROGMEM const
-#endif
-
-#if !defined(__AVR__) && !defined(__ARM__)
+// #elif (defined(__ARM__))
+// 	#define PROGMEM const
+#elif (defined(ESP8266))
 	#include <pgmspace.h>
 #endif
 
