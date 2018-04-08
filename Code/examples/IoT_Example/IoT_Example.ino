@@ -479,7 +479,7 @@ void loop() {
 #else
   // The following lines are for if you want to periodically post data (like GPS tracker)
   Serial.print(F("Waiting for ")); Serial.print(samplingRate); Serial.println(F(" seconds"));
-  delay(samplingRate*1000); // Delay
+  delay(samplingRate * 1000UL); // Delay
   
   powerOn(); // Powers on the module if it was off previously
 
