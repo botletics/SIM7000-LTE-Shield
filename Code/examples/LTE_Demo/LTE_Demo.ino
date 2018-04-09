@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 2/9/2018
+ *  Last Updated: 4/9/2018
  *  License: GNU GPL v3.0
   */
 
@@ -27,20 +27,13 @@
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-/*
-THIS CODE IS STILL IN PROGRESS!
-
-Open up the serial console on the Arduino at 115200 baud to interact with FONA
-
-Note that if you need to set a GPRS APN, username, and password scroll down to
-the commented section below at the end of the setup() function.
-*/
 #include "Adafruit_FONA.h"
 
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
-//#define SIMCOM_3G // SIM5320, etc.
-#define SIMCOM_LTE  // SIM7000
+//#define SIMCOM_3G // SIM5320A/E
+#define SIMCOM_7000  // SIM7000A/C/E/G
+//#define SIMCOM_7500 // SIM7500A/E
 
 // Default Adafruit settings
 //#define FONA_RX 2
@@ -55,6 +48,15 @@ the commented section below at the end of the setup() function.
 #define FONA_TX 10 // Microcontroller RX
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
+
+// For SIM7500 shield
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 9 // Connect with solder jumper
+////#define FONA_RI 8 // Need to enable via AT commands
+//#define FONA_TX 11 // Microcontroller RX
+//#define FONA_RX 10 // Microcontroller TX
+////#define T_ALERT 5 // Connect with solder jumper
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -74,16 +76,14 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Use this for 2G modules
 #ifdef SIMCOM_2G
   Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-#endif
-
+  
 // Use this one for 3G modules
-#ifdef SIMCOM_3G
+#elif defined(SIMCOM_3G)
   Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
-#endif
-
+  
 // Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-#ifdef SIMCOM_LTE
+#elif defined(SIMCOM_7000) || defined(SIMCOM_7500)
   Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #endif
 
@@ -142,25 +142,31 @@ void setup() {
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
   switch (type) {
-    case FONA800L:
-      Serial.println(F("FONA 800L")); break;
-    case FONA800H:
-      Serial.println(F("FONA 800H")); break;
-    case FONA808_V1:
-      Serial.println(F("FONA 808 (v1)")); break;
-    case FONA808_V2:
-      Serial.println(F("FONA 808 (v2)")); break;
-    case FONA3G_A:
-      Serial.println(F("FONA 3G (American)")); break;
-    case FONA3G_E:
-      Serial.println(F("FONA 3G (European)")); break;
-    case FONA_LTE_A:
-      Serial.println(F("FONA 4G LTE (American)")); break;
-    case FONA_LTE_C:
-      Serial.println(F("FONA 4G LTE (Chinese)")); break;
-    case FONA_LTE_E:
-      Serial.println(F("FONA 4G LTE (European)")); break;
-    default: 
+    case SIM800L:
+      Serial.println(F("SIM800L")); break;
+    case SIM800H:
+      Serial.println(F("SIM800H")); break;
+    case SIM808_V1:
+      Serial.println(F("SIM808 (v1)")); break;
+    case SIM808_V2:
+      Serial.println(F("SIM808 (v2)")); break;
+    case SIM5320A:
+      Serial.println(F("SIM5320A (American)")); break;
+    case SIM5320E:
+      Serial.println(F("SIM5320E (European)")); break;
+    case SIM7000A:
+      Serial.println(F("SIM7000A (American)")); break;
+    case SIM7000C:
+      Serial.println(F("SIM7000C (Chinese)")); break;
+    case SIM7000E:
+      Serial.println(F("SIM7000E (European)")); break;
+    case SIM7000G:
+      Serial.println(F("SIM7000G (Global)")); break;
+    case SIM7500A:
+      Serial.println(F("SIM7500A (American)")); break;
+    case SIM7500E:
+      Serial.println(F("SIM7500E (European)")); break;
+    default:
       Serial.println(F("???")); break;
   }
   
@@ -169,6 +175,13 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
+
+//  fonaSS.println("AT&F0");
+//  delay(1000);
+//  fonaSS.println("AT+CNBP=0x0000000000001000"); // For band 12
+  fonaSS.println("AT+CNBP=0x0000000000002000"); // For band 13
+//  fonaSS.println("AT+CNBP=0x000007FF3FDF3FFF"); // For any band
+  delay(500);
   
   printMenu();
 }
@@ -228,12 +241,12 @@ void printMenu(void) {
   Serial.println(F("[3] Post to dweet.io via 3G")); // This is mainly for SIM5320 and other SIMCom 3G modules
 
   // GPS
-  if ((type == FONA3G_A) || (type == FONA3G_E) || (type == FONA808_V1) || (type == FONA808_V2) || 
-      (type == FONA_LTE_A) || (type == FONA_LTE_C) || (type == FONA_LTE_E)) {
+  if ((type == SIM5320A) || (type == SIM5320E) || (type == SIM808_V1) || (type == SIM808_V2) || 
+      (type == SIM7000A) || (type == SIM7000C) || (type == SIM7000E) || (type == SIM7000G)) {
     Serial.println(F("[O] Turn GPS on (SIM808/5320/7000)"));
     Serial.println(F("[o] Turn GPS off (SIM808/5320/7000)"));
     Serial.println(F("[L] Query GPS location (SIM808/5320/7000)"));
-    if (type == FONA808_V1) {
+    if (type == SIM808_V1) {
       Serial.println(F("[x] GPS fix status (FONA808 v1 only)"));
     }
     Serial.println(F("[E] Raw NMEA out (SIM808)"));
@@ -351,7 +364,7 @@ void loop() {
     case 'v': {
         // set volume
         flushSerial();
-        if ( (type == FONA3G_A) || (type == FONA3G_E) ) {
+        if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.print(F("Set Vol [0-8] "));
         } else {
           Serial.print(F("Set Vol % [0-100] "));
@@ -369,7 +382,7 @@ void loop() {
     case 'V': {
         uint8_t v = fona.getVolume();
         Serial.print(v);
-        if ( (type == FONA3G_A) || (type == FONA3G_E) ) {
+        if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.println(" / 8");
         } else {
           Serial.println("%");
@@ -594,7 +607,7 @@ void loop() {
         uint16_t smslen;
         int8_t smsn;
 
-        if ( (type == FONA3G_A) || (type == FONA3G_E) ) {
+        if ( (type == SIM5320A) || (type == SIM5320E) ) {
           smsn = 0; // zero indexed
           smsnum--;
         } else {
@@ -734,7 +747,7 @@ void loop() {
         // check for GPS location
         char gpsdata[120];
         fona.getGPS(0, gpsdata, 120);
-        if (type == FONA808_V1)
+        if (type == SIM808_V1)
           Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
         else 
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
@@ -745,7 +758,7 @@ void loop() {
 
     case 'E': {
         flushSerial();
-        if (type == FONA808_V1) {
+        if (type == SIM808_V1) {
           Serial.print(F("GPS NMEA output sentences (0 = off, 34 = RMC+GGA, 255 = all)"));
         } else {
           Serial.print(F("On (1) or Off (0)? "));
@@ -1038,14 +1051,14 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout) {
 void powerOn() {
   digitalWrite(FONA_PWRKEY, LOW);
   // See spec sheets for your particular module
-  #ifdef SIMCOM_2G
+  #if defined(SIMCOM_2G)
     delay(1050);
-  #endif
-  #ifdef SIMCOM_3G
+  #elif defined(SIMCOM_3G)
     delay(180); // For SIM5320
-  #endif
-  #ifdef SIMCOM_LTE
+  #elif defined(SIMCOM_7000)
     delay(100); // For SIM7000
+  #elif defined(SIMCOM_7500)
+    delay(500); // For SIM7500
   #endif
   
   digitalWrite(FONA_PWRKEY, HIGH);
