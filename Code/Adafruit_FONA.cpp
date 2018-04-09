@@ -103,25 +103,31 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
 
   if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R14")) != 0) {
-    _type = FONA808_V2;
+    _type = SIM808_V2;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R13")) != 0) {
-    _type = FONA808_V1;
+    _type = SIM808_V1;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM800 R13")) != 0) {
-    _type = FONA800L;
+    _type = SIM800L;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIMCOM_SIM5320A")) != 0) {
-    _type = FONA3G_A;
+    _type = SIM5320A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIMCOM_SIM5320E")) != 0) {
-    _type = FONA3G_E;
+    _type = SIM5320E;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A R13")) != 0) {
-    _type = FONA_LTE_A;
+    _type = SIM7000A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C R13")) != 0) {
-    _type = FONA_LTE_C;
+    _type = SIM7000C;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E R13")) != 0) {
-    _type = FONA_LTE_E;
-  } 
+    _type = SIM7000E;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G R13")) != 0) {
+    _type = SIM7000G;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A R13")) != 0) {
+    _type = SIM7500A;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500E R13")) != 0) {
+    _type = SIM7500E;
+  }
 
 
-  if (_type == FONA800L) {
+  if (_type == SIM800L) {
     // determine if L or H
 
   DEBUG_PRINT(F("\t---> ")); DEBUG_PRINTLN("AT+GMM");
@@ -133,7 +139,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
 
     if (prog_char_strstr(replybuffer, (prog_char *)F("SIM800H")) != 0) {
-      _type = FONA800H;
+      _type = SIM800H;
     }
   }
 
@@ -614,7 +620,7 @@ boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
 
   DEBUG_PRINTLN("^Z");
 
-  if ( (_type == FONA3G_A) || (_type == FONA3G_E) || (_type >= FONA_LTE_A) ) {
+  if ( (_type == SIM5320A) || (_type == SIM5320E) || (_type >= SIM7000A) ) {
     // Eat two sets of CRLF
     readline(200);
     //DEBUG_PRINT("Line 1: "); DEBUG_PRINTLN(strlen(replybuffer));
@@ -760,7 +766,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 
   // First check if its already on or off
 
-  if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
     if (! sendParseReply(F("AT+CGNSPWR?"), F("+CGNSPWR: "), &state) )
       return false;
   } else {
@@ -769,7 +775,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
   }
 
   if (onoff && !state) {
-    if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
+    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
       if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))  // try GNS command
 	return false;
     } else {
@@ -777,7 +783,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 	return false;
     }
   } else if (!onoff && state) {
-    if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
+    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
       if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply)) // try GNS command
 	return false;
     } else {
@@ -809,7 +815,7 @@ boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
 }
 
 int8_t Adafruit_FONA::GPSstatus(void) {
-  if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
     // 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
     // Instead just look for a fix and if found assume it's a 3D fix.
     getReply(F("AT+CGNSINF"));
@@ -825,7 +831,7 @@ int8_t Adafruit_FONA::GPSstatus(void) {
     if (p[0] == '1') return 3;
     else return 1;
   }
-  if (_type == FONA3G_A || _type == FONA3G_E) {
+  if (_type == SIM5320A || _type == SIM5320E) {
     // FONA 3G doesn't have an explicit 2D/3D fix status.
     // Instead just look for a fix and if found assume it's a 3D fix.
     getReply(F("AT+CGPSINFO"));
@@ -854,9 +860,9 @@ int8_t Adafruit_FONA::GPSstatus(void) {
 uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
   int32_t x = arg;
 
-  if ( (_type == FONA3G_A) || (_type == FONA3G_E) ) {
+  if ( (_type == SIM5320A) || (_type == SIM5320E) ) {
     getReply(F("AT+CGPSINFO"));
-  } else if (_type == FONA808_V1) {
+  } else if (_type == SIM808_V1) {
     getReply(F("AT+CGPSINF="), x);
   } else {
     getReply(F("AT+CGNSINF"));
@@ -893,7 +899,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
   if (res_len == 0)
     return false;
 
-  if (_type == FONA3G_A || _type == FONA3G_E) {
+  if (_type == SIM5320A || _type == SIM5320E) {
     // Parse 3G respose
     // +CGPSINFO:4043.000000,N,07400.000000,W,151015,203802.1,-12.0,0.0,0
     // skip beginning
@@ -971,7 +977,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
-  } else if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
+  } else if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
 
@@ -1152,7 +1158,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
   i %= 10;
   sendbuff[13] = i + '0';
 
-  if (_type == FONA808_V2 || _type == FONA_LTE_A || _type == FONA_LTE_C || _type == FONA_LTE_E) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
     if (i) {
     	sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
       sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
@@ -1172,7 +1178,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 
   if (onoff) {
-  	// if (_type < FONA_LTE_A) { // UNCOMMENT FOR 4G ONLY!
+  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
 	    // disconnect all sockets
 	    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
 
@@ -1182,9 +1188,9 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 		// set bearer profile! connection type GPRS
 		if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
 	  		return false;
-    // } // UNCOMMENT FOR 4G ONLY!
+    // } // UNCOMMENT FOR LTE ONLY!
 
-	 	delay(100); // This seems to help the next line run the first time
+	 	delay(200); // This seems to help the next line run the first time
     
     // set bearer profile access point name
     if (apn) {
@@ -1198,12 +1204,12 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       mySerial->print(F("AT+CSTT=\""));
       mySerial->print(apn);
       if (apnusername) {
-		mySerial->print("\",\"");
-		mySerial->print(apnusername);
+				mySerial->print("\",\"");
+				mySerial->print(apnusername);
       }
       if (apnpassword) {
-		mySerial->print("\",\"");
-		mySerial->print(apnpassword);
+				mySerial->print("\",\"");
+				mySerial->print(apnpassword);
       }
       mySerial->println("\"");
 
@@ -1211,12 +1217,12 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       DEBUG_PRINT(apn); 
       
       if (apnusername) {
-		DEBUG_PRINT("\",\"");
-		DEBUG_PRINT(apnusername); 
+				DEBUG_PRINT("\",\"");
+				DEBUG_PRINT(apnusername); 
       }
       if (apnpassword) {
-		DEBUG_PRINT("\",\"");
-		DEBUG_PRINT(apnpassword); 
+				DEBUG_PRINT("\",\"");
+				DEBUG_PRINT(apnpassword); 
       }
       DEBUG_PRINTLN("\"");
       
@@ -1239,11 +1245,11 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
     if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
       return false;
 
-  	// if (_type < FONA_LTE_A) { // UNCOMMENT FOR 4G ONLY!
+  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
 	    // bring up wireless connection
 	    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
 	      return false;
-	// } // UNCOMMENT FOR 4G ONLY!
+	// } // UNCOMMENT FOR LTE ONLY!
 
   } else {
     // disconnect all sockets
@@ -1254,10 +1260,10 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
     if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
       return false;
 
-  	// if (_type < FONA_LTE_A) { // UNCOMMENT FOR 4G ONLY!
+  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
 	    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
 	      return false;
-	// } // UNCOMMENT FOR 4G ONLY!
+	// } // UNCOMMENT FOR LTE ONLY!
 
   }
   return true;

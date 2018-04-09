@@ -23,18 +23,22 @@
 
 
 
-#define FONA800L 1
-#define FONA800H 6
+#define SIM800L 1
+#define SIM800H 6
 
-#define FONA808_V1 2
-#define FONA808_V2 3
+#define SIM808_V1 2
+#define SIM808_V2 3
 
-#define FONA3G_A 4
-#define FONA3G_E 5
+#define SIM5320A 4
+#define SIM5320E 5
 
-#define FONA_LTE_A 7
-#define FONA_LTE_C 8
-#define FONA_LTE_E 9
+#define SIM7000A 7
+#define SIM7000C 8
+#define SIM7000E 9
+#define SIM7000G 10
+
+#define SIM7500A 11
+#define SIM7500E 12
 
 // Set the preferred SMS storage.
 //   Use "SM" for storage on the SIM.
@@ -267,7 +271,7 @@ class Adafruit_FONA : public FONAStreamType {
 class Adafruit_FONA_3G : public Adafruit_FONA {
 
  public:
-  Adafruit_FONA_3G (int8_t r) : Adafruit_FONA(r) { _type = FONA3G_A; }
+  Adafruit_FONA_3G (int8_t r) : Adafruit_FONA(r) { _type = SIM5320A; }
 
     boolean getBattVoltage(uint16_t *v);
     boolean powerDown(void);
@@ -290,7 +294,7 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
 class Adafruit_FONA_LTE : public Adafruit_FONA {
 
  public:
-  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = FONA_LTE_A; }
+  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; }
 
     boolean setBaudrate(uint16_t baud);
     // boolean enableGPRS(boolean onoff);
