@@ -175,13 +175,6 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-
-//  fonaSS.println("AT&F0");
-//  delay(1000);
-//  fonaSS.println("AT+CNBP=0x0000000000001000"); // For band 12
-  fonaSS.println("AT+CNBP=0x0000000000002000"); // For band 13
-//  fonaSS.println("AT+CNBP=0x000007FF3FDF3FFF"); // For any band
-  delay(500);
   
   printMenu();
 }
