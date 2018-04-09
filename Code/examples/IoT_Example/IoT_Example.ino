@@ -1,4 +1,4 @@
-/* This is an example sketch to send battery, temperature, and GPS location data to
+ /* This is an example sketch to send battery, temperature, and GPS location data to
  *  the cloud via either HTTP GET and POST requests or via MQTT protocol. In this 
  *  sketch we will send to dweet.io, a free cloud API, as well as to ThingsBoard.io,
  *  a very powerful and free IoT platform that allows you to visualize data on dashboards.
@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 2/9/2018
+ *  Last Updated: 4/9/2018
  *  License: GNU GPL v3.0
   */
 
@@ -39,8 +39,9 @@
 
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
-//#define SIMCOM_3G // SIM5320, etc.
-#define SIMCOM_LTE  // SIM7000
+//#define SIMCOM_3G // SIM5320
+#define SIMCOM_7000  // SIM7000
+//#define SIMCOM_7500 // SIM7500
 
 /************************* PIN DEFINITIONS *********************************/
 // Default
@@ -58,6 +59,15 @@
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
 
+// For SIM7500 shield
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 9 // Connect with solder jumper
+////#define FONA_RI 8 // Need to enable via AT commands
+//#define FONA_TX 11 // Microcontroller RX
+//#define FONA_RX 10 // Microcontroller TX
+////#define T_ALERT 5 // Connect with solder jumper
+
 #define LED 13 // Just for testing if needed!
 
 // Using SoftwareSerial
@@ -70,16 +80,14 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Use this for 2G modules
 #ifdef SIMCOM_2G
   Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-#endif
-
+  
 // Use this one for 3G modules
-#ifdef SIMCOM_3G
+#elif defined(SIMCOM_3G)
   Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
-#endif
-
+  
 // Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-#ifdef SIMCOM_LTE
+#elif defined(SIMCOM_7000) || defined(SIMCOM_7500)
   Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #endif
 
@@ -87,8 +95,9 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // to send data to the cloud! Leave the other commented out
 #define PROTOCOL_HTTP_GET         // Generic
 //#define PROTOCOL_HTTP_POST        // Generic
-// #define PROTOCOL_MQTT_AIO         // Adafruit IO
+//#define PROTOCOL_MQTT_AIO         // Adafruit IO
 //#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
+//#define PROTOCOL_MQTT_MYSIGNAL    // MySignal.io
 
 #ifdef PROTOCOL_MQTT_AIO
   /************************* MQTT SETUP *********************************/
@@ -96,10 +105,8 @@ SoftwareSerial *fonaSerial = &fonaSS;
   // For Adafruit IO:
   #define AIO_SERVER      "io.adafruit.com"
   #define AIO_SERVERPORT  1883
-//  #define AIO_USERNAME    "YOUR_AIO_USERNAME"
-//  #define AIO_KEY         "YOUR_AIO_KEY"
-  #define AIO_USERNAME    "ArduinoGuru"
-  #define AIO_KEY         "450a3ef9db96445dac2ffe22893c4939"
+  #define AIO_USERNAME    "YOUR_AIO_USERNAME"
+  #define AIO_KEY         "YOUR_AIO_KEY"
 
   // Setup the FONA MQTT class by passing in the FONA class and MQTT server and login details.
   Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
@@ -121,17 +128,24 @@ SoftwareSerial *fonaSerial = &fonaSS;
   
   // Setup a feed called 'command' for subscribing to changes.
   Adafruit_MQTT_Subscribe feed_command = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/command");
-#endif
 
-#ifdef PROTOCOL_MQTT_CLOUDMQTT
+#elif defined(PROTOCOL_MQTT_CLOUDMQTT)
   /************************* MQTT SETUP *********************************/
   // For CloudMQTT find these under the "Details" tab:
   #define MQTT_SERVER      "m10.cloudmqtt.com"
   #define MQTT_SERVERPORT  16644
   #define MQTT_USERNAME    "CLOUD_MQTT_USERNAME"
   #define MQTT_KEY         "CLOUD_MQTT_KEY"
-//  #define MQTT_USERNAME    "dikqpxhj"
-//  #define MQTT_KEY         "26HsV6JYx9h0"
+  
+#elif defined(PROTOCOL_MQTT_MYSIGNAL)
+  /************************* MQTT SETUP *********************************/
+  // For MySignal.io you can find the username is the device token
+  // found under the "Devices" tab. No key is needed
+  const char* token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyNDBhYjFlLTVmY2EtNGNkZC04YjYzLWM2NWI5NGNmMWVkOCJ9.8DBmfQRDFcWAq8zHIN2A0jOg20gIfcBRWnZbVYjCp8g";
+  
+  #define MQTT_SERVER      "mqtt.mysignal.io"
+  #define MQTT_SERVERPORT  1883
+  #define MQTT_USERNAME    token
 #endif
 
 /****************************** OTHER STUFF ***************************************/
@@ -166,23 +180,27 @@ uint8_t counter = 0;
 
 void setup() {
   Serial.begin(115200);
+  Serial.println(F("SIMCom Module IoT Example"));
 
-  pinMode(LED, OUTPUT);
+  #ifdef LED
+    pinMode(LED, OUTPUT);
+    digitalWrite(LED, LOW);
+  #endif
+  
   pinMode(FONA_RST, OUTPUT);
-  digitalWrite(LED, LOW);
   digitalWrite(FONA_RST, HIGH); // Default state
 
   delay(100); // This helps the temperature sensor code run properly!
+
+  pinMode(FONA_PWRKEY, OUTPUT);
+  powerOn(); // Power on the module
+  moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
   tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
   if (!tempsensor.begin()) {
     Serial.println("Couldn't find the MCP9808!");
     while (1);
   }
-
-  pinMode(FONA_PWRKEY, OUTPUT);
-  powerOn(); // Power on the module
-  moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
   // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
@@ -326,9 +344,7 @@ void loop() {
     counter++; // Increment counter
     delay(1000);
   }
-#endif
-
-#ifdef PROTOCOL_HTTP_POST
+#elif (defined(PROTOCOL_HTTP_POST))
   // You can also do a POST request instead
 
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
@@ -357,9 +373,8 @@ void loop() {
     delay(1000);
   }
   */
-#endif
 
-#ifdef PROTOCOL_MQTT_AIO
+#elif defined(PROTOCOL_MQTT_AIO)
   // Let's use MQTT!
   
   // Ensure the connection to the MQTT server is alive (this will make the first
@@ -396,9 +411,7 @@ void loop() {
     Serial.println(F("*** Commanded to turn off LED!"));
     digitalWrite(LED, LOW);
   }
-#endif
-
-#ifdef PROTOCOL_MQTT_CLOUDMQTT
+#elif defined(PROTOCOL_MQTT_CLOUDMQTT)
   // Let's use CloudMQTT! NOTE: connecting and publishing work, but everything else
   // still under development!!!
   char MQTT_CLIENT[16] = " ";  // We'll change this to the IMEI
@@ -438,6 +451,27 @@ void loop() {
 
   // Close TCP connection
   if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
+#elif defined(PROTOCOL_MQTT_MYSIGNAL)
+  // Let's send data to MySignal.io using MQTT!
+  char MQTT_CLIENT[16] = " ";  // We'll change this to the IMEI
+  char GPS_data[64]; // Holds lat/long data
+  
+  // Let's begin by changing the client name to the IMEI number to better identify
+  strcpy(MQTT_CLIENT, imei);
+
+  // Connect to MQTT broker
+  if (!fona.TCPconnect(MQTT_SERVER, MQTT_SERVERPORT)) Serial.println(F("Failed to connect to TCP/IP!"));
+  if (!fona.MQTTconnect("MQTT", MQTT_CLIENT, MQTT_USERNAME)) Serial.println(F("Failed to connect to MQTT broker!")); // No key needed for MySignal.io
+
+  // Construct comma-separated GPS lat/long data
+  sprintf(GPS_data, "%s, %s", latBuff, longBuff);
+  
+  // Publish lat and long data!
+  Serial.print(F("Publishing GPS data: ")); Serial.println(GPS_data);
+  if (!fona.MQTTpublish("device/coordinates", GPS_data)) Serial.println(F("Failed to publish data!"));
+
+  // Close TCP connection
+  if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
 #endif
 
   //Only run the code below if you want to turn off the shield after posting data
@@ -467,11 +501,10 @@ void loop() {
   // LOW for a little bit, then pull it back HIGH, like this:
 //  digitalWrite(PWRKEY, LOW);
 //  delay(600); // Minimum of 64ms to turn on and 500ms to turn off for FONA 3G. Check spec sheet for other types
-//  delay(1300); // Minimum of 1.2s for LTE shield
+//  delay(1300); // Minimum of 1.2s for SIM7000 shield
 //  digitalWrite(PWRKEY, HIGH);
   
   // Shut down the MCU to save power
-  // Comment out this line if you want it to keep posting periodically
 #ifndef samplingRate
   Serial.println(F("Shutting down..."));
   delay(5); // This is just to read the response of the last AT command before shutting down
@@ -496,14 +529,14 @@ void loop() {
 void powerOn() {
   digitalWrite(FONA_PWRKEY, LOW);
   // See spec sheets for your particular module
-  #ifdef SIMCOM_2G
+  #if defined(SIMCOM_2G)
     delay(1050);
-  #endif
-  #ifdef SIMCOM_3G
+  #elif defined(SIMCOM_3G)
     delay(180); // For SIM5320
-  #endif
-  #ifdef SIMCOM_LTE
+  #elif defined(SIMCOM_7000)
     delay(100); // For SIM7000
+  #elif defined(SIMCOM_7500)
+    delay(500); // For SIM7500
   #endif
   
   digitalWrite(FONA_PWRKEY, HIGH);
@@ -551,25 +584,31 @@ void moduleSetup() {
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
   switch (type) {
-    case FONA800L:
-      Serial.println(F("FONA 800L")); break;
-    case FONA800H:
-      Serial.println(F("FONA 800H")); break;
-    case FONA808_V1:
-      Serial.println(F("FONA 808 (v1)")); break;
-    case FONA808_V2:
-      Serial.println(F("FONA 808 (v2)")); break;
-    case FONA3G_A:
-      Serial.println(F("FONA 3G (American)")); break;
-    case FONA3G_E:
-      Serial.println(F("FONA 3G (European)")); break;
-    case FONA_LTE_A:
-      Serial.println(F("FONA 4G LTE (American)")); break;
-    case FONA_LTE_C:
-      Serial.println(F("FONA 4G LTE (Chinese)")); break;
-    case FONA_LTE_E:
-      Serial.println(F("FONA 4G LTE (European)")); break;
-    default: 
+    case SIM800L:
+      Serial.println(F("SIM800L")); break;
+    case SIM800H:
+      Serial.println(F("SIM800H")); break;
+    case SIM808_V1:
+      Serial.println(F("SIM808 (v1)")); break;
+    case SIM808_V2:
+      Serial.println(F("SIM808 (v2)")); break;
+    case SIM5320A:
+      Serial.println(F("SIM5320A (American)")); break;
+    case SIM5320E:
+      Serial.println(F("SIM5320E (European)")); break;
+    case SIM7000A:
+      Serial.println(F("SIM7000A (American)")); break;
+    case SIM7000C:
+      Serial.println(F("SIM7000C (Chinese)")); break;
+    case SIM7000E:
+      Serial.println(F("SIM7000E (European)")); break;
+    case SIM7000G:
+      Serial.println(F("SIM7000G (Global)")); break;
+    case SIM7500A:
+      Serial.println(F("SIM7500A (American)")); break;
+    case SIM7500E:
+      Serial.println(F("SIM7500E (European)")); break;
+    default:
       Serial.println(F("???")); break;
   }
   
@@ -631,9 +670,7 @@ bool netStatus() {
     }
     Serial.println("MQTT Connected!");
   }
-#endif
 
-#ifdef PROTOCOL_MQTT_AIO
   void MQTT_publish_checkSuccess(Adafruit_MQTT_Publish &feed, const char *feedContent) {
     Serial.println(F("Sending data..."));
     if (! feed.publish(feedContent)) {
