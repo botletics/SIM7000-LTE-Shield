@@ -182,7 +182,13 @@ boolean Adafruit_FONA::enableRTC(uint8_t i) {
 
 /* returns value in mV (uint16_t) */
 boolean Adafruit_FONA::getBattVoltage(uint16_t *v) {
-  return sendParseReply(F("AT+CBC"), F("+CBC: "), v, ',', 2);
+	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
+		float f;
+	  boolean b = sendParseReplyFloat(F("AT+CBC"), F("+CBC: "), &f, ',', 0);
+	  *v = f*1000;
+	  return b;
+	} else
+  	return sendParseReply(F("AT+CBC"), F("+CBC: "), v, ',', 2);
 }
 
 /* returns value in mV (uint16_t) */
@@ -2519,6 +2525,39 @@ boolean Adafruit_FONA::sendParseReply(FONAFlashStringPtr tosend,
   getReply(tosend);
 
   if (! parseReply(toreply, v, divider, index)) return false;
+
+  readline(); // eat 'OK'
+
+  return true;
+}
+
+boolean Adafruit_FONA::parseReplyFloat(FONAFlashStringPtr toreply,
+          float *f, char divider, uint8_t index) {
+  char *p = prog_char_strstr(replybuffer, (prog_char*)toreply);  // get the pointer to the voltage
+  if (p == 0) return false;
+  p+=prog_char_strlen((prog_char*)toreply);
+  //DEBUG_PRINTLN(p);
+  for (uint8_t i=0; i<index;i++) {
+    // increment dividers
+    p = strchr(p, divider);
+    if (!p) return false;
+    p++;
+    //DEBUG_PRINTLN(p);
+
+  }
+  *f = atof(p);
+
+  return true;
+}
+
+// needed for CBC and others
+
+boolean Adafruit_FONA::sendParseReplyFloat(FONAFlashStringPtr tosend,
+				      FONAFlashStringPtr toreply,
+				      float *f, char divider, uint8_t index) {
+  getReply(tosend);
+
+  if (! parseReplyFloat(toreply, f, divider, index)) return false;
 
   readline(); // eat 'OK'
 

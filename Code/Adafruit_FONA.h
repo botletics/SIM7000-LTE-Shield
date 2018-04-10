@@ -254,6 +254,8 @@ class Adafruit_FONA : public FONAStreamType {
 
   boolean parseReply(FONAFlashStringPtr toreply,
           uint16_t *v, char divider  = ',', uint8_t index=0);
+  boolean parseReplyFloat(FONAFlashStringPtr toreply,
+           float *f, char divider, uint8_t index);
   boolean parseReply(FONAFlashStringPtr toreply,
           char *v, char divider  = ',', uint8_t index=0);
   boolean parseReplyQuoted(FONAFlashStringPtr toreply,
@@ -262,6 +264,10 @@ class Adafruit_FONA : public FONAStreamType {
   boolean sendParseReply(FONAFlashStringPtr tosend,
        FONAFlashStringPtr toreply,
        uint16_t *v, char divider = ',', uint8_t index=0);
+
+  boolean sendParseReplyFloat(FONAFlashStringPtr tosend,
+         FONAFlashStringPtr toreply,
+         float *f, char divider = ',', uint8_t index=0);
 
   static boolean _incomingCall;
   static void onIncomingCall();
