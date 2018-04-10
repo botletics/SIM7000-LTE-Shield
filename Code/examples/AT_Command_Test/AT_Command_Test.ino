@@ -116,7 +116,6 @@ void FONApower(bool option) {
     // Alternatively, pulse PWRKEY:
 //    digitalWrite(FONA_PWRKEY, LOW);
 //    delay(1400); // At least 1.2s for SIM7000, at least 2.5s for SIM7500
-    delay(
 //    digitalWrite(FONA_PWRKEY, HIGH);
   }
 }
