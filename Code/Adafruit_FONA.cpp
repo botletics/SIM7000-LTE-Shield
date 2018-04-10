@@ -120,9 +120,9 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = SIM7000E;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G R13")) != 0) {
     _type = SIM7000G;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A")) != 0) {
     _type = SIM7500A;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500E R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500E")) != 0) {
     _type = SIM7500E;
   }
 
@@ -766,35 +766,46 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 
   // First check if its already on or off
 
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
     if (! sendParseReply(F("AT+CGNSPWR?"), F("+CGNSPWR: "), &state) )
       return false;
+  } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
+  	if (! Adafruit_FONA::sendParseReply(F("AT+CGPS?"), F("+CGPS: "), &state) )
+    	return false;
   } else {
     if (! sendParseReply(F("AT+CGPSPWR?"), F("+CGPSPWR: "), &state))
       return false;
   }
 
   if (onoff && !state) {
-    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
-      if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))  // try GNS command
-	return false;
+    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+      if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))
+				return false;
+    } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
+  		if (! sendCheckReply(F("AT+CGPS=1"), ok_reply))
+      	return false;
     } else {
       if (! sendCheckReply(F("AT+CGPSPWR=1"), ok_reply))
-	return false;
+				return false;
     }
   } else if (!onoff && state) {
-    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
-      if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply)) // try GNS command
-	return false;
+    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+      if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply))
+				return false;
+		} else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
+			if (! sendCheckReply(F("AT+CGPS=0"), ok_reply))
+	      return false;
+		    // this takes a little time
+		    readline(2000); // eat '+CGPS: 0'
     } else {
       if (! sendCheckReply(F("AT+CGPSPWR=0"), ok_reply))
-	return false;
+				return false;
     }
   }
   return true;
 }
 
-
+/*
 boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
   uint16_t state;
 
@@ -813,9 +824,10 @@ boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
   }
   return true;
 }
+*/
 
 int8_t Adafruit_FONA::GPSstatus(void) {
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
     // 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
     // Instead just look for a fix and if found assume it's a 3D fix.
     getReply(F("AT+CGNSINF"));
@@ -860,7 +872,7 @@ int8_t Adafruit_FONA::GPSstatus(void) {
 uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
   int32_t x = arg;
 
-  if ( (_type == SIM5320A) || (_type == SIM5320E) ) {
+  if ( _type == SIM5320A || _type == SIM5320E || (_type == SIM7500A) || _type == SIM7500E ) {
     getReply(F("AT+CGPSINFO"));
   } else if (_type == SIM808_V1) {
     getReply(F("AT+CGPSINF="), x);
@@ -977,7 +989,8 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
-  } else if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
+  } else if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G ||
+  					 _type == SIM7500A || _type == SIM7500E) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
 
@@ -1158,7 +1171,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
   i %= 10;
   sendbuff[13] = i + '0';
 
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
     if (i) {
     	sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
       sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
@@ -1176,99 +1189,168 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 
 
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
-
-  if (onoff) {
-  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
+		if (onoff) {
 	    // disconnect all sockets
-	    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
+	    //sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 5000);
 
 	    if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
 	      return false;
 
-		// set bearer profile! connection type GPRS
-		if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
-	  		return false;
-    // } // UNCOMMENT FOR LTE ONLY!
 
-	 	delay(200); // This seems to help the next line run the first time
-    
-    // set bearer profile access point name
-    if (apn) {
-      // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
-      if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
-        return false;
+	    // set bearer profile access point name
+	    if (apn) {
+	      // Send command AT+CGSOCKCONT=1,"IP","<apn value>" where <apn value> is the configured APN name.
+	      if (! sendCheckReplyQuoted(F("AT+CGSOCKCONT=1,\"IP\","), apn, ok_reply, 10000))
+	        return false;
 
-      // send AT+CSTT,"apn","user","pass"
-      flushInput();
+	      // set username/password
+	      if (apnusername) {
+					char authstring[100] = "AT+CGAUTH=1,1,\"";
+					char *strp = authstring + strlen(authstring);
+					prog_char_strcpy(strp, (prog_char *)apnusername);
+					strp+=prog_char_strlen((prog_char *)apnusername);
+					strp[0] = '\"';
+					strp++;
+					strp[0] = 0;
 
-      mySerial->print(F("AT+CSTT=\""));
-      mySerial->print(apn);
-      if (apnusername) {
-				mySerial->print("\",\"");
-				mySerial->print(apnusername);
-      }
-      if (apnpassword) {
-				mySerial->print("\",\"");
-				mySerial->print(apnpassword);
-      }
-      mySerial->println("\"");
+					if (apnpassword) {
+					  strp[0] = ','; strp++;
+					  strp[0] = '\"'; strp++;
+					  prog_char_strcpy(strp, (prog_char *)apnpassword);
+					  strp+=prog_char_strlen((prog_char *)apnpassword);
+					  strp[0] = '\"';
+					  strp++;
+					  strp[0] = 0;
+					}
 
-      DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
-      DEBUG_PRINT(apn); 
-      
-      if (apnusername) {
-				DEBUG_PRINT("\",\"");
-				DEBUG_PRINT(apnusername); 
-      }
-      if (apnpassword) {
-				DEBUG_PRINT("\",\"");
-				DEBUG_PRINT(apnpassword); 
-      }
-      DEBUG_PRINTLN("\"");
-      
-      if (! expectReply(ok_reply)) return false;
-    
-      // set username/password
-      if (apnusername) {
-        // Send command AT+SAPBR=3,1,"USER","<user>" where <user> is the configured APN username.
-        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"USER\","), apnusername, ok_reply, 10000))
-          return false;
-      }
-      if (apnpassword) {
-        // Send command AT+SAPBR=3,1,"PWD","<password>" where <password> is the configured APN password.
-        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"PWD\","), apnpassword, ok_reply, 10000))
-          return false;
-      }
-    }
+					if (! sendCheckReply(authstring, ok_reply, 10000))
+					  return false;
+	      }
+	    }
 
-    // open bearer
-    if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
-      return false;
-
-  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
-	    // bring up wireless connection
-	    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+	    // connect in transparent mode
+	    if (! sendCheckReply(F("AT+CIPMODE=1"), ok_reply, 10000))
 	      return false;
-	// } // UNCOMMENT FOR LTE ONLY!
+	    // open network
+	    if (_type == SIM5320A || _type == SIM5320E) {
+	    	if (! sendCheckReply(F("AT+NETOPEN=,,1"), F("Network opened"), 10000))
+	      	return false;
+	    }
+	    else if (_type == SIM7500A || _type == SIM7500E) {
+	    	if (! sendCheckReply(F("AT+NETOPEN"), ok_reply, 10000))
+	      	return false;
+	    }
+	   	readline(); // eat 'OK'
+	  } else {
+	    // close GPRS context
+	    if (_type == SIM5320A || _type == SIM5320E) {
+	    	if (! sendCheckReply(F("AT+NETCLOSE"), F("Network closed"), 10000))
+	      	return false;
+	    }
+	    else if (_type == SIM7500A || _type == SIM7500E) {
+	    	if (! sendCheckReply(F("AT+NETCLOSE"), ok_reply, 10000))
+	      	return false;
+	    }
+	    
+	    readline(); // eat 'OK'
+	  }
+	}
+	else {
+	  if (onoff) {
+	  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+		    // disconnect all sockets
+		    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
 
-  } else {
-    // disconnect all sockets
-    if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000))
-      return false;
+		    if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
+		      return false;
 
-    // close bearer
-    if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
-      return false;
+			// set bearer profile! connection type GPRS
+			if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
+		  		return false;
+	    // } // UNCOMMENT FOR LTE ONLY!
 
-  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
-	    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
+		 	delay(200); // This seems to help the next line run the first time
+	    
+	    // set bearer profile access point name
+	    if (apn) {
+	      // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
+	      if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
+	        return false;
+
+	      // send AT+CSTT,"apn","user","pass"
+	      flushInput();
+
+	      mySerial->print(F("AT+CSTT=\""));
+	      mySerial->print(apn);
+	      if (apnusername) {
+					mySerial->print("\",\"");
+					mySerial->print(apnusername);
+	      }
+	      if (apnpassword) {
+					mySerial->print("\",\"");
+					mySerial->print(apnpassword);
+	      }
+	      mySerial->println("\"");
+
+	      DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
+	      DEBUG_PRINT(apn); 
+	      
+	      if (apnusername) {
+					DEBUG_PRINT("\",\"");
+					DEBUG_PRINT(apnusername); 
+	      }
+	      if (apnpassword) {
+					DEBUG_PRINT("\",\"");
+					DEBUG_PRINT(apnpassword); 
+	      }
+	      DEBUG_PRINTLN("\"");
+	      
+	      if (! expectReply(ok_reply)) return false;
+	    
+	      // set username/password
+	      if (apnusername) {
+	        // Send command AT+SAPBR=3,1,"USER","<user>" where <user> is the configured APN username.
+	        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"USER\","), apnusername, ok_reply, 10000))
+	          return false;
+	      }
+	      if (apnpassword) {
+	        // Send command AT+SAPBR=3,1,"PWD","<password>" where <password> is the configured APN password.
+	        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"PWD\","), apnpassword, ok_reply, 10000))
+	          return false;
+	      }
+	    }
+
+	    // open bearer
+	    if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
 	      return false;
-	// } // UNCOMMENT FOR LTE ONLY!
 
-  }
+	  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+		    // bring up wireless connection
+		    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+		      return false;
+		// } // UNCOMMENT FOR LTE ONLY!
+
+	  } else {
+	    // disconnect all sockets
+	    if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000))
+	      return false;
+
+	    // close bearer
+	    if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
+	      return false;
+
+	  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+		    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
+		      return false;
+		// } // UNCOMMENT FOR LTE ONLY!
+
+	  }
+	}
   return true;
 }
 
+/*
 boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 
   if (onoff) {
@@ -1287,26 +1369,26 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 
       // set username/password
       if (apnusername) {
-	char authstring[100] = "AT+CGAUTH=1,1,\"";
-	char *strp = authstring + strlen(authstring);
-	prog_char_strcpy(strp, (prog_char *)apnusername);
-	strp+=prog_char_strlen((prog_char *)apnusername);
-	strp[0] = '\"';
-	strp++;
-	strp[0] = 0;
+				char authstring[100] = "AT+CGAUTH=1,1,\"";
+				char *strp = authstring + strlen(authstring);
+				prog_char_strcpy(strp, (prog_char *)apnusername);
+				strp+=prog_char_strlen((prog_char *)apnusername);
+				strp[0] = '\"';
+				strp++;
+				strp[0] = 0;
 
-	if (apnpassword) {
-	  strp[0] = ','; strp++;
-	  strp[0] = '\"'; strp++;
-	  prog_char_strcpy(strp, (prog_char *)apnpassword);
-	  strp+=prog_char_strlen((prog_char *)apnpassword);
-	  strp[0] = '\"';
-	  strp++;
-	  strp[0] = 0;
-	}
+				if (apnpassword) {
+				  strp[0] = ','; strp++;
+				  strp[0] = '\"'; strp++;
+				  prog_char_strcpy(strp, (prog_char *)apnpassword);
+				  strp+=prog_char_strlen((prog_char *)apnpassword);
+				  strp[0] = '\"';
+				  strp++;
+				  strp[0] = 0;
+				}
 
-	if (! sendCheckReply(authstring, ok_reply, 10000))
-	  return false;
+				if (! sendCheckReply(authstring, ok_reply, 10000))
+				  return false;
       }
     }
 
@@ -1328,6 +1410,7 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 
   return true;
 }
+*/
 
 void Adafruit_FONA::getNetworkInfo(void) {
 	getReply(F("AT+CPSI?"));
@@ -1470,8 +1553,9 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
   return true;
 }
 
-/********************************* 3G HTTPS FUNCTION *********************************/
-boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
+/********************************* HTTPS FUNCTION *********************************/
+// boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
+boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, char *URL) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n"
