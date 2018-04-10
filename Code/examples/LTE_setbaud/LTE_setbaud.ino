@@ -1,4 +1,4 @@
-/* This code sets the baud rate of the LTE shield to a slower baud rate
+/* This code sets the baud rate of the shield to a slower baud rate
  *  than the default 115200 baud rate. You only need to run this code
  *  once for it to take effect! (At least for SIM7000E versions)
  */
@@ -29,7 +29,7 @@
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield
+// For SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -37,6 +37,15 @@
 #define FONA_TX 10 // Microcontroller RX
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
+
+// For SIM7500 shield
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 9 // Connect with solder jumper
+////#define FONA_RI 8 // Need to enable via AT commands
+//#define FONA_TX 11 // Microcontroller RX
+//#define FONA_RX 10 // Microcontroller TX
+////#define T_ALERT 5 // Connect with solder jumper
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -54,8 +63,8 @@ SoftwareSerial *fonaSerial = &fonaSS;
 // Use this for FONA 2G or 3G
 //Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
-// Use this one for FONA LTE
-// Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
+// Use this one for SIM7000/SIM7500
+// Notice how we don't include the reset pin because it's reserved for emergencies on the module!
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
@@ -67,9 +76,9 @@ void setup() {
   digitalWrite(FONA_RST, HIGH); // Default state
 
   pinMode(FONA_PWRKEY, OUTPUT);
-  // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
+  // Turn on the module by pulsing the PWRKEY low
   pinMode(FONA_PWRKEY, LOW);
-  delay(100);
+  delay(150); // At least 72ms for SIM7000, at least 100ms for SIM7500
   pinMode(FONA_PWRKEY, HIGH);
 
   Serial.begin(115200);
