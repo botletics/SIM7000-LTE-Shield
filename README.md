@@ -22,6 +22,8 @@ The following list is a summary of the things I've done so far:
 - Network time works
 - GPS works on SIM7000 without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20-30s from cold start and even less (a couple seconds or so) when the device has already been on! However, this may differ based on your location and how deep you're buried inside a building.
 - HTTP functions via LTE CAT-M1 with SIM7000
+- SMS functions (sending/reading/deleting SMS)
+- Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
 - Add newly-supported MQTT commands (and test with 3G modules as well, like SIM5320)
