@@ -185,43 +185,43 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-
+  
   printMenu();
 }
 
 void printMenu(void) {
   Serial.println(F("-------------------------------------"));
   Serial.println(F("[?] Print this menu"));
-  Serial.println(F("[a] read the ADC 2.8V max for SIM800/808, 1.7V max for LTE shield"));
-  Serial.println(F("[b] read the Battery V and % charged"));
-  Serial.println(F("[C] read the SIM CCID"));
+  Serial.println(F("[a] Read the ADC 2.8V max for SIM800/808, 1.7V max for LTE shield"));
+  Serial.println(F("[b] Read supply voltage")); // Will also give battery % charged for most modules
+  Serial.println(F("[C] Read the SIM CCID"));
   Serial.println(F("[U] Unlock SIM with PIN code"));
-  Serial.println(F("[i] read RSSI"));
-  Serial.println(F("[n] get Network status"));
-  Serial.println(F("[v] set audio Volume"));
-  Serial.println(F("[V] get Volume"));
-  Serial.println(F("[H] set Headphone audio (SIM800/808)"));
-  Serial.println(F("[e] set External audio (SIM800/808)"));
-  Serial.println(F("[T] play audio Tone"));
-  Serial.println(F("[P] PWM/Buzzer out (SIM800/808)"));
+  Serial.println(F("[i] Read signal strength (RSSI)"));
+  Serial.println(F("[n] Get network status"));
+  Serial.println(F("[v] Set audio Volume"));
+  Serial.println(F("[V] Get volume"));
+  Serial.println(F("[H] Set headphone audio (SIM800/808)"));
+  Serial.println(F("[e] Set external audio (SIM800/808)"));
+  Serial.println(F("[T] Play audio Tone"));
+  Serial.println(F("[P] PWM/buzzer out (SIM800/808)"));
 
   // FM (SIM800 only!)
-  Serial.println(F("[f] tune FM radio (SIM800)"));
-  Serial.println(F("[F] turn off FM (SIM800)"));
-  Serial.println(F("[m] set FM volume (SIM800)"));
-  Serial.println(F("[M] get FM volume (SIM800)"));
-  Serial.println(F("[q] get FM station signal level (SIM800)"));
+  Serial.println(F("[f] Tune FM radio (SIM800)"));
+  Serial.println(F("[F] Turn off FM (SIM800)"));
+  Serial.println(F("[m] Set FM volume (SIM800)"));
+  Serial.println(F("[M] Get FM volume (SIM800)"));
+  Serial.println(F("[q] Get FM station signal level (SIM800)"));
 
   // Phone
-  Serial.println(F("[c] make phone Call"));
-  Serial.println(F("[A] get call status"));
+  Serial.println(F("[c] Make phone Call"));
+  Serial.println(F("[A] Get call status"));
   Serial.println(F("[h] Hang up phone"));
   Serial.println(F("[p] Pick up phone"));
 
   // SMS
-  Serial.println(F("[N] Number of SMSs"));
+  Serial.println(F("[N] Number of SMS's"));
   Serial.println(F("[r] Read SMS #"));
-  Serial.println(F("[R] Read All SMS"));
+  Serial.println(F("[R] Read all SMS"));
   Serial.println(F("[d] Delete SMS #"));
   Serial.println(F("[s] Send SMS"));
   Serial.println(F("[u] Send USSD"));
@@ -231,7 +231,7 @@ void printMenu(void) {
   Serial.println(F("[Y] Enable NTP time sync (SIM800/808/7000)")); // Need to use "G" command first!
   Serial.println(F("[t] Get network time")); // Works just by being connected to network
 
-  // GPRS/4G Connection
+  // Data Connection
   Serial.println(F("[G] Enable GPRS/4G"));
   Serial.println(F("[g] Disable GPRS/4G"));
   Serial.println(F("[l] Query GSMLOC (GPRS)"));
@@ -256,7 +256,7 @@ void printMenu(void) {
     Serial.println(F("[E] Raw NMEA out (SIM808)"));
   }
   
-  Serial.println(F("[S] create serial passthru tunnel"));
+  Serial.println(F("[S] Create serial passthru tunnel"));
   Serial.println(F("-------------------------------------"));
   Serial.println(F(""));
 }
@@ -299,11 +299,12 @@ void loop() {
           Serial.print(F("VBat = ")); Serial.print(vbat); Serial.println(F(" mV"));
         }
 
-
-        if (! fona.getBattPercent(&vbat)) {
-          Serial.println(F("Failed to read Batt"));
-        } else {
-          Serial.print(F("VPct = ")); Serial.print(vbat); Serial.println(F("%"));
+        if ( (type != SIM7500A) && (type != SIM7500E) ) {
+          if (! fona.getBattPercent(&vbat)) {
+            Serial.println(F("Failed to read Batt"));
+          } else {
+            Serial.print(F("VPct = ")); Serial.print(vbat); Serial.println(F("%"));
+          }
         }
 
         break;
@@ -370,6 +371,8 @@ void loop() {
         flushSerial();
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.print(F("Set Vol [0-8] "));
+        } else if ( (type == SIM7500A) || (type == SIM7500E) ) {
+          Serial.print(F("Set Vol [0-5] "));
         } else {
           Serial.print(F("Set Vol % [0-100] "));
         }
