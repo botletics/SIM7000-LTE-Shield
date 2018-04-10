@@ -121,22 +121,32 @@ void setup() {
   // the following line then redirects over SSL will be followed.
   //fona.setHTTPSRedirect(true);
 
-  // The baud rate always resets back to default (115200) after
-  // being powered down so let's try 115200 first. Hats off to
-  // anyone who can figure out how to make it remember the new
-  // baud rate even after being power cycled! If you are using
-  // hardware serial then this shouldn't be an issue because
-  // you can just use the default 115200 baud.
-  fonaSerial->begin(115200); // Default LTE shield baud rate
-  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
-
-  Serial.println(F("Configuring to 4800 baud"));
-  fona.setBaudrate(4800); // Set to 4800 baud
-  fonaSerial->begin(4800);
-  if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
-    while(1); // Don't proceed if it couldn't find the device
-  }
+  // For the SIM7000 the baud rate resets back to default (115200) after
+  // being powered down so let's try 115200 first. However, the SIM7500
+  // doesn't have this issue and the baud rate is permanently stored.
+  #ifdef SIMCOM_7000
+    fonaSerial->begin(115200); // Default LTE shield baud rate
+    fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+  
+    Serial.println(F("Configuring to 4800 baud"));
+    fona.setBaudrate(4800); // Set to 4800 baud
+    fonaSerial->begin(4800);
+    if (!fona.begin(*fonaSerial)) {
+      Serial.println(F("Couldn't find FONA"));
+      while(1); // Don't proceed if it couldn't find the device
+    }
+  #elif defined(SIMCOM_7500)
+    fonaSS.begin(115200); // Default SIM7000 shield baud rate
+    
+    Serial.println(F("Configuring to 4800 baud"));
+    fonaSS.println("AT+IPR=4800"); // Set baud rate temporarily
+//    fonaSS.println("AT+IPREX=4800"); // Set baud rate permanently
+    fonaSS.begin(4800);
+    if (! fona.begin(fonaSS)) {
+      Serial.println(F("Couldn't find FONA"));
+      while(1); // Don't proceed if it couldn't find the device
+    }
+  #endif
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
@@ -175,7 +185,7 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-  
+
   printMenu();
 }
 
@@ -227,15 +237,16 @@ void printMenu(void) {
   Serial.println(F("[l] Query GSMLOC (GPRS)"));
   Serial.println(F("[w] Read webpage (GPRS)"));
   Serial.println(F("[W] Post to website (GPRS)"));
-  Serial.println(F("[1] Get connection info")); // See what connection type and band you're on! Works on SIM7000
+  Serial.println(F("[1] Get connection info")); // See what connection type and band you're on!
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
   // FONA_IoT_example sketch for an actual application of this function!
-  Serial.println(F("[2] Post to dweet.io via 2G or CAT-M/NB-IoT")); // This can be SIM800/808/900/7000
-  Serial.println(F("[3] Post to dweet.io via 3G")); // This is mainly for SIM5320 and other SIMCom 3G modules
+  Serial.println(F("[2] Post to dweet.io via 2G / LTE CAT-M / NB-IoT")); // This can be SIM800/808/900/7000
+  Serial.println(F("[3] Post to dweet.io via 3G / 4G LTE")); // SIM5320/7500
 
   // GPS
   if ((type == SIM5320A) || (type == SIM5320E) || (type == SIM808_V1) || (type == SIM808_V2) || 
-      (type == SIM7000A) || (type == SIM7000C) || (type == SIM7000E) || (type == SIM7000G)) {
+      (type == SIM7000A) || (type == SIM7000C) || (type == SIM7000E) || (type == SIM7000G) ||
+      (type == SIM7500A) || (type == SIM7500E)) {
     Serial.println(F("[O] Turn GPS on (SIM808/5320/7000)"));
     Serial.println(F("[o] Turn GPS off (SIM808/5320/7000)"));
     Serial.println(F("[L] Query GPS location (SIM808/5320/7000)"));
@@ -742,7 +753,9 @@ void loop() {
         fona.getGPS(0, gpsdata, 120);
         if (type == SIM808_V1)
           Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
-        else 
+        else if (type == SIM7500A || SIM7500E)
+          Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
+        else
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
         Serial.println(gpsdata);
 
@@ -773,6 +786,11 @@ void loop() {
         break;
       }
     case 'G': {
+        // turn GPRS off first for SIM7500
+        #ifdef SIMCOM_7500
+          fona.enableGPRS(false);
+        #endif
+        
         // turn GPRS on
         if (!fona.enableGPRS(true))
           Serial.println(F("Failed to turn on"));
@@ -916,9 +934,9 @@ void loop() {
       
         break;
       }
-#ifdef SIMCOM_3G
+#if defined(SIMCOM_3G) || defined(SIMCOM_7500)
     case '3': {
-        // Post data to website via 3G
+        // Post data to website via 3G or 4G LTE
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
         // Voltage in mV, just for testing. Use the read battery function instead for real applications.
@@ -940,8 +958,13 @@ void loop() {
         // GET request
         sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n", imei, tempBuff, battLevelBuff);
 
-        if (!fona.postData3G("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
-          Serial.println(F("Failed to complete 3G HTTP/HTTPS request..."));
+        if ((type == SIM5320A) || (type == SIM5320E) || (type = SIM7500A) || (type = SIM7500E)) {
+          if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
+            Serial.println(F("Failed to complete HTTP/HTTPS request..."));
+        }
+        else {
+          Serial.println(F("Wrong module for this function!"));
+        }
       
         break;
       }
