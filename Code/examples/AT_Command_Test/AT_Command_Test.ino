@@ -12,17 +12,35 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 1/30/2018
+ *  Last Updated: 4/9/2018
  *  License: GNU GPL v3.0
  */
 
 #include <SoftwareSerial.h> // This is for communicating with the SIM7000 module
 
-// For LTE shield
+// For LTE shield v1
+#define FONA_PWRKEY 4
+#define FONA_RX 7
+#define FONA_TX 6
+#define FONA_RST 8
+
+// For SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
+//#define FONA_DTR 8 // Connect with solder jumper
+//#define FONA_RI 9 // Need to enable via AT commands
 #define FONA_TX 10 // Microcontroller RX
 #define FONA_RX 11 // Microcontroller TX
+//#define T_ALERT 12 // Connect with solder jumper
+
+// For SIM7500 shield
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 9 // Connect with solder jumper
+////#define FONA_RI 8 // Need to enable via AT commands
+//#define FONA_TX 11 // Microcontroller RX
+//#define FONA_RX 10 // Microcontroller TX
+////#define T_ALERT 5 // Connect with solder jumper
 
 SoftwareSerial fona = SoftwareSerial(FONA_TX, FONA_RX);
 
@@ -88,7 +106,7 @@ void FONApower(bool option) {
   if (option) {
     Serial.println("*** Turning ON (takes about 4.2s)");
     digitalWrite(FONA_PWRKEY, LOW);
-    delay(100); // At least 72ms
+    delay(200); // At least 72ms for SIM7000 and at least 100ms for SIM7500
     digitalWrite(FONA_PWRKEY, HIGH);
   }
   else {
@@ -97,7 +115,8 @@ void FONApower(bool option) {
     
     // Alternatively, pulse PWRKEY:
 //    digitalWrite(FONA_PWRKEY, LOW);
-//    delay(1400); // At least 1.2s
+//    delay(1400); // At least 1.2s for SIM7000, at least 2.5s for SIM7500
+    delay(
 //    digitalWrite(FONA_PWRKEY, HIGH);
   }
 }
