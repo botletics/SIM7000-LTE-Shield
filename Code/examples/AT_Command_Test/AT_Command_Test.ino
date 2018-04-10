@@ -18,12 +18,6 @@
 
 #include <SoftwareSerial.h> // This is for communicating with the SIM7000 module
 
-// For LTE shield v1
-#define FONA_PWRKEY 4
-#define FONA_RX 7
-#define FONA_TX 6
-#define FONA_RST 8
-
 // For SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
