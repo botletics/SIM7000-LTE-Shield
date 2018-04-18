@@ -878,7 +878,7 @@ int8_t Adafruit_FONA::GPSstatus(void) {
 uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
   int32_t x = arg;
 
-  if ( _type == SIM5320A || _type == SIM5320E || (_type == SIM7500A) || _type == SIM7500E ) {
+  if ( _type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E ) {
     getReply(F("AT+CGPSINFO"));
   } else if (_type == SIM808_V1) {
     getReply(F("AT+CGPSINF="), x);
@@ -907,9 +907,11 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
   char gpsbuffer[120];
 
   // we need at least a 2D fix
-  if (GPSstatus() < 2)
-    return false;
-
+  if (_type != SIM7500A && _type != SIM7500E) { // SIM7500 doesn't support AT+CGPSSTATUS? command
+  	if (GPSstatus() < 2)
+	    return false;
+  }
+	
   // grab the mode 2^5 gps csv from the sim808
   uint8_t res_len = getGPS(32, gpsbuffer, 120);
 
@@ -917,7 +919,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
   if (res_len == 0)
     return false;
 
-  if (_type == SIM5320A || _type == SIM5320E) {
+  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
     // Parse 3G respose
     // +CGPSINFO:4043.000000,N,07400.000000,W,151015,203802.1,-12.0,0.0,0
     // skip beginning
@@ -1571,7 +1573,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     return false;
 
   // Construct the AT command based on function parameters
-  char auxStr[64];
+  char auxStr[128];
   uint8_t connTypeNum = 1;
   
   if (strcmp(connType, "HTTP") == 0) {
@@ -1616,6 +1618,61 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
   return true;
 }
+
+/********* FTP FUNCTIONS  ************************************/
+/*
+// Download data from FTP server
+boolean Adafruit_FONA::FTP_GET(const char* serverIP, const char* username, const char* password, const char* fileName,
+															 const char* filePath,, uint16_t numBytes) {
+	char auxStr[128];
+
+	if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPSERV=%s", serverIP);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  if (strlen(username) > 0) {
+  	sprintf(auxStr, "AT+FTPUN=%s", username);
+
+	  if (! sendCheckReply(auxStr, ok_reply, 10000))
+	    return false;
+  }
+
+	if (strlen(password) > 0) {
+  	sprintf(auxStr, "AT+FTPPW=%s", password);
+
+	  if (! sendCheckReply(auxStr, ok_reply, 10000))
+	    return false;
+  }
+
+  sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  if (! sendCheckReply(F("AT+FTPGET=1"), ok_reply, 10000)) // Open FTP GET session
+    return false;
+
+  sprintf(auxStr, "AT+FTPGET=2,%i", fileName); // Read data
+
+  
+  
+
+	return true;
+}
+
+boolean Adafruit_FONA::FTP_PUT() {
+
+}
+*/
 
 /********* MQTT FUNCTIONS  ************************************/
 
