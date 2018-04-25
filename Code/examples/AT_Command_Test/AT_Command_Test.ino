@@ -12,7 +12,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 4/9/2018
+ *  Last Updated: 4/24/2018
  *  License: GNU GPL v3.0
  */
 
@@ -53,6 +53,8 @@ void setup() {
   delay(4000); // Let the shield power up
 
   // Hard-code baud rate
+  // Can use the "BAUD" command to switch baud rate
+  // at any time in case of a baud rate mismatch
   fona.begin(115200); // Default baud rate
 //  fona.begin(4800);
   
@@ -68,7 +70,7 @@ void loop() {
     else if (userCmd == "OFF") FONApower(false);
     else if (userCmd == "RESET") FONAreset();
     else if (userCmd == "FACTORY") facReset();
-    else if (userCmd.indexOf("BAUD") != -1) {
+    else if (userCmd.startsWith("BAUD")) {
       baudRate = userCmd.substring(4).toInt();
       Serial.print("*** Switching to "); Serial.print(baudRate); Serial.println(" baud");
       Serial.print(" --> ");
