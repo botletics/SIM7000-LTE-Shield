@@ -1485,7 +1485,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char *body, const char *token) {
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Make sure HTTP service is terminated so initialization will run
@@ -1818,7 +1818,7 @@ boolean Adafruit_FONA::mqtt_sendPacket(byte *packet, byte len) {
 
 ////////////////////////////////////////////////////////////
 
-boolean Adafruit_FONA::MQTTconnect(char *protocol, char *clientID, char *username, char *password) {
+boolean Adafruit_FONA::MQTTconnect(const char *protocol, const char *clientID, const char *username, const char *password) {
 	flushInput();
 	mySerial->println(F("AT+CIPSEND"));
 	readline();
@@ -1834,7 +1834,7 @@ boolean Adafruit_FONA::MQTTconnect(char *protocol, char *clientID, char *usernam
   return true;
 }
 
-boolean Adafruit_FONA::MQTTpublish(char* topic, char* message) {
+boolean Adafruit_FONA::MQTTpublish(const char* topic, const char* message) {
 	flushInput();
 	mySerial->println(F("AT+CIPSEND"));
 	readline();
@@ -1849,7 +1849,7 @@ boolean Adafruit_FONA::MQTTpublish(char* topic, char* message) {
   return true;
 }
 
-boolean Adafruit_FONA::MQTTsubscribe(char* topic, byte QoS) {
+boolean Adafruit_FONA::MQTTsubscribe(const char* topic, byte QoS) {
 	flushInput();
 	mySerial->println(F("AT+CIPSEND"));
 	readline();
@@ -1864,11 +1864,11 @@ boolean Adafruit_FONA::MQTTsubscribe(char* topic, byte QoS) {
   return true;
 }
 
-boolean Adafruit_FONA::MQTTunsubscribe(char* topic) {
+boolean Adafruit_FONA::MQTTunsubscribe(const char* topic) {
 
 }
 
-boolean Adafruit_FONA::MQTTreceive(char* topic, char* buf, int maxlen) {
+boolean Adafruit_FONA::MQTTreceive(const char* topic, const char* buf, int maxlen) {
 
 }
 

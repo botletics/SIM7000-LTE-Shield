@@ -147,7 +147,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean getGSMLoc(uint16_t *replycode, char *buff, uint16_t maxlen);
   boolean getGSMLoc(float *lat, float *lon);
   void setGPRSNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
-  boolean postData(const char *request_type, const char *URL, char *body = "", const char *token = "");
+  boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "");
   boolean postData(const char *server, uint16_t port, const char *connType, char *URL);
   void getNetworkInfo(void);
 
@@ -167,12 +167,12 @@ class Adafruit_FONA : public FONAStreamType {
   uint16_t TCPread(uint8_t *buff, uint8_t len);
 
   // MQTT
-  boolean MQTTconnect(char *protocol, char *clientID, char *username = "", char *password = "");
+  boolean MQTTconnect(const char *protocol, const char *clientID, const char *username = "", const char *password = "");
   boolean MQTTdisconnect(void);
-  boolean MQTTpublish(char* topic, char* message);
-  boolean MQTTsubscribe(char* topic, byte QoS);
-  boolean MQTTunsubscribe(char* topic);
-  boolean MQTTreceive(char* topic, char* buf, int maxlen);
+  boolean MQTTpublish(const char* topic, const char* message);
+  boolean MQTTsubscribe(const char* topic, byte QoS);
+  boolean MQTTunsubscribe(const char* topic);
+  boolean MQTTreceive(const char* topic, const char* buf, int maxlen);
 
   // HTTP low level interface (maps directly to SIM800 commands).
   boolean HTTP_init();
