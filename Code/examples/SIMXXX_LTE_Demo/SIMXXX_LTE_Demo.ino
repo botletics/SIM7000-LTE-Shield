@@ -1,9 +1,9 @@
-/*  This is an example sketch to test the core functionalities of SIMCom-based cellular modules. 
- *  This code supports the SIM7000-series modules (LTE/NB-IoT shields) for low-power IoT devices!
+/*  This is an example sketch to test the core functionalities of the SIM7000 and SIM7500 modules. 
+ *  Please see the "LTE_Demo" sketch which supports many other SIMCom 2G, 3G modules
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 4/9/2018
+ *  Last Updated: 5/4/2018
  *  License: GNU GPL v3.0
   */
 
@@ -33,23 +33,26 @@
 #define SIMCOM_7000  // SIM7000A/C/E/G
 //#define SIMCOM_7500 // SIM7500A/E
 
-// For SIM7000 shield
-#define FONA_PWRKEY 6
-#define FONA_RST 7
-//#define FONA_DTR 8 // Connect with solder jumper
-//#define FONA_RI 9 // Need to enable via AT commands
-#define FONA_TX 10 // Microcontroller RX
-#define FONA_RX 11 // Microcontroller TX
-//#define T_ALERT 12 // Connect with solder jumper
-
+#if defined(SIMCOM_7000)
+  // For SIM7000 shield
+  #define FONA_PWRKEY 6
+  #define FONA_RST 7
+  //#define FONA_DTR 8 // Connect with solder jumper
+  //#define FONA_RI 9 // Need to enable via AT commands
+  #define FONA_TX 10 // Microcontroller RX
+  #define FONA_RX 11 // Microcontroller TX
+  //#define T_ALERT 12 // Connect with solder jumper
+  
+#elif defined(SIMCOM_7500)
 // For SIM7500 shield
-//#define FONA_PWRKEY 6
-//#define FONA_RST 7
-////#define FONA_DTR 9 // Connect with solder jumper
-////#define FONA_RI 8 // Need to enable via AT commands
-//#define FONA_TX 11 // Microcontroller RX
-//#define FONA_RX 10 // Microcontroller TX
-////#define T_ALERT 5 // Connect with solder jumper
+  #define FONA_PWRKEY 6
+  #define FONA_RST 7
+  //#define FONA_DTR 9 // Connect with solder jumper
+  //#define FONA_RI 8 // Need to enable via AT commands
+  #define FONA_TX 11 // Microcontroller RX
+  #define FONA_RX 10 // Microcontroller TX
+  //#define T_ALERT 5 // Connect with solder jumper
+#endif
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -167,6 +170,7 @@ void printMenu(void) {
   Serial.println(F("[U] Unlock SIM with PIN code"));
   Serial.println(F("[i] Read signal strength (RSSI)"));
   Serial.println(F("[n] Get network status"));
+#ifdef SIMCOM_7500
   Serial.println(F("[v] Set audio Volume (SIM7500)"));
   Serial.println(F("[V] Get volume (SIM7500)"));
   Serial.println(F("[H] Set headphone audio (SIM7500)"));
@@ -179,6 +183,7 @@ void printMenu(void) {
   Serial.println(F("[A] Get call status"));
   Serial.println(F("[h] Hang up phone"));
   Serial.println(F("[p] Pick up phone"));
+#endif
 
   // SMS
   Serial.println(F("[N] Number of SMS's"));
@@ -186,11 +191,11 @@ void printMenu(void) {
   Serial.println(F("[R] Read all SMS"));
   Serial.println(F("[d] Delete SMS #"));
   Serial.println(F("[s] Send SMS"));
-  Serial.println(F("[u] Send USSD"));
+//  Serial.println(F("[u] Send USSD"));
   
   // Time
-  Serial.println(F("[y] Enable local time stamp (SIM800/808/7000)"));
-  Serial.println(F("[Y] Enable NTP time sync (SIM800/808/7000)")); // Need to use "G" command first!
+  Serial.println(F("[y] Enable local time stamp"));
+  Serial.println(F("[Y] Enable NTP time sync")); // Need to use "G" command first!
   Serial.println(F("[t] Get network time")); // Works just by being connected to network
 
   // Data Connection
@@ -200,18 +205,15 @@ void printMenu(void) {
   Serial.println(F("[W] Post to website (GPRS)"));
   Serial.println(F("[1] Get connection info")); // See what connection type and band you're on!
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
-  // FONA_IoT_example sketch for an actual application of this function!
+  // IoT_example sketch for an actual application of this function!
   Serial.println(F("[2] Post to dweet.io via LTE CAT-M / NB-IoT (SIM70000)")); // SIM7000
   Serial.println(F("[3] Post to dweet.io via 4G LTE (SIM7500)")); // SIM7500
 
   // GPS
-  if ((type == SIM7000A) || (type == SIM7000C) || (type == SIM7000E) || (type == SIM7000G) ||
-      (type == SIM7500A) || (type == SIM7500E)) {
-    Serial.println(F("[O] Turn GPS on)"));
-    Serial.println(F("[o] Turn GPS off"));
-    Serial.println(F("[L] Query GPS location"));
-//    Serial.println(F("[E] Raw NMEA out (SIM808)"));
-  }
+  Serial.println(F("[O] Turn GPS on)"));
+  Serial.println(F("[o] Turn GPS off"));
+  Serial.println(F("[L] Query GPS location"));
+//  Serial.println(F("[E] Raw NMEA out (SIM808)"));
   
   Serial.println(F("[S] Create serial passthru tunnel"));
   Serial.println(F("-------------------------------------"));
@@ -323,6 +325,7 @@ void loop() {
       }
 
     /*** Audio ***/
+#ifdef SIMCOM_7500
     case 'v': {
         // set volume
         flushSerial();
@@ -524,6 +527,7 @@ void loop() {
         }
         break;
       }
+#endif
 
     /*** SMS ***/
 
@@ -633,7 +637,7 @@ void loop() {
 
         break;
       }
-
+/*
     case 'u': {
       // send a USSD!
       char message[141];
@@ -653,7 +657,7 @@ void loop() {
         Serial.println(F("*****"));
       }
     }
-
+*/
     /*** Time ***/
 
     case 'y': {
@@ -694,6 +698,7 @@ void loop() {
           Serial.println(F("Failed to turn on"));
         break;
       }
+/*
     case 'x': {
         int8_t stat;
         // check GPS fix
@@ -706,7 +711,7 @@ void loop() {
         if (stat == 3) Serial.println(F("3D fix"));
         break;
       }
-
+*/
     case 'L': {
         // check for GPS location
         char gpsdata[120];
@@ -854,6 +859,7 @@ void loop() {
         fona.getNetworkInfo();        
         break;
       }
+#ifdef SIMCOM_7000
     case '2': {
         // Post data to website via 2G or LTE CAT-M/NB-IoT
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
@@ -896,6 +902,8 @@ void loop() {
       
         break;
       }
+#endif
+
 #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
     case '3': {
         // Post data to website via 3G or 4G LTE
