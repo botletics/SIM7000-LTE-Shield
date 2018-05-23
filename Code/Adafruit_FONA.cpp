@@ -1257,10 +1257,18 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	      	return false;
 	    }
 	    else if (_type == SIM7500A || _type == SIM7500E) {
-	    	if (! sendCheckReply(F("AT+NETCLOSE"), ok_reply, 10000))
-	      	return false;
+        getReply(F("AT+NETCLOSE"));
+        getReply(F("AT+CHTTPSSTOP"));
+        getReply(F("AT+CHTTPSCLSE"));
+
+	    	// if (! sendCheckReply(F("AT+NETCLOSE"), ok_reply, 10000))
+	     //  	return false;
+	    //   	if (! sendCheckReply(F("AT+CHTTPSSTOP"), F("+CHTTPSSTOP: 0"), 10000))
+  			// 	return false;
+  			// if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+  			// 	return false;
 	    }
-	    
+
 	    readline(); // eat 'OK'
 	  }
 	}
@@ -1275,7 +1283,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 
 			// set bearer profile! connection type GPRS
 			if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
-		  		return false;
+		    return false;
 	    // } // UNCOMMENT FOR LTE ONLY!
 
 		 	delay(200); // This seems to help the next line run the first time
@@ -1564,14 +1572,24 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 /********************************* HTTPS FUNCTION *********************************/
 // boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
 boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, char *URL) {
+  uint16_t reply = 1; // 0 means everything's good
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n"
 
   // Start HTTPS stack
-  if (! sendCheckReply(F("AT+CHTTPSSTART"), ok_reply, 10000))
-    return false;
+  if (_type == SIM7500A | _type == SIM7500E) {
+  	if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
+  		return false;
+  }
+  else {
+  	if (! sendCheckReply(F("AT+CHTTPSSTART"), ok_reply, 10000))
+    	return false;
+  }
 
+	DEBUG_PRINTLN(F("Waiting 2s to ensure connection..."));
+  delay(2000);
+  
   // Construct the AT command based on function parameters
   char auxStr[128];
   uint8_t connTypeNum = 1;
@@ -1588,33 +1606,77 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   // Connect to HTTPS server
   // if (! sendCheckReply(F("AT+CHTTPSOPSE=\"www.dweet.io\",443,2"), ok_reply, 10000)) // Use port 443 and HTTPS
   //   return false;
-  if (! sendCheckReply(auxStr, ok_reply, 10000))
-    return false;
+  // if (! sendCheckReply(auxStr, ok_reply, 10000))
+  //   return false;
 
-  // Send data to server (takes about 10s to send to dweet.io)
+  if (_type == SIM7500A | _type == SIM7500E) {
+    // sendParseReply(auxStr, F("+CHTTPSOPSE: "), &reply);
+    // if (reply != 0) return false;
+
+    if (! sendCheckReply(auxStr, ok_reply, 10000))
+      return false;
+
+    readline(10000);
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+    if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
+  }
+  else {
+    if (! sendCheckReply(auxStr, ok_reply, 10000))
+      return false;
+  }
+  
+  // readline(10000);
+
+  // if (strstr(replybuffer, "+HTTPSOPSE: 0") == 0) {
+  //   return false;
+  // }
+
+  DEBUG_PRINTLN(F("Waiting 2s to make sure it works..."));
+  delay(2000);
+
+  // Send data to server
   sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL));
 
   if (! sendCheckReply(auxStr, ">", 10000))
     return false;
 
-  if (! sendCheckReply(URL, ok_reply, 10000))
-    return false;
+  if (_type == SIM7500A | _type == SIM7500E) {
+    // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
+    // if (reply != 0) return false;
 
-  // Request URL
-  if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
-    return false;
+    if (! sendCheckReply(URL, ok_reply, 10000))
+      return false;
 
-  // Receive HTTPS response
-  if (! sendCheckReply(F("AT+CHTTPSRECV=1"), ok_reply, 10000))
-    return false;
+    readline(10000);
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
 
-  // Close HTTP/HTTPS Session
-  if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
-    return false;
+  }
+  else {
+    if (! sendCheckReply(URL, ok_reply, 10000))
+      return false;
+  }
 
-  // Stop HTTP/HTTPS stack
-  if (! sendCheckReply(F("AT+CHTTPSSTOP"), ok_reply, 10000))
-    return false;
+  delay(1000);
+  
+  // Only for SIM5320
+  if (_type == SIM5320A || _type == SIM5320E) {
+    // Request URL
+    if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
+      return false;
+
+    // Receive HTTPS response
+    if (! sendCheckReply(F("AT+CHTTPSRECV=1"), ok_reply, 10000))
+      return false;
+
+    // Close HTTP/HTTPS Session
+    if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+      return false;
+
+    // Stop HTTP/HTTPS stack
+    if (! sendCheckReply(F("AT+CHTTPSSTOP"), ok_reply, 10000))
+      return false;
+  }
 
   return true;
 }
