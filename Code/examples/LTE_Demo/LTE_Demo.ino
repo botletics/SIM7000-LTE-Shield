@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 4/9/2018
+ *  Last Updated: 5/22/2018
  *  License: GNU GPL v3.0
   */
 
@@ -105,7 +105,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("FONA basic test"));
-  Serial.println(F("Initializing....(May take 3 seconds)"));
+  Serial.println(F("Initializing....(May take several seconds)"));
 
   // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
@@ -132,10 +132,11 @@ void setup() {
     fona.setBaudrate(4800); // Set to 4800 baud
     fonaSerial->begin(4800);
     if (!fona.begin(*fonaSerial)) {
-      Serial.println(F("Couldn't find FONA"));
+      Serial.println(F("Couldn't find modem"));
       while(1); // Don't proceed if it couldn't find the device
     }
   #elif defined(SIMCOM_7500)
+    // Takes about 15s for the SIM7500 to power up for the first time
     fonaSS.begin(115200); // Default SIM7000 shield baud rate
     
     Serial.println(F("Configuring to 4800 baud"));
@@ -239,7 +240,7 @@ void printMenu(void) {
   Serial.println(F("[W] Post to website (GPRS)"));
   Serial.println(F("[1] Get connection info")); // See what connection type and band you're on!
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
-  // FONA_IoT_example sketch for an actual application of this function!
+  // IoT_example sketch for an actual application of this function!
   Serial.println(F("[2] Post to dweet.io via 2G / LTE CAT-M / NB-IoT")); // This can be SIM800/808/900/7000
   Serial.println(F("[3] Post to dweet.io via 3G / 4G LTE")); // SIM5320/7500
 
@@ -959,7 +960,7 @@ void loop() {
         // Use IMEI as device ID for this example
         
         // GET request
-        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n", imei, tempBuff, battLevelBuff);
+        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n", imei, tempBuff, battLevelBuff);
 
         if ((type == SIM5320A) || (type == SIM5320E) || (type = SIM7500A) || (type = SIM7500E)) {
           if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
