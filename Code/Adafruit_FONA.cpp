@@ -1259,7 +1259,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	    else if (_type == SIM7500A || _type == SIM7500E) {
         getReply(F("AT+NETCLOSE"));
         getReply(F("AT+CHTTPSSTOP"));
-        getReply(F("AT+CHTTPSCLSE"));
+        // getReply(F("AT+CHTTPSCLSE"));
 
 	    	// if (! sendCheckReply(F("AT+NETCLOSE"), ok_reply, 10000))
 	     //  	return false;
@@ -1572,23 +1572,22 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 /********************************* HTTPS FUNCTION *********************************/
 // boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
 boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, char *URL) {
-  uint16_t reply = 1; // 0 means everything's good
-  // NOTE: Need to open socket/enable GPRS before using this function
-
-  // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n"
+  // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
 
   // Start HTTPS stack
   if (_type == SIM7500A | _type == SIM7500E) {
-  	if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
-  		return false;
+    getReply(F("AT+CHTTPSSTART")); // Don't check if true/false since it will return false if already started (not stopped before)
+
+  	// if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
+  	// 	return false;
   }
   else {
   	if (! sendCheckReply(F("AT+CHTTPSSTART"), ok_reply, 10000))
     	return false;
   }
 
-	DEBUG_PRINTLN(F("Waiting 2s to ensure connection..."));
-  delay(2000);
+	DEBUG_PRINTLN(F("Waiting 1s to ensure connection..."));
+  delay(1000);
   
   // Construct the AT command based on function parameters
   char auxStr[128];
@@ -1631,8 +1630,8 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   //   return false;
   // }
 
-  DEBUG_PRINTLN(F("Waiting 2s to make sure it works..."));
-  delay(2000);
+  DEBUG_PRINTLN(F("Waiting 1s to make sure it works..."));
+  delay(1000);
 
   // Send data to server
   sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL));
@@ -1659,26 +1658,42 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
   delay(1000);
   
-  // Only for SIM5320
   if (_type == SIM5320A || _type == SIM5320E) {
     // Request URL
+    // On SIM7500 no need to send AT+CHTTPSSEND, just wait for +CHTTPSSEND: 0
     if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
-      return false;
-
-    // Receive HTTPS response
-    if (! sendCheckReply(F("AT+CHTTPSRECV=1"), ok_reply, 10000))
-      return false;
-
-    // Close HTTP/HTTPS Session
-    if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
-      return false;
-
-    // Stop HTTP/HTTPS stack
-    if (! sendCheckReply(F("AT+CHTTPSSTOP"), ok_reply, 10000))
       return false;
   }
 
-  return true;
+  // Check server response length
+  uint16_t replyLen;
+  sendParseReply(F("AT+CHTTPSRECV?"), F("+CHTTPSRECV: LEN,"), &replyLen);
+
+  // Get server response content
+  sprintf(auxStr, "AT+CHTTPSRECV=%i", replyLen);
+  getReply(auxStr);
+
+  if (replyLen > 0) {
+    readRaw(replyLen);
+    flushInput();
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+  }
+  
+  // Close HTTP/HTTPS session
+  if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+    return false;
+
+  readline(10000);
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+
+  // Stop HTTP/HTTPS stack
+  if (! sendCheckReply(F("AT+CHTTPSSTOP"), F("+CHTTPSSTOP: 0"), 10000))
+    return false;
+
+  readline(); // Eat OK
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+
+  return (replyLen > 0);
 }
 
 /********* FTP FUNCTIONS  ************************************/
