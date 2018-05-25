@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 5/22/2018
+ *  Last Updated: 5/25/2018
  *  License: GNU GPL v3.0
   */
 
@@ -757,7 +757,7 @@ void loop() {
         fona.getGPS(0, gpsdata, 120);
         if (type == SIM808_V1)
           Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
-        else if (type == SIM7500A || SIM7500E)
+        else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500A) || (type == SIM7500E) )
           Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
         else
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
