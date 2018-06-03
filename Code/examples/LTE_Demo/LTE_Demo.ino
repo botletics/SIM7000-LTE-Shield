@@ -113,7 +113,8 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-//  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setGPRSNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
   fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
 
   // Optionally configure HTTP gets to follow redirects over SSL.
