@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 5/25/2018
+ *  Last Updated: 6/4/2018
  *  License: GNU GPL v3.0
   */
 
@@ -72,6 +72,11 @@ SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
 //  HardwareSerial *fonaSerial = &Serial1;
+
+// For ESP32 hardware serial use these lines instead
+//#include <HardwareSerial.h>
+//HardwareSerial MySerial(1);
+//HardwareSerial *fonaSerial = &MySerial;
 
 // Use this for 2G modules
 #ifdef SIMCOM_2G
