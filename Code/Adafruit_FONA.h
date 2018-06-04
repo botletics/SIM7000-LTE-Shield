@@ -147,7 +147,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean getGSMLoc(uint16_t *replycode, char *buff, uint16_t maxlen);
   boolean getGSMLoc(float *lat, float *lon);
   void setGPRSNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
-  boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "");
+  boolean postData(const char *request_type, const char *URL, char *body = "", const char *token = "");
   boolean postData(const char *server, uint16_t port, const char *connType, char *URL);
   void getNetworkInfo(void);
 
@@ -245,9 +245,9 @@ class Adafruit_FONA : public FONAStreamType {
   boolean sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix, int32_t suffix2, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReplyQuoted(FONAFlashStringPtr prefix, FONAFlashStringPtr suffix, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
 
-  void mqtt_connect_message(char *protocol, byte *mqtt_message, char *client_id, char *username, char *password);
-  void mqtt_publish_message(byte *mqtt_message, char *topic, char *message);
-  void mqtt_subscribe_message(byte *mqtt_message, char *topic, byte QoS);
+  void mqtt_connect_message(const char *protocol, byte *mqtt_message, const char *client_id, const char *username, const char *password);
+  void mqtt_publish_message(byte *mqtt_message, const char *topic, const char *message);
+  void mqtt_subscribe_message(byte *mqtt_message, const char *topic, byte QoS);
   void mqtt_disconnect_message(byte *mqtt_message);
   boolean mqtt_sendPacket(byte *packet, byte len);
 

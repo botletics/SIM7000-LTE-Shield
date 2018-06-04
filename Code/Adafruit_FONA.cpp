@@ -1215,6 +1215,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	      // set username/password
 	      if (apnusername) {
 					char authstring[100] = "AT+CGAUTH=1,1,\"";
+          // char authstring[100] = "AT+CSOCKAUTH=1,1,\""; // For 3G
 					char *strp = authstring + strlen(authstring);
 					prog_char_strcpy(strp, (prog_char *)apnusername);
 					strp+=prog_char_strlen((prog_char *)apnusername);
@@ -1493,7 +1494,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token) {
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char *body, const char *token) {
   // NOTE: Need to open socket/enable GPRS before using this function
 
   // Make sure HTTP service is terminated so initialization will run
@@ -1755,7 +1756,7 @@ boolean Adafruit_FONA::FTP_PUT() {
 
 ////////////////////////////////////////////////////////////
 // MQTT helper functions
-void Adafruit_FONA::mqtt_connect_message(char *protocol, byte *mqtt_message, char *clientID, char *username, char *password) {
+void Adafruit_FONA::mqtt_connect_message(const char *protocol, byte *mqtt_message, const char *clientID, const char *username, const char *password) {
   uint8_t i = 0;
   byte protocol_length = strlen(protocol);
   byte ID_length = strlen(clientID);
@@ -1828,7 +1829,7 @@ void Adafruit_FONA::mqtt_connect_message(char *protocol, byte *mqtt_message, cha
 	}
 }
 
-void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, char *topic, char *message) {
+void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, const char *topic, const char *message) {
   uint8_t i = 0;
   byte topic_length = strlen(topic);
   byte message_length = strlen(message);
@@ -1849,7 +1850,7 @@ void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, char *topic, char *
   }
 }
 
-void Adafruit_FONA::mqtt_subscribe_message(byte *mqtt_message, char *topic, byte QoS) {
+void Adafruit_FONA::mqtt_subscribe_message(byte *mqtt_message, const char *topic, byte QoS) {
   uint8_t i = 0;
   byte topic_length = strlen(topic);
 
