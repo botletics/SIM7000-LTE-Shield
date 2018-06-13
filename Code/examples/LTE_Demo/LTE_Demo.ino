@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 6/4/2018
+ *  Last Updated: 6/12/2018
  *  License: GNU GPL v3.0
   */
 
@@ -398,8 +398,8 @@ void loop() {
         Serial.print(v);
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.println(" / 8");
-        } else if ( (type == SIM7500A) && (type == SIM7500E) ) { // Don't write anything for SIM7500
-          Serial.print("");
+        } else if ( (type == SIM7500A) || (type == SIM7500E) ) { // Don't write anything for SIM7500
+          Serial.println();
         } else {
           Serial.println("%");
         }
