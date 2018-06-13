@@ -398,6 +398,8 @@ void loop() {
         Serial.print(v);
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.println(" / 8");
+        } else if ( (type == SIM7500A) && (type == SIM7500E) ) { // Don't write anything for SIM7500
+          Serial.print("");
         } else {
           Serial.println("%");
         }
