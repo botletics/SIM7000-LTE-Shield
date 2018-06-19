@@ -127,33 +127,19 @@ void setup() {
   // the following line then redirects over SSL will be followed.
   //fona.setHTTPSRedirect(true);
 
-  // For the SIM7000 the baud rate resets back to default (115200) after
-  // being powered down so let's try 115200 first. However, the SIM7500
-  // doesn't have this issue and the baud rate is permanently stored.
-  #ifdef SIMCOM_7000
-    fonaSerial->begin(115200); // Default LTE shield baud rate
-    fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+  // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
+  // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
+  // Press reset button if the module is still turning on and the board doesn't find it.
+  // When the module is on it should communicate right after pressing reset
+  fonaSS.begin(115200); // Default SIM7000 shield baud rate
   
-    Serial.println(F("Configuring to 4800 baud"));
-    fona.setBaudrate(4800); // Set to 4800 baud
-    fonaSerial->begin(4800);
-    if (!fona.begin(*fonaSerial)) {
-      Serial.println(F("Couldn't find modem"));
-      while(1); // Don't proceed if it couldn't find the device
-    }
-  #elif defined(SIMCOM_7500)
-    // Takes about 15s for the SIM7500 to power up for the first time
-    fonaSS.begin(115200); // Default SIM7000 shield baud rate
-    
-    Serial.println(F("Configuring to 4800 baud"));
-    fonaSS.println("AT+IPR=4800"); // Set baud rate temporarily
-//    fonaSS.println("AT+IPREX=4800"); // Set baud rate permanently
-    fonaSS.begin(4800);
-    if (! fona.begin(fonaSS)) {
-      Serial.println(F("Couldn't find FONA"));
-      while(1); // Don't proceed if it couldn't find the device
-    }
-  #endif
+  Serial.println(F("Configuring to 4800 baud"));
+  fonaSS.println("AT+IPR=4800"); // Set baud rate temporarily
+  fonaSS.begin(4800);
+  if (! fona.begin(fonaSS)) {
+    Serial.println(F("Couldn't find FONA"));
+    while(1); // Don't proceed if it couldn't find the device
+  }
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
@@ -192,7 +178,7 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-  
+
   printMenu();
 }
 
