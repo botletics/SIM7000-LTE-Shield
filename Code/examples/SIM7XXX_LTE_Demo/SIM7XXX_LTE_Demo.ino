@@ -94,7 +94,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("FONA basic test"));
-  Serial.println(F("Initializing....(May take 3 seconds)"));
+  Serial.println(F("Initializing....(May take several seconds)"));
 
   // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
@@ -102,7 +102,8 @@ void setup() {
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
   //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-//  fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setGPRSNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
   fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
 
   // Optionally configure HTTP gets to follow redirects over SSL.
@@ -110,37 +111,53 @@ void setup() {
   // the following line then redirects over SSL will be followed.
   //fona.setHTTPSRedirect(true);
 
-  // For the SIM7000 the baud rate resets back to default (115200) after
-  // being powered down so let's try 115200 first. However, the SIM7500
-  // doesn't have this issue and the baud rate is permanently stored.
-  #ifdef SIMCOM_7000
-    fonaSerial->begin(115200); // Default LTE shield baud rate
-    fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+  // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
+  // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
+  // Press reset button if the module is still turning on and the board doesn't find it.
+  // When the module is on it should communicate right after pressing reset
+  fonaSS.begin(115200); // Default SIM7000 shield baud rate
   
-    Serial.println(F("Configuring to 4800 baud"));
-    fona.setBaudrate(4800); // Set to 4800 baud
-    fonaSerial->begin(4800);
-    if (!fona.begin(*fonaSerial)) {
-      Serial.println(F("Couldn't find FONA"));
-      while(1); // Don't proceed if it couldn't find the device
-    }
-  #elif defined(SIMCOM_7500)
-    fonaSS.begin(115200); // Default SIM7000 shield baud rate
-    
-    Serial.println(F("Configuring to 4800 baud"));
-    fonaSS.println("AT+IPR=4800"); // Set baud rate temporarily
-//    fonaSS.println("AT+IPREX=4800"); // Set baud rate permanently
-    fonaSS.begin(4800);
-    if (! fona.begin(fonaSS)) {
-      Serial.println(F("Couldn't find FONA"));
-      while(1); // Don't proceed if it couldn't find the device
-    }
-  #endif
+  Serial.println(F("Configuring to 4800 baud"));
+  fonaSS.println("AT+IPR=4800"); // Set baud rate
+  fonaSS.begin(4800);
+  if (! fona.begin(fonaSS)) {
+    Serial.println(F("Couldn't find FONA"));
+    while(1); // Don't proceed if it couldn't find the device
+  }
+
+  // The commented block of code below is an alternative that will find the module at 115200
+  // Then switch it to 4800 without having to wait for the module to turn on and manually
+  // press the reset button in order to establish communication. However, once the baud is set
+  // this method will be much slower.
+  /*
+  fonaSerial->begin(115200); // Default LTE shield baud rate
+  fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
+
+  Serial.println(F("Configuring to 4800 baud"));
+  fona.setBaudrate(4800); // Set to 4800 baud
+  fonaSerial->begin(4800);
+  if (!fona.begin(*fonaSerial)) {
+    Serial.println(F("Couldn't find modem"));
+    while(1); // Don't proceed if it couldn't find the device
+  }
+  */
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
   switch (type) {
+    case SIM800L:
+      Serial.println(F("SIM800L")); break;
+    case SIM800H:
+      Serial.println(F("SIM800H")); break;
+    case SIM808_V1:
+      Serial.println(F("SIM808 (v1)")); break;
+    case SIM808_V2:
+      Serial.println(F("SIM808 (v2)")); break;
+    case SIM5320A:
+      Serial.println(F("SIM5320A (American)")); break;
+    case SIM5320E:
+      Serial.println(F("SIM5320E (European)")); break;
     case SIM7000A:
       Serial.println(F("SIM7000A (American)")); break;
     case SIM7000C:
@@ -162,7 +179,7 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
-  
+
   printMenu();
 }
 
