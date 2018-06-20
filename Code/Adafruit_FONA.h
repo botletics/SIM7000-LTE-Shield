@@ -146,7 +146,7 @@ class Adafruit_FONA : public FONAStreamType {
   uint8_t GPRSstate(void);
   boolean getGSMLoc(uint16_t *replycode, char *buff, uint16_t maxlen);
   boolean getGSMLoc(float *lat, float *lon);
-  void setGPRSNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
+  void setNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
   boolean postData(const char *request_type, const char *URL, char *body = "", const char *token = "");
   boolean postData(const char *server, uint16_t port, const char *connType, char *URL);
   void getNetworkInfo(void);

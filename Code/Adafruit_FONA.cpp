@@ -202,8 +202,15 @@ boolean Adafruit_FONA_3G::getBattVoltage(uint16_t *v) {
 
 /* powers down the SIM module */
 boolean Adafruit_FONA::powerDown(void) {
-  if (! sendCheckReply(F("AT+CPOWD=1"), F("NORMAL POWER DOWN"))) // Normal power off
-    return false;
+  if (_type == SIM7500A || _type == SIM7500E) {
+    if (! sendCheckReply(F("AT+CPOF"), ok_reply))
+      return false;
+  }
+  else {
+    if (! sendCheckReply(F("AT+CPOWD=1"), F("NORMAL POWER DOWN"))) // Normal power off
+        return false;
+  }
+  
 
   return true;
 }
@@ -443,7 +450,8 @@ boolean Adafruit_FONA_3G::hangUp(void) {
 }
 
 boolean Adafruit_FONA_LTE::hangUp(void) {
-  return sendCheckReply(F("ATH"), ok_reply);
+  // return sendCheckReply(F("ATH"), ok_reply); // For SIM7500 this only works when AT+CVHU=0
+  return sendCheckReply(F("AT+CHUP"), ok_reply);
 }
 
 boolean Adafruit_FONA::pickUp(void) {
@@ -1443,7 +1451,7 @@ uint8_t Adafruit_FONA::GPRSstate(void) {
   return state;
 }
 
-void Adafruit_FONA::setGPRSNetworkSettings(FONAFlashStringPtr apn,
+void Adafruit_FONA::setNetworkSettings(FONAFlashStringPtr apn,
               FONAFlashStringPtr username, FONAFlashStringPtr password) {
   this->apn = apn;
   this->apnusername = username;
@@ -1777,7 +1785,7 @@ void Adafruit_FONA::mqtt_connect_message(const char *protocol, byte *mqtt_messag
 		rem_length += 2 + password_length;
 	}
 
-	mqtt_message[1] = rem_length;             // Remaining length of message
+	mqtt_message[1] = rem_length;              // Remaining length of message
 	mqtt_message[2] = 0;                       // Protocol name length MSB
 	mqtt_message[3] = 6;                       // Protocol name length LSB
 
@@ -1792,16 +1800,16 @@ void Adafruit_FONA::mqtt_connect_message(const char *protocol, byte *mqtt_messag
 		mqtt_message[5 + protocol_length] = 194;                  // Connection flag with username and password (11000010)
 	}
 	else if (password_length == 0) { // Only has username
-		mqtt_message[5 + protocol_length] = 130;										 // Connection flag with username only (10000010)
+		mqtt_message[5 + protocol_length] = 130;									// Connection flag with username only (10000010)
 	}
 	else if (username_length == 0) {	// Only has password
-		mqtt_message[5 + protocol_length] = 66;										 // Connection flag with password only (01000010)
+		mqtt_message[5 + protocol_length] = 66;										// Connection flag with password only (01000010)
 	}
 	
 	mqtt_message[6 + protocol_length] = 0;                      // Keep-alive time MSB
 	mqtt_message[7 + protocol_length] = 15;                     // Keep-alive time LSB
 	mqtt_message[8 + protocol_length] = 0;                      // Client ID length MSB
-	mqtt_message[9 + protocol_length] = ID_length;       			 // Client ID length LSB
+	mqtt_message[9 + protocol_length] = ID_length;       			  // Client ID length LSB
 
   // Client ID
 	for(i = 0; i < ID_length; i++) {
