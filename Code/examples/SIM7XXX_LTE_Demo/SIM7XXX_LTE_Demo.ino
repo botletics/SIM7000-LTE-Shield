@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 6/4/2018
+ *  Last Updated: 6/20/2018
  *  License: GNU GPL v3.0
   */
 
@@ -101,10 +101,10 @@ void setup() {
   // network.  Contact your provider for the exact APN, username,
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
-  //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setGPRSNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
-  //fona.setGPRSNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
-  fona.setGPRSNetworkSettings(F("hologram")); // For Hologram SIM card
+  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
+  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
 
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
