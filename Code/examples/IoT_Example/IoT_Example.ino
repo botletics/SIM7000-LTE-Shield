@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 6/4/2018
+ *  Last Updated: 6/20/2018
  *  License: GNU GPL v3.0
   */
 
@@ -102,7 +102,6 @@ SoftwareSerial *fonaSerial = &fonaSS;
 //#define PROTOCOL_HTTP_POST        // Generic
 //#define PROTOCOL_MQTT_AIO         // Adafruit IO
 //#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
-//#define PROTOCOL_MQTT_MYSIGNAL    // MySignal.io
 
 #ifdef PROTOCOL_MQTT_AIO
   /************************* MQTT SETUP *********************************/
@@ -141,16 +140,6 @@ SoftwareSerial *fonaSerial = &fonaSS;
   #define MQTT_SERVERPORT  16644
   #define MQTT_USERNAME    "CLOUD_MQTT_USERNAME"
   #define MQTT_KEY         "CLOUD_MQTT_KEY"
-  
-#elif defined(PROTOCOL_MQTT_MYSIGNAL)
-  /************************* MQTT SETUP *********************************/
-  // For MySignal.io you can find the username is the device token
-  // found under the "Devices" tab. No key is needed
-  const char* token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyNDBhYjFlLTVmY2EtNGNkZC04YjYzLWM2NWI5NGNmMWVkOCJ9.8DBmfQRDFcWAq8zHIN2A0jOg20gIfcBRWnZbVYjCp8g";
-  
-  #define MQTT_SERVER      "mqtt.mysignal.io"
-  #define MQTT_SERVERPORT  1883
-  #define MQTT_USERNAME    token
 #endif
 
 /****************************** OTHER STUFF ***************************************/
@@ -212,9 +201,10 @@ void setup() {
   // network.  Contact your provider for the exact APN, username,
   // and password values.  Username and password are optional and
   // can be removed, but APN is required.
-  //fona.setGPRSNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setGPRSNetworkShettings(F("m2m.com.attz")); // For AT&T IoT SIM card
-  fona.setGPRSNetworkSettings(F("hologram")); // For Hologram developer SIM card
+  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
+  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
   
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
@@ -453,27 +443,6 @@ void loop() {
   
   // Disconnect from MQTT broker
 //  if (!fona.MQTTdisconnect()) Serial.println(F("Failed to close connection!"));
-
-  // Close TCP connection
-  if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
-#elif defined(PROTOCOL_MQTT_MYSIGNAL)
-  // Let's send data to MySignal.io using MQTT!
-  char MQTT_CLIENT[16] = " ";  // We'll change this to the IMEI
-  char GPS_data[64]; // Holds lat/long data
-  
-  // Let's begin by changing the client name to the IMEI number to better identify
-  strcpy(MQTT_CLIENT, imei);
-
-  // Connect to MQTT broker
-  if (!fona.TCPconnect(MQTT_SERVER, MQTT_SERVERPORT)) Serial.println(F("Failed to connect to TCP/IP!"));
-  if (!fona.MQTTconnect("MQTT", MQTT_CLIENT, MQTT_USERNAME)) Serial.println(F("Failed to connect to MQTT broker!")); // No key needed for MySignal.io
-
-  // Construct comma-separated GPS lat/long data
-  sprintf(GPS_data, "%s, %s", latBuff, longBuff);
-  
-  // Publish lat and long data!
-  Serial.print(F("Publishing GPS data: ")); Serial.println(GPS_data);
-  if (!fona.MQTTpublish("device/coordinates", GPS_data)) Serial.println(F("Failed to publish data!"));
 
   // Close TCP connection
   if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
