@@ -339,7 +339,7 @@ void loop() {
     counter++; // Increment counter
     delay(1000);
   }
-#elif (defined(PROTOCOL_HTTP_POST))
+#elif defined(PROTOCOL_HTTP_POST)
   // You can also do a POST request instead
   
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
@@ -348,11 +348,9 @@ void loop() {
 
   // Let's try a POST request to thingsboard.io
   /*
-  char token[] = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
+  const char * token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
   sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
-  sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
-          speedBuff, headBuff, altBuff, tempBuff, battBuff);
-//  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
+  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
   */
 
   counter = 0;
