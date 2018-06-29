@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 6/20/2018
+ *  Last Updated: 6/29/2018
  *  License: GNU GPL v3.0
   */
 
@@ -341,25 +341,19 @@ void loop() {
   }
 #elif (defined(PROTOCOL_HTTP_POST))
   // You can also do a POST request instead
-
+  
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
   sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
-
-  counter = 0;
-  while (counter < 3 && !fona.postData("POST", URL, body)) {
-    Serial.println(F("Failed to complete HTTP POST..."));
-    counter++;
-    delay(1000);
-  }
-
+  
 
   // Let's try a POST request to thingsboard.io
   /*
-  const char* token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
+  char token[] = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
   sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
   sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
           speedBuff, headBuff, altBuff, tempBuff, battBuff);
 //  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
+  */
 
   counter = 0;
   while (counter < 3 && !fona.postData("POST", URL, body)) {
@@ -367,7 +361,6 @@ void loop() {
     counter++;
     delay(1000);
   }
-  */
 
 #elif defined(PROTOCOL_MQTT_AIO)
   // Let's use MQTT!
