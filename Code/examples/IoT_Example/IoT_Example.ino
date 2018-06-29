@@ -305,10 +305,10 @@ void loop() {
 
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
-  char URL[200]; // Make sure this is long enough for your request URL
-  char body[200];
-  char latBuff[16], longBuff[16], locBuff[32], speedBuff[16], headBuff[16], 
-       altBuff[16], tempBuff[16], battBuff[16];
+  char URL[300]; // Make sure this is long enough for your request URL
+  char body[300];
+  char latBuff[16], longBuff[16], locBuff[64], speedBuff[16],
+       headBuff[16], altBuff[16], tempBuff[16], battBuff[16];
 
   // Format the floating point numbers
   dtostrf(latitude, 1, 6, latBuff);
@@ -345,14 +345,16 @@ void loop() {
   sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
   sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
   
-
+  
   // Let's try a POST request to thingsboard.io
   /*
   const char * token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
   sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
-  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
+  sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
+          speedBuff, headBuff, altBuff, tempBuff, battBuff);
+//  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
   */
-
+  
   counter = 0;
   while (counter < 3 && !fona.postData("POST", URL, body)) {
     Serial.println(F("Failed to complete HTTP POST..."));
