@@ -285,7 +285,7 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
     boolean playToolkitTone(uint8_t t, uint16_t len);
     boolean hangUp(void);
     boolean pickUp(void);
-    boolean enableGPRS(boolean onoff);
+    // boolean enableGPRS(boolean onoff);
     // boolean enableGPS(boolean onoff);
     boolean postData3G(const char *server, uint16_t port, const char *connType, char *URL);
 
