@@ -426,6 +426,8 @@ boolean Adafruit_FONA::callPhone(char *number) {
   sendbuff[x+1] = 0;
   //DEBUG_PRINTLN(sendbuff);
 
+  sendCheckReply(F("AT+CSDVC=3"), ok_reply); // Enable speaker output
+
   return sendCheckReply(sendbuff, ok_reply);
 }
 
@@ -1517,7 +1519,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
     return false;
 
   // Specify URL
-  char auxStr[64];
+  char auxStr[350];
   sprintf(auxStr, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1599,7 +1601,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
   
   // Construct the AT command based on function parameters
-  char auxStr[128];
+  char auxStr[350];
   uint8_t connTypeNum = 1;
   
   if (strcmp(connType, "HTTP") == 0) {
@@ -1710,7 +1712,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 // Download data from FTP server
 boolean Adafruit_FONA::FTP_GET(const char* serverIP, const char* username, const char* password, const char* fileName,
 															 const char* filePath,, uint16_t numBytes) {
-	char auxStr[128];
+	char auxStr[350];
 
 	if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
     return false;
