@@ -43,6 +43,13 @@
 #define SIMCOM_7000  // SIM7000
 //#define SIMCOM_7500 // SIM7500
 
+// Uncomment *one* of the following protocols you want to use
+// to send data to the cloud! Leave the other commented out
+#define PROTOCOL_HTTP_GET         // Generic
+//#define PROTOCOL_HTTP_POST        // Generic
+//#define PROTOCOL_MQTT_AIO         // Adafruit IO
+//#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
+
 /************************* PIN DEFINITIONS *********************************/
 // Default
 //#define FONA_RX 2
@@ -95,13 +102,6 @@ SoftwareSerial *fonaSerial = &fonaSS;
 #elif defined(SIMCOM_7000) || defined(SIMCOM_7500)
   Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #endif
-
-// Uncomment *one* of the following protocols you want to use
-// to send data to the cloud! Leave the other commented out
-#define PROTOCOL_HTTP_GET         // Generic
-//#define PROTOCOL_HTTP_POST        // Generic
-//#define PROTOCOL_MQTT_AIO         // Adafruit IO
-//#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
 
 #ifdef PROTOCOL_MQTT_AIO
   /************************* MQTT SETUP *********************************/
