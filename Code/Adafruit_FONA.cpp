@@ -1519,7 +1519,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
     return false;
 
   // Specify URL
-  char auxStr[350];
+  char auxStr[64];
   sprintf(auxStr, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1601,7 +1601,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
   
   // Construct the AT command based on function parameters
-  char auxStr[350];
+  char auxStr[64];
   uint8_t connTypeNum = 1;
   
   if (strcmp(connType, "HTTP") == 0) {
@@ -1712,7 +1712,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 // Download data from FTP server
 boolean Adafruit_FONA::FTP_GET(const char* serverIP, const char* username, const char* password, const char* fileName,
 															 const char* filePath,, uint16_t numBytes) {
-	char auxStr[350];
+	char auxStr[100];
 
 	if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
     return false;
