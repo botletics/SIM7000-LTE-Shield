@@ -41,7 +41,7 @@
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320
 #define SIMCOM_7000  // SIM7000
-//#define SIMCOM_7500 // SIM7500
+// #define SIMCOM_7500 // SIM7500
 
 // Uncomment *one* of the following protocols you want to use
 // to send data to the cloud! Leave the other commented out
@@ -174,7 +174,7 @@ uint8_t counter = 0;
 
 void setup() {
   Serial.begin(115200);
-  Serial.println(F("SIMCom Module IoT Example"));
+  Serial.println(F("*** SIMCom Module IoT Example ***"));
 
   #ifdef LED
     pinMode(LED, OUTPUT);
@@ -183,8 +183,6 @@ void setup() {
   
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH); // Default state
-
-  delay(100); // This helps the temperature sensor code run properly!
 
   pinMode(FONA_PWRKEY, OUTPUT);
   powerOn(); // Power on the module
@@ -221,15 +219,17 @@ void setup() {
   }
   Serial.println(F("Turned on GPS!"));
 
-  // Disable GPRS just to make sure it was actually off so that we can turn it on
-  if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
-  
-  // Turn on GPRS
-  while (!fona.enableGPRS(true)) {
-    Serial.println(F("Failed to enable GPRS, retrying..."));
-    delay(2000); // Retry every 2s
-  }
-  Serial.println(F("Enabled GPRS!"));
+  #if !defined(SIMCOM_3G) && !defined(SIMCOM_7500)
+    // Disable GPRS just to make sure it was actually off so that we can turn it on
+    if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
+    
+    // Turn on GPRS
+    while (!fona.enableGPRS(true)) {
+      Serial.println(F("Failed to enable GPRS, retrying..."));
+      delay(2000); // Retry every 2s
+    }
+    Serial.println(F("Enabled GPRS!"));
+  #endif
 #endif
 
 #ifdef PROTOCOL_MQTT_AIO
@@ -291,7 +291,7 @@ void loop() {
   Serial.print(F("Altitude: ")); Serial.println(altitude);
   Serial.println(F("---------------------"));
 
-#ifdef turnOffShield // If the shield was already on, no need to re-enable
+#if defined(turnOffShield) && !defined(SIMCOM_3G) && !defined(SIMCOM_7500) // If the shield was already on, no need to re-enable
   // Disable GPRS just to make sure it was actually off so that we can turn it on
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
   
@@ -305,10 +305,10 @@ void loop() {
 
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
-  char URL[300]; // Make sure this is long enough for your request URL
-  char body[300];
-  char latBuff[16], longBuff[16], locBuff[64], speedBuff[16],
-       headBuff[16], altBuff[16], tempBuff[16], battBuff[16];
+  char URL[200];  // Make sure this is long enough for your request URL
+  char body[100]; // Make sure this is long enough for POST body
+  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12],
+       headBuff[12], altBuff[12], tempBuff[12], battBuff[12];
 
   // Format the floating point numbers
   dtostrf(latitude, 1, 6, latBuff);
@@ -328,39 +328,65 @@ void loop() {
 
 #ifdef PROTOCOL_HTTP_GET
   // GET request
-  // You can adjust the contents of the request if you don't need certain things like speed, altitude, etc.
-  sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
-          speedBuff, headBuff, altBuff, tempBuff, battBuff);
+  
+  counter = 0; // This counts the number of failed attempts tries
+  
+  #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
+    // You can adjust the contents of the request if you don't need certain things like speed, altitude, etc.
+    sprintf(URL, "GET /dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\n\r\n",
+            imei, latBuff, longBuff, speedBuff, headBuff, altBuff, tempBuff, battBuff);
+            
+    // Try a total of three times if the post was unsuccessful (try additional 2 times)
+    while (counter < 3 && !fona.postData("www.dweet.io", 443, "HTTPS", URL)) { // Server, port, connection type, URL
+      Serial.println(F("Failed to complete HTTP/HTTPS request..."));
+      counter++; // Increment counter
+      delay(1000);
+    }
+  #else
+    sprintf(URL, "http://dweet.io/dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s", imei, latBuff, longBuff,
+            speedBuff, headBuff, altBuff, tempBuff, battBuff);
+          
+    while (counter < 3 && !fona.postData("GET", URL)) {
+      Serial.println(F("Failed to post data, retrying..."));
+      counter++; // Increment counter
+      delay(1000);
+    }
+  #endif
+  
+#elif defined(PROTOCOL_HTTP_POST)  
+  // You can also do a POST request instead
 
   counter = 0; // This counts the number of failed attempts tries
-  // Try a total of three times if the post was unsuccessful (try additional 2 times)
-  while (counter < 3 && !fona.postData("GET", URL)) {
-    Serial.println(F("Failed to post data, retrying..."));
-    counter++; // Increment counter
-    delay(1000);
-  }
-#elif defined(PROTOCOL_HTTP_POST)
-  // You can also do a POST request instead
   
-  sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
-  sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
-  
-  
-  // Let's try a POST request to thingsboard.io
-  /*
-  const char * token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
-  sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
-  sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
-          speedBuff, headBuff, altBuff, tempBuff, battBuff);
-//  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
-  */
-  
-  counter = 0;
-  while (counter < 3 && !fona.postData("POST", URL, body)) {
-    Serial.println(F("Failed to complete HTTP POST..."));
-    counter++;
-    delay(1000);
-  }
+  #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
+    // NOTE: POST requests are still under development for SIM5320 and SIM7500!
+    sprintf(URL, "POST /dweet/for/%s", imei);
+    sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
+
+    while (counter < 3 && !fona.postData("www.dweet.io", 443, "HTTPS", URL)) { // Server, port, connection type, URL
+      Serial.println(F("Failed to complete HTTP/HTTPS request..."));
+      counter++; // Increment counter
+      delay(1000);
+    }
+  #else
+    sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
+    sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
+
+    // Let's try a POST request to thingsboard.io
+    /*
+    const char * token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
+    sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
+    sprintf(body, "{\"lat\":%s,\"long\":%s,\"speed\":%s,\"head\":%s,\"alt\":%s,\"temp\":%s,\"batt\":%s}", latBuff, longBuff,
+            speedBuff, headBuff, altBuff, tempBuff, battBuff);
+  //  sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff); // If all you want is lat/long
+    */
+
+    while (counter < 3 && !fona.postData("POST", URL, body)) {
+      Serial.println(F("Failed to complete HTTP POST..."));
+      counter++;
+      delay(1000);
+    }
+  #endif
 
 #elif defined(PROTOCOL_MQTT_AIO)
   // Let's use MQTT!
@@ -439,6 +465,7 @@ void loop() {
 
   // Close TCP connection
   if (!fona.TCPclose()) Serial.println(F("Failed to close connection!"));
+
 #endif
 
   //Only run the code below if you want to turn off the shield after posting data
@@ -468,7 +495,7 @@ void loop() {
   // LOW for a little bit, then pull it back HIGH, like this:
 //  digitalWrite(PWRKEY, LOW);
 //  delay(600); // Minimum of 64ms to turn on and 500ms to turn off for FONA 3G. Check spec sheet for other types
-//  delay(1300); // Minimum of 1.2s for SIM7000 shield
+//  delay(1300); // Minimum of 1.2s for SIM7000
 //  digitalWrite(PWRKEY, HIGH);
   
   // Shut down the MCU to save power
