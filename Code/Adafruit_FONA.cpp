@@ -25,7 +25,8 @@ Adafruit_FONA::Adafruit_FONA(int8_t rst)
 {
   _rstpin = rst;
 
-  apn = F("FONAnet");
+  // apn = F("FONAnet");
+  apn = F("");
   apnusername = 0;
   apnpassword = 0;
   mySerial = 0;
@@ -1506,6 +1507,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char *body, const char *token) {
   // NOTE: Need to open socket/enable GPRS before using this function
+  // char auxStr[64];
 
   // Make sure HTTP service is terminated so initialization will run
   sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
@@ -1519,9 +1521,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
     return false;
 
   // Specify URL
-  char auxStr[64];
-  sprintf(auxStr, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
-  if (! sendCheckReply(auxStr, ok_reply, 10000))
+  char urlBuff[strlen(URL) + 22];
+
+  sprintf(urlBuff, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
+
+  if (! sendCheckReply(urlBuff, ok_reply, 10000))
     return false;
 
   // Perform request based on specified request type
@@ -1534,14 +1538,18 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
     	return false;
 
     if (strlen(token) > 0) {
-	  	sprintf(auxStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
+      char tokenStr[strlen(token) + 55];
 
-	  	if (! sendCheckReply(auxStr, ok_reply, 10000))
+	  	sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
+
+	  	if (! sendCheckReply(tokenStr, ok_reply, 10000))
 	  		return false;
 	  }
 
-		sprintf(auxStr, "AT+HTTPDATA=%d,10000", strlen(body));
-		if (! sendCheckReply(auxStr, "DOWNLOAD", 10000))
+    char dataBuff[strlen(body) + 20];
+
+		sprintf(dataBuff, "AT+HTTPDATA=%d,10000", strlen(body));
+		if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
 	    return false;
 
 		if (! sendCheckReply(body, ok_reply, 10000))
@@ -1601,7 +1609,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
   
   // Construct the AT command based on function parameters
-  char auxStr[64];
+  char auxStr[250];
   uint8_t connTypeNum = 1;
   
   if (strcmp(connType, "HTTP") == 0) {
