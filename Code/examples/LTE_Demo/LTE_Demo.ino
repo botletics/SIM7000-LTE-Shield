@@ -971,15 +971,10 @@ void loop() {
         // Use IMEI as device ID for this example
         
         // GET request
-        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n", imei, tempBuff, battLevelBuff);
-
-        if ((type == SIM5320A) || (type == SIM5320E) || (type = SIM7500A) || (type = SIM7500E)) {
-          if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
-            Serial.println(F("Failed to complete HTTP/HTTPS request..."));
-        }
-        else {
-          Serial.println(F("Wrong module for this function!"));
-        }
+        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\n\r\n", imei, tempBuff, battLevelBuff);
+        
+        if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
+          Serial.println(F("Failed to complete HTTP/HTTPS request..."));
       
         break;
       }
