@@ -1609,7 +1609,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
   
   // Construct the AT command based on function parameters
-  char auxStr[250];
+  char auxStr[200];
   uint8_t connTypeNum = 1;
   
   if (strcmp(connType, "HTTP") == 0) {
@@ -1662,14 +1662,21 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
     // if (reply != 0) return false;
 
-    char dataBuff[strlen(URL)+strlen(body)+1];
-    if (strlen(body) > 0) {
-      strcpy(dataBuff, URL);
-      strcat(dataBuff, body);
-    }
+    // char dataBuff[strlen(URL)+strlen(body)+1];
+    // if (strlen(body) > 0) {
+    //   strcpy(dataBuff, URL);
+    //   strcat(dataBuff, body);
+    // }
 
-    if (! sendCheckReply(dataBuff, ok_reply, 10000))
+    mySerial->print(URL);
+    DEBUG_PRINT("\t---> ");
+    DEBUG_PRINTLN(URL);
+
+    if (! sendCheckReply(body, ok_reply, 10000))
       return false;
+
+    // if (! sendCheckReply(dataBuff, ok_reply, 10000))
+    //   return false;
 
     readline(10000);
     DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
