@@ -1590,7 +1590,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
 
 /********************************* HTTPS FUNCTION *********************************/
 // boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
-boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, char *URL) {
+boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, char *URL, char *body) {
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
 
   // Start HTTPS stack
@@ -1653,7 +1653,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
 
   // Send data to server
-  sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL));
+  sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL) + strlen(body)); // URL and body must include \r\n as needed
 
   if (! sendCheckReply(auxStr, ">", 10000))
     return false;
@@ -1662,7 +1662,13 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
     // if (reply != 0) return false;
 
-    if (! sendCheckReply(URL, ok_reply, 10000))
+    char dataBuff[strlen(URL)+strlen(body)+1];
+    if (strlen(body) > 0) {
+      strcpy(dataBuff, URL);
+      strcat(dataBuff, body);
+    }
+
+    if (! sendCheckReply(dataBuff, ok_reply, 10000))
       return false;
 
     readline(10000);
@@ -1690,7 +1696,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
   // Get server response content
   sprintf(auxStr, "AT+CHTTPSRECV=%i", replyLen);
-  getReply(auxStr);
+  getReply(auxStr, 2000);
 
   if (replyLen > 0) {
     readRaw(replyLen);
