@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 7/8/2018
+ *  Last Updated: 7/10/2018
  *  License: GNU GPL v3.0
   */
 
@@ -359,11 +359,10 @@ void loop() {
   counter = 0; // This counts the number of failed attempts tries
   
   #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
-    // NOTE: POST requests are still under development for SIM5320 and SIM7500!
-    sprintf(URL, "POST /dweet/for/%s", imei);
-    sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
+    sprintf(body, "{\"temp\":%s,\"batt\":%s}\r\n", tempBuff, battBuff); // Terminate with CR+NL
+    sprintf(URL, "POST /dweet/for/%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: %i\r\n\r\n", imei, strlen(body));
 
-    while (counter < 3 && !fona.postData("www.dweet.io", 443, "HTTPS", URL)) { // Server, port, connection type, URL
+    while (counter < 3 && !fona.postData("www.dweet.io", 443, "HTTPS", URL, body)) { // Server, port, connection type, URL
       Serial.println(F("Failed to complete HTTP/HTTPS request..."));
       counter++; // Increment counter
       delay(1000);
