@@ -172,6 +172,11 @@ uint16_t battLevel = 0; // Battery level (percentage)
 float latitude, longitude, speed_kph, heading, altitude;
 uint8_t counter = 0;
 
+char URL[200];  // Make sure this is long enough for your request URL
+char body[100]; // Make sure this is long enough for POST body
+char latBuff[12], longBuff[12], locBuff[50], speedBuff[12],
+     headBuff[12], altBuff[12], tempBuff[12], battBuff[12];
+
 void setup() {
   Serial.begin(115200);
   Serial.println(F("*** SIMCom Module IoT Example ***"));
@@ -305,10 +310,6 @@ void loop() {
 
   // Post something like temperature and battery level to the web API
   // Construct URL and post the data to the web API
-  char URL[200];  // Make sure this is long enough for your request URL
-  char body[100]; // Make sure this is long enough for POST body
-  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12],
-       headBuff[12], altBuff[12], tempBuff[12], battBuff[12];
 
   // Format the floating point numbers
   dtostrf(latitude, 1, 6, latBuff);
