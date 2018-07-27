@@ -75,8 +75,7 @@ SoftwareSerial *fonaSerial = &fonaSS;
 
 // For ESP32 hardware serial use these lines instead
 //#include <HardwareSerial.h>
-//HardwareSerial MySerial(1);
-//HardwareSerial *fonaSerial = &MySerial;
+//HardwareSerial fonaSS(1);
 
 // Use this for 2G modules
 #ifdef SIMCOM_2G
