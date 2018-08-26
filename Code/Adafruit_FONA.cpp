@@ -1702,6 +1702,10 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     // On SIM7500 no need to send AT+CHTTPSSEND, just wait for +CHTTPSSEND: 0
     if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
       return false;
+
+    readline(10000);
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
   }
 
   // Check server response length
