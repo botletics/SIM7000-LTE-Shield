@@ -298,7 +298,7 @@ void loop() {
   Serial.print(F("Heading: ")); Serial.println(heading);
   Serial.print(F("Altitude: ")); Serial.println(altitude);
   /*
-  // Un
+  // Uncomment this if you care about parsing UTC time
   Serial.print(F("Year: ")); Serial.println(year);
   Serial.print(F("Month: ")); Serial.println(month);
   Serial.print(F("Day: ")); Serial.println(day);
