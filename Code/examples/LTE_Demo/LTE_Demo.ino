@@ -784,23 +784,23 @@ void loop() {
         uint8_t month, day, hour, minute;
 
         // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
-        fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second);
-//        fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude); // Use this line if you don't want UTC time
-        
-        Serial.println(F("---------------------"));
-        Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
-        Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
-        Serial.print(F("Speed: ")); Serial.println(speed_kph);
-        Serial.print(F("Heading: ")); Serial.println(heading);
-        Serial.print(F("Altitude: ")); Serial.println(altitude);
-        // Comment out the stuff below if you don't care about UTC time
-        Serial.print(F("Year: ")); Serial.println(year);
-        Serial.print(F("Month: ")); Serial.println(month);
-        Serial.print(F("Day: ")); Serial.println(day);
-        Serial.print(F("Hour: ")); Serial.println(hour);
-        Serial.print(F("Minute: ")); Serial.println(minute);
-        Serial.print(F("Second: ")); Serial.println(second);
-        Serial.println(F("---------------------"));
+        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
+//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
+          Serial.println(F("---------------------"));
+          Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+          Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+          Serial.print(F("Speed: ")); Serial.println(speed_kph);
+          Serial.print(F("Heading: ")); Serial.println(heading);
+          Serial.print(F("Altitude: ")); Serial.println(altitude);
+          // Comment out the stuff below if you don't care about UTC time
+          Serial.print(F("Year: ")); Serial.println(year);
+          Serial.print(F("Month: ")); Serial.println(month);
+          Serial.print(F("Day: ")); Serial.println(day);
+          Serial.print(F("Hour: ")); Serial.println(hour);
+          Serial.print(F("Minute: ")); Serial.println(minute);
+          Serial.print(F("Second: ")); Serial.println(second);
+          Serial.println(F("---------------------"));
+        }
 
         break;
       }
