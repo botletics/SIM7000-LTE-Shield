@@ -643,11 +643,9 @@ boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
     //DEBUG_PRINT("Line 1: "); DEBUG_PRINTLN(strlen(replybuffer));
     readline(200);
     //DEBUG_PRINT("Line 2: "); DEBUG_PRINTLN(strlen(replybuffer));
-    readline(10000); // Skip ?????? garbage
-    //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
   }
   readline(10000); // read the +CMGS reply, wait up to 10 seconds!!!
-  //DEBUG_PRINT("Line 4: "); DEBUG_PRINTLN(strlen(replybuffer));
+  //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
   if (strstr(replybuffer, "+CMGS") == 0) {
     return false;
   }
