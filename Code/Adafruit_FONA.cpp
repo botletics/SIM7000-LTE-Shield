@@ -643,9 +643,11 @@ boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
     //DEBUG_PRINT("Line 1: "); DEBUG_PRINTLN(strlen(replybuffer));
     readline(200);
     //DEBUG_PRINT("Line 2: "); DEBUG_PRINTLN(strlen(replybuffer));
+    readline(10000); // Skip ?????? garbage
+    //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
   }
   readline(10000); // read the +CMGS reply, wait up to 10 seconds!!!
-  //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
+  //DEBUG_PRINT("Line 4: "); DEBUG_PRINTLN(strlen(replybuffer));
   if (strstr(replybuffer, "+CMGS") == 0) {
     return false;
   }
@@ -913,7 +915,7 @@ uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
   return len;
 }
 
-boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude) {
+boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude, uint16_t *year, uint8_t *month, uint8_t *day, uint8_t *hour, uint8_t *min, float *sec) {
 
   char gpsbuffer[120];
 
@@ -1021,9 +1023,46 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
     tok = strtok(NULL, ",");
     if (! tok) return false;
 
-    // skip date
-    tok = strtok(NULL, ",");
-    if (! tok) return false;
+    // only grab date and time if needed
+    if ((year != NULL) && (month != NULL) && (day != NULL) && (hour != NULL) && (min != NULL) && (sec != NULL)) {
+      char *date = strtok(NULL, ",");
+      if (! date) return false;
+
+      // Seconds
+      char *ptr = date + 12;
+      *sec = atof(ptr);
+      
+      // Minutes
+      ptr[0] = 0;
+      ptr = date + 10;
+      *min = atoi(ptr);
+
+      // Hours
+      ptr[0] = 0;
+      ptr = date + 8;
+      *hour = atoi(ptr);
+
+      // Day
+      ptr[0] = 0;
+      ptr = date + 6;
+      *day = atoi(ptr);
+
+      // Month
+      ptr[0] = 0;
+      ptr = date + 4;
+      *month = atoi(ptr);
+
+      // Year
+      ptr[0] = 0;
+      ptr = date;
+      *year = atoi(ptr);
+    }
+    else
+    {
+      // skip date
+      tok = strtok(NULL, ",");
+      if (! tok) return false;
+    }
 
     // grab the latitude
     char *latp = strtok(NULL, ",");
