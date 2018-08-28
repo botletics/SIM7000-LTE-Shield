@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 6/20/2018
+ *  Last Updated: 8/27/2018
  *  License: GNU GPL v3.0
   */
 
@@ -32,7 +32,7 @@
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320A/E
-#define SIMCOM_7000  // SIM7000A/C/E/G
+#define SIMCOM_7000 // SIM7000A/C/E/G
 //#define SIMCOM_7500 // SIM7500A/E
 
 // Default Adafruit settings
@@ -68,10 +68,11 @@ char replybuffer[255];
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 // Use the following line for ESP8266
 //SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
+
 SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
-//  HardwareSerial *fonaSerial = &Serial1;
+//HardwareSerial *fonaSerial = &Serial1;
 
 // For ESP32 hardware serial use these lines instead
 //#include <HardwareSerial.h>
@@ -200,13 +201,18 @@ void setup() {
 
 void printMenu(void) {
   Serial.println(F("-------------------------------------"));
+  // General
   Serial.println(F("[?] Print this menu"));
-  Serial.println(F("[a] Read the ADC 2.8V max for SIM800/808, 1.7V max for LTE shield"));
+  Serial.println(F("[a] Read the ADC 2.8V max for SIM800/808, 1.7V max for SIM7000 shield"));
   Serial.println(F("[b] Read supply voltage")); // Will also give battery % charged for most modules
   Serial.println(F("[C] Read the SIM CCID"));
   Serial.println(F("[U] Unlock SIM with PIN code"));
   Serial.println(F("[i] Read signal strength (RSSI)"));
   Serial.println(F("[n] Get network status"));
+  Serial.println(F("[1] Get network connection info")); // See what connection type and band you're on!
+
+#ifndef SIMCOM_7000
+  // Audio
   Serial.println(F("[v] Set audio Volume"));
   Serial.println(F("[V] Get volume"));
   Serial.println(F("[H] Set headphone audio (SIM800/808)"));
@@ -214,18 +220,21 @@ void printMenu(void) {
   Serial.println(F("[T] Play audio Tone"));
   Serial.println(F("[P] PWM/buzzer out (SIM800/808)"));
 
+  // Calling
+  Serial.println(F("[c] Make phone Call"));
+  Serial.println(F("[A] Get call status"));
+  Serial.println(F("[h] Hang up phone"));
+  Serial.println(F("[p] Pick up phone"));
+#endif
+
+#ifdef SIMCOM_2G
   // FM (SIM800 only!)
   Serial.println(F("[f] Tune FM radio (SIM800)"));
   Serial.println(F("[F] Turn off FM (SIM800)"));
   Serial.println(F("[m] Set FM volume (SIM800)"));
   Serial.println(F("[M] Get FM volume (SIM800)"));
   Serial.println(F("[q] Get FM station signal level (SIM800)"));
-
-  // Phone
-  Serial.println(F("[c] Make phone Call"));
-  Serial.println(F("[A] Get call status"));
-  Serial.println(F("[h] Hang up phone"));
-  Serial.println(F("[p] Pick up phone"));
+#endif
 
   // SMS
   Serial.println(F("[N] Number of SMS's"));
@@ -241,12 +250,11 @@ void printMenu(void) {
   Serial.println(F("[t] Get network time")); // Works just by being connected to network
 
   // Data Connection
-  Serial.println(F("[G] Enable GPRS/4G"));
-  Serial.println(F("[g] Disable GPRS/4G"));
-  Serial.println(F("[l] Query GSMLOC (GPRS)"));
-  Serial.println(F("[w] Read webpage (GPRS)"));
-  Serial.println(F("[W] Post to website (GPRS)"));
-  Serial.println(F("[1] Get connection info")); // See what connection type and band you're on!
+  Serial.println(F("[G] Enable cellular data"));
+  Serial.println(F("[g] Disable cellular data"));
+  Serial.println(F("[l] Query GSMLOC (2G)"));
+  Serial.println(F("[w] Read webpage"));
+  Serial.println(F("[W] Post to website"));
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
   // IoT_example sketch for an actual application of this function!
   Serial.println(F("[2] Post to dweet.io via 2G / LTE CAT-M / NB-IoT")); // This can be SIM800/808/900/7000
@@ -373,7 +381,13 @@ void loop() {
         if (n == 5) Serial.println(F("Registered roaming"));
         break;
       }
+    case '1': {
+        // Get connection type, cellular band, carrier name, etc.
+        fona.getNetworkInfo();        
+        break;
+      }
 
+#ifndef SIMCOM_7000
     /*** Audio ***/
     case 'v': {
         // set volume
@@ -445,6 +459,74 @@ void loop() {
         break;
       }
 
+    /*** PWM ***/
+
+    case 'P': {
+        // PWM Buzzer output @ 2KHz max
+        flushSerial();
+        Serial.print(F("PWM Freq, 0 = Off, (1-2000): "));
+        uint16_t freq = readnumber();
+        Serial.println();
+        if (! fona.setPWM(freq)) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("OK!"));
+        }
+        break;
+      }
+
+    /*** Calling ***/
+    case 'c': {
+        // call a phone!
+        char number[30];
+        flushSerial();
+        Serial.print(F("Call #"));
+        readline(number, 30);
+        Serial.println();
+        Serial.print(F("Calling ")); Serial.println(number);
+        if (!fona.callPhone(number)) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("Sent!"));
+        }
+
+        break;
+      }
+    case 'A': {
+        // get call status
+        int8_t callstat = fona.getCallStatus();
+        switch (callstat) {
+          case 0: Serial.println(F("Ready")); break;
+          case 1: Serial.println(F("Could not get status")); break;
+          case 3: Serial.println(F("Ringing (incoming)")); break;
+          case 4: Serial.println(F("Ringing/in progress (outgoing)")); break;
+          default: Serial.println(F("Unknown")); break;
+        }
+        break;
+      }
+      
+    case 'h': {
+        // hang up!
+        if (! fona.hangUp()) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("OK!"));
+        }
+        break;
+      }
+
+    case 'p': {
+        // pick up!
+        if (! fona.pickUp()) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("OK!"));
+        }
+        break;
+      }
+#endif
+
+#ifdef SIMCOM_2G
     /*** FM Radio ***/
 
     case 'f': {
@@ -512,72 +594,7 @@ void loop() {
         }
         break;
       }
-
-    /*** PWM ***/
-
-    case 'P': {
-        // PWM Buzzer output @ 2KHz max
-        flushSerial();
-        Serial.print(F("PWM Freq, 0 = Off, (1-2000): "));
-        uint16_t freq = readnumber();
-        Serial.println();
-        if (! fona.setPWM(freq)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-
-    /*** Call ***/
-    case 'c': {
-        // call a phone!
-        char number[30];
-        flushSerial();
-        Serial.print(F("Call #"));
-        readline(number, 30);
-        Serial.println();
-        Serial.print(F("Calling ")); Serial.println(number);
-        if (!fona.callPhone(number)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("Sent!"));
-        }
-
-        break;
-      }
-    case 'A': {
-        // get call status
-        int8_t callstat = fona.getCallStatus();
-        switch (callstat) {
-          case 0: Serial.println(F("Ready")); break;
-          case 1: Serial.println(F("Could not get status")); break;
-          case 3: Serial.println(F("Ringing (incoming)")); break;
-          case 4: Serial.println(F("Ringing/in progress (outgoing)")); break;
-          default: Serial.println(F("Unknown")); break;
-        }
-        break;
-      }
-      
-    case 'h': {
-        // hang up!
-        if (! fona.hangUp()) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-
-    case 'p': {
-        // pick up!
-        if (! fona.pickUp()) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
+#endif
 
     /*** SMS ***/
 
@@ -762,6 +779,8 @@ void loop() {
       }
 
     case 'L': {
+        /*
+        // Uncomment this block if all you want to see is the AT command response
         // check for GPS location
         char gpsdata[120];
         fona.getGPS(0, gpsdata, 120);
@@ -771,7 +790,34 @@ void loop() {
           Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
         else
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
+        
         Serial.println(gpsdata);
+
+        break;
+        */
+
+        float latitude, longitude, speed_kph, heading, altitude, second;
+        uint16_t year;
+        uint8_t month, day, hour, minute;
+
+        // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
+        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
+//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
+          Serial.println(F("---------------------"));
+          Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+          Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+          Serial.print(F("Speed: ")); Serial.println(speed_kph);
+          Serial.print(F("Heading: ")); Serial.println(heading);
+          Serial.print(F("Altitude: ")); Serial.println(altitude);
+          // Comment out the stuff below if you don't care about UTC time
+          Serial.print(F("Year: ")); Serial.println(year);
+          Serial.print(F("Month: ")); Serial.println(month);
+          Serial.print(F("Day: ")); Serial.println(day);
+          Serial.print(F("Hour: ")); Serial.println(hour);
+          Serial.print(F("Minute: ")); Serial.println(minute);
+          Serial.print(F("Second: ")); Serial.println(second);
+          Serial.println(F("---------------------"));
+        }
 
         break;
       }
@@ -831,8 +877,7 @@ void loop() {
         char url[80];
 
         flushSerial();
-        Serial.println(F("NOTE: in beta! Use small webpages to read!"));
-        Serial.println(F("URL to read (e.g. www.adafruit.com/testwifi/index.html):"));
+        Serial.println(F("URL to read (e.g. dweet.io/get/latest/dweet/for/sim7500test123):"));
         Serial.print(F("http://")); readline(url, 79);
         Serial.println(url);
 
@@ -901,11 +946,8 @@ void loop() {
         fona.HTTP_POST_end();
         break;
       }
-    case '1': {
-        // Get connection type, cellular band, carrier name, etc.
-        fona.getNetworkInfo();        
-        break;
-      }
+
+#if defined(SIMCOM_2G) || defined(SIMCOM_7000)
     case '2': {
         // Post data to website via 2G or LTE CAT-M/NB-IoT
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
@@ -948,6 +990,8 @@ void loop() {
       
         break;
       }
+#endif
+
 #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
     case '3': {
         // Post data to website via 3G or 4G LTE

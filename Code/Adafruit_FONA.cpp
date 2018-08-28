@@ -913,7 +913,10 @@ uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
   return len;
 }
 
-boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude, uint16_t *year, uint8_t *month, uint8_t *day, uint8_t *hour, uint8_t *min, float *sec) {
+// boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude) {
+boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *heading, float *altitude,
+                              uint16_t *year, uint8_t *month, uint8_t *day, uint8_t *hour, uint8_t *min, float *sec) {
+
 
   char gpsbuffer[120];
 
@@ -1021,11 +1024,14 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
     tok = strtok(NULL, ",");
     if (! tok) return false;
 
+    // skip date
+    // tok = strtok(NULL, ",");
+    // if (! tok) return false;
+
     // only grab date and time if needed
     if ((year != NULL) && (month != NULL) && (day != NULL) && (hour != NULL) && (min != NULL) && (sec != NULL)) {
       char *date = strtok(NULL, ",");
       if (! date) return false;
-
       // Seconds
       char *ptr = date + 12;
       *sec = atof(ptr);
@@ -1034,23 +1040,19 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
       ptr[0] = 0;
       ptr = date + 10;
       *min = atoi(ptr);
-
-      // Hours
+       // Hours
       ptr[0] = 0;
       ptr = date + 8;
       *hour = atoi(ptr);
-
-      // Day
+       // Day
       ptr[0] = 0;
       ptr = date + 6;
       *day = atoi(ptr);
-
-      // Month
+       // Month
       ptr[0] = 0;
       ptr = date + 4;
       *month = atoi(ptr);
-
-      // Year
+       // Year
       ptr[0] = 0;
       ptr = date;
       *year = atoi(ptr);
@@ -1673,7 +1675,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
       return false;
 
     readline(10000);
-    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+    DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
     if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
   }
   else {
@@ -1700,6 +1702,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
     // if (reply != 0) return false;
 
+    // Less efficient method
     // char dataBuff[strlen(URL)+strlen(body)+1];
     // if (strlen(body) > 0) {
     //   strcpy(dataBuff, URL);
@@ -1739,6 +1742,10 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     // On SIM7500 no need to send AT+CHTTPSSEND, just wait for +CHTTPSSEND: 0
     if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
       return false;
+
+    readline(10000);
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
   }
 
   // Check server response length

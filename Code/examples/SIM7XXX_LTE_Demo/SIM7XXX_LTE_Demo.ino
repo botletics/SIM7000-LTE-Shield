@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 6/20/2018
+ *  Last Updated: 8/27/2018
  *  License: GNU GPL v3.0
   */
 
@@ -64,15 +64,15 @@ char replybuffer[255];
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 // Use the following line for ESP8266
 //SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
+
 SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
-//  HardwareSerial *fonaSerial = &Serial1;
+//HardwareSerial *fonaSerial = &Serial1;
 
 // For ESP32 hardware serial use these lines instead
 //#include <HardwareSerial.h>
-//HardwareSerial MySerial(1);
-//HardwareSerial *fonaSerial = &MySerial;
+//HardwareSerial fonaSS(1);
 
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
@@ -735,16 +735,45 @@ void loop() {
       }
 */
     case 'L': {
+        /*
+        // Uncomment this block if all you want to see is the AT command response
         // check for GPS location
         char gpsdata[120];
         fona.getGPS(0, gpsdata, 120);
         if (type == SIM808_V1)
           Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
-        else if (type == SIM7500A || SIM7500E)
+        else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500A) || (type == SIM7500E) )
           Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
         else
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
+        
         Serial.println(gpsdata);
+
+        break;
+        */
+
+        float latitude, longitude, speed_kph, heading, altitude, second;
+        uint16_t year;
+        uint8_t month, day, hour, minute;
+
+        // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
+        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
+//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
+          Serial.println(F("---------------------"));
+          Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+          Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+          Serial.print(F("Speed: ")); Serial.println(speed_kph);
+          Serial.print(F("Heading: ")); Serial.println(heading);
+          Serial.print(F("Altitude: ")); Serial.println(altitude);
+          // Comment out the stuff below if you don't care about UTC time
+          Serial.print(F("Year: ")); Serial.println(year);
+          Serial.print(F("Month: ")); Serial.println(month);
+          Serial.print(F("Day: ")); Serial.println(day);
+          Serial.print(F("Hour: ")); Serial.println(hour);
+          Serial.print(F("Minute: ")); Serial.println(minute);
+          Serial.print(F("Second: ")); Serial.println(second);
+          Serial.println(F("---------------------"));
+        }
 
         break;
       }

@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 7/10/2018
+ *  Last Updated: 8/27/2018
  *  License: GNU GPL v3.0
   */
 
@@ -168,7 +168,9 @@ char imei[16] = {0}; // Use this for device ID
 char replybuffer[255]; // Large buffer for replies
 uint8_t type;
 uint16_t battLevel = 0; // Battery level (percentage)
-float latitude, longitude, speed_kph, heading, altitude;
+float latitude, longitude, speed_kph, heading, altitude, second;
+uint16_t year;
+uint8_t month, day, hour, minute;
 uint8_t counter = 0;
 
 char URL[200];  // Make sure this is long enough for your request URL
@@ -282,6 +284,8 @@ void loop() {
 #endif
 
   // Get a fix on location, try every 2s
+  // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
+//  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
   while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) {
     Serial.println(F("Failed to get GPS location, retrying..."));
     delay(2000); // Retry every 2s
@@ -293,6 +297,15 @@ void loop() {
   Serial.print(F("Speed: ")); Serial.println(speed_kph);
   Serial.print(F("Heading: ")); Serial.println(heading);
   Serial.print(F("Altitude: ")); Serial.println(altitude);
+  /*
+  // Uncomment this if you care about parsing UTC time
+  Serial.print(F("Year: ")); Serial.println(year);
+  Serial.print(F("Month: ")); Serial.println(month);
+  Serial.print(F("Day: ")); Serial.println(day);
+  Serial.print(F("Hour: ")); Serial.println(hour);
+  Serial.print(F("Minute: ")); Serial.println(minute);
+  Serial.print(F("Second: ")); Serial.println(second);
+  */
   Serial.println(F("---------------------"));
 
 #if defined(turnOffShield) && !defined(SIMCOM_3G) && !defined(SIMCOM_7500) // If the shield was already on, no need to re-enable
