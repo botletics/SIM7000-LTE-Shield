@@ -1031,7 +1031,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
     if ((year != NULL) && (month != NULL) && (day != NULL) && (hour != NULL) && (min != NULL) && (sec != NULL)) {
       char *date = strtok(NULL, ",");
       if (! date) return false;
-       // Seconds
+      // Seconds
       char *ptr = date + 12;
       *sec = atof(ptr);
       
@@ -1039,19 +1039,19 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
       ptr[0] = 0;
       ptr = date + 10;
       *min = atoi(ptr);
-       // Hours
+      // Hours
       ptr[0] = 0;
       ptr = date + 8;
       *hour = atoi(ptr);
-       // Day
+      // Day
       ptr[0] = 0;
       ptr = date + 6;
       *day = atoi(ptr);
-       // Month
+      // Month
       ptr[0] = 0;
       ptr = date + 4;
       *month = atoi(ptr);
-       // Year
+      // Year
       ptr[0] = 0;
       ptr = date;
       *year = atoi(ptr);
@@ -1737,14 +1737,14 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
   
   if (_type == SIM5320A || _type == SIM5320E) {
-    // Request URL
-    // On SIM7500 no need to send AT+CHTTPSSEND, just wait for +CHTTPSSEND: 0
     if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
       return false;
 
     readline(10000);
     DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
     if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
+
+    delay(1000); // Needs to be here otherwise won't get server reply properly
   }
 
   // Check server response length
