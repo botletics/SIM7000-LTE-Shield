@@ -115,6 +115,8 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = SIM5320E;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A R13")) != 0) {
     _type = SIM7000A;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A-A R13")) != 0) {
+    _type = SIM7000A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C R13")) != 0) {
     _type = SIM7000C;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E R13")) != 0) {
