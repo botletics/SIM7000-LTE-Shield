@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 8/27/2018
+ *  Last Updated: 9/9/2018
  *  License: GNU GPL v3.0
   */
 
@@ -372,7 +372,7 @@ void loop() {
   counter = 0; // This counts the number of failed attempts tries
   
   #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
-    sprintf(body, "{\"temp\":%s,\"batt\":%s}\r\n", tempBuff, battBuff); // Terminate with CR+NL
+    sprintf(body, "{\"lat\":%s,\"long\":%s}\r\n", latBuff, longBuff); // Terminate with CR+NL
     sprintf(URL, "POST /dweet/for/%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: %i\r\n\r\n", imei, strlen(body));
 
     while (counter < 3 && !fona.postData("www.dweet.io", 443, "HTTPS", URL, body)) { // Server, port, connection type, URL
@@ -382,7 +382,7 @@ void loop() {
     }
   #else
     sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
-    sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battBuff);
+    sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff);
 
     // Let's try a POST request to thingsboard.io
     /*
