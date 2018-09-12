@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 8/27/2018
+ *  Last Updated: 8/29/2018
  *  License: GNU GPL v3.0
   */
 
@@ -39,6 +39,12 @@
 //#define FONA_RX 2
 //#define FONA_TX 3
 //#define FONA_RST 4
+
+// For TinySine SIM5320 shield
+//#define FONA_PWRKEY 8
+//#define FONA_RST 9
+//#define FONA_TX 2 // Microcontroller RX (note: won't work on Mega)
+//#define FONA_RX 3 // Microcontroller TX
 
 // For SIM7000 shield
 #define FONA_PWRKEY 6
@@ -751,7 +757,7 @@ void loop() {
       }
 
 
-    /*********************************** GPS (SIM808 only) */
+    /*********************************** GPS */
 
     case 'o': {
         // turn GPS off
@@ -801,8 +807,8 @@ void loop() {
         uint8_t month, day, hour, minute;
 
         // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
-        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
-//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
+//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
+        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
           Serial.println(F("---------------------"));
           Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
           Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
@@ -810,6 +816,7 @@ void loop() {
           Serial.print(F("Heading: ")); Serial.println(heading);
           Serial.print(F("Altitude: ")); Serial.println(altitude);
           // Comment out the stuff below if you don't care about UTC time
+          /*
           Serial.print(F("Year: ")); Serial.println(year);
           Serial.print(F("Month: ")); Serial.println(month);
           Serial.print(F("Day: ")); Serial.println(day);
@@ -817,6 +824,7 @@ void loop() {
           Serial.print(F("Minute: ")); Serial.println(minute);
           Serial.print(F("Second: ")); Serial.println(second);
           Serial.println(F("---------------------"));
+          */
         }
 
         break;
