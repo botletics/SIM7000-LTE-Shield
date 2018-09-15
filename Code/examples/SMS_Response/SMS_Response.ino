@@ -7,7 +7,7 @@
  *  Github: https://github.com/botletics/NB-IoT-Shield
  *  Last Updated: 9/15/2018
  *  License: GNU GPL v3.0
-  */
+ */
 
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
@@ -28,14 +28,6 @@
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-/*
-Open up the serial console on the Arduino at 115200 baud to interact with FONA
-
-
-This code will receive an SMS, identify the sender's phone number, and automatically send a response
-
-*/
-
 #include "Adafruit_FONA.h" // https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 
 // Define *one* of the following lines:
@@ -43,17 +35,6 @@ This code will receive an SMS, identify the sender's phone number, and automatic
 //#define SIMCOM_3G // SIM5320A/E
 #define SIMCOM_7000 // SIM7000A/C/E/G
 //#define SIMCOM_7500 // SIM7500A/E
-
-// Default Adafruit settings
-//#define FONA_RX 2
-//#define FONA_TX 3
-//#define FONA_RST 4
-
-// For TinySine SIM5320 shield
-//#define FONA_PWRKEY 8
-//#define FONA_RST 9
-//#define FONA_TX 2 // Microcontroller RX (note: won't work on Mega)
-//#define FONA_RX 3 // Microcontroller TX
 
 // For SIM7000 shield
 #define FONA_PWRKEY 6
