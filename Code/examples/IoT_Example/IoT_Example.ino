@@ -25,12 +25,11 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 9/9/2018
+ *  Last Updated: 9/15/2018
  *  License: GNU GPL v3.0
   */
 
-#include "Adafruit_FONA.h"
-#include <SoftwareSerial.h>
+#include "Adafruit_FONA.h" // https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 
 // You don't need the following includes if you're not using MQTT
 // You can find the Adafruit MQTT library here: https://github.com/adafruit/Adafruit_MQTT_Library
@@ -40,13 +39,13 @@
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320
-#define SIMCOM_7000  // SIM7000
-// #define SIMCOM_7500 // SIM7500
+#define SIMCOM_7000 // SIM7000
+//#define SIMCOM_7500 // SIM7500
 
 // Uncomment *one* of the following protocols you want to use
 // to send data to the cloud! Leave the other commented out
-#define PROTOCOL_HTTP_GET         // Generic
-//#define PROTOCOL_HTTP_POST        // Generic
+//#define PROTOCOL_HTTP_GET         // Generic
+#define PROTOCOL_HTTP_POST        // Generic
 //#define PROTOCOL_MQTT_AIO         // Adafruit IO
 //#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
 
@@ -77,12 +76,19 @@
 
 #define LED 13 // Just for testing if needed!
 
-// Using SoftwareSerial
+// We default to using software serial. If you want to use hardware serial
+// (because softserial isnt supported) comment out the following three lines 
+// and uncomment the HardwareSerial line
+#include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+// Use the following line for ESP8266
+// NOTE: Go to boards manager and make sure you have 2.3.0 of esp8266 package! 2.4.0+ won't compile
+//SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
+
 SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
-//  HardwareSerial *fonaSerial = &Serial1;
+//HardwareSerial *fonaSerial = &Serial1;
 
 // For ESP32 hardware serial use these lines instead
 //#include <HardwareSerial.h>
