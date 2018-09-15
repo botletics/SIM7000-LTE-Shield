@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 8/27/2018
+ *  Last Updated: 9/15/2018
  *  License: GNU GPL v3.0
   */
 
