@@ -1,6 +1,11 @@
-/* This code sets the baud rate of the shield to a slower baud rate
+/*  This code sets the baud rate of the shield to a slower baud rate
  *  than the default 115200 baud rate. You only need to run this code
- *  once for it to take effect! (At least for SIM7000E versions)
+ *  once for it to take effect! (At least for SIM7000C/E/G versions)
+ *  
+ *  Author: Timothy Woo (www.botletics.com)
+ *  Github: https://github.com/botletics/SIM7000-LTE-Shield
+ *  Last Updated: 9/15/2018
+ *  License: GNU GPL v3.0
  */
 
 /******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
@@ -25,19 +30,20 @@
 
 #include "Adafruit_FONA.h"
 
-// Default
-//#define FONA_RX 2
-//#define FONA_TX 3
-//#define FONA_RST 4
+// For TinySine SIM5320 shield
+#define FONA_PWRKEY 8
+#define FONA_RST 9
+#define FONA_TX 2 // Microcontroller RX
+#define FONA_RX 3 // Microcontroller TX
 
 // For SIM7000 shield
-#define FONA_PWRKEY 6
-#define FONA_RST 7
-//#define FONA_DTR 8 // Connect with solder jumper
-//#define FONA_RI 9 // Need to enable via AT commands
-#define FONA_TX 10 // Microcontroller RX
-#define FONA_RX 11 // Microcontroller TX
-//#define T_ALERT 12 // Connect with solder jumper
+//#define FONA_PWRKEY 6
+//#define FONA_RST 7
+////#define FONA_DTR 8 // Connect with solder jumper
+////#define FONA_RI 9 // Need to enable via AT commands
+//#define FONA_TX 10 // Microcontroller RX
+//#define FONA_RX 11 // Microcontroller TX
+////#define T_ALERT 12 // Connect with solder jumper
 
 // For SIM7500 shield
 //#define FONA_PWRKEY 6
