@@ -9,7 +9,7 @@
  *  Github page: https://github.com/botletics/SIM7000-LTE-Shield
  */
 
-
+/******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
   Adafruit MQTT Library FONA Example
 
