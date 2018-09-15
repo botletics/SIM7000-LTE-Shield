@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 8/29/2018
+ *  Last Updated: 9/15/2018
  *  License: GNU GPL v3.0
   */
 
@@ -73,6 +73,7 @@ char replybuffer[255];
 #include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 // Use the following line for ESP8266
+// NOTE: Go to boards manager and make sure you have 2.3.0 of esp8266 package! 2.4.0+ won't compile
 //SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
 
 SoftwareSerial *fonaSerial = &fonaSS;
