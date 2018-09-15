@@ -63,6 +63,7 @@ char replybuffer[255];
 #include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 // Use the following line for ESP8266
+// NOTE: Go to boards manager and make sure you have 2.3.0 of esp8266 package! 2.4.0+ won't compile
 //SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
 
 SoftwareSerial *fonaSerial = &fonaSS;
