@@ -3,6 +3,7 @@
  *  once for it to take effect! (At least for SIM7000E versions)
  */
 
+/******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
   since the FONA 3G does not do auto-baud very well, this demo
