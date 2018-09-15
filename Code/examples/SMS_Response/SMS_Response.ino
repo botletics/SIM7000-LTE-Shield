@@ -4,8 +4,8 @@
  *   like remote sensors, SMS-activated controls, and many other things!
  *  
  *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/8/2017
+ *  Github: https://github.com/botletics/NB-IoT-Shield
+ *  Last Updated: 9/15/2018
  *  License: GNU GPL v3.0
   */
 
@@ -38,30 +38,42 @@ This code will receive an SMS, identify the sender's phone number, and automatic
 
 */
 
-#include "Adafruit_FONA.h"
+#include "Adafruit_FONA.h" // https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 
-// Default
+// Define *one* of the following lines:
+//#define SIMCOM_2G // SIM800/808/900/908, etc.
+//#define SIMCOM_3G // SIM5320A/E
+#define SIMCOM_7000 // SIM7000A/C/E/G
+//#define SIMCOM_7500 // SIM7500A/E
+
+// Default Adafruit settings
 //#define FONA_RX 2
 //#define FONA_TX 3
 //#define FONA_RST 4
 
-// For LTE shield v3
-#define FONA_PWRKEY 3
-//#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
-#define FONA_RI 5 // Need to enable via AT commands
-#define FONA_RX 7
-#define FONA_TX 6
-#define FONA_RST 8
+// For TinySine SIM5320 shield
+//#define FONA_PWRKEY 8
+//#define FONA_RST 9
+//#define FONA_TX 2 // Microcontroller RX (note: won't work on Mega)
+//#define FONA_RX 3 // Microcontroller TX
+
+// For SIM7000 shield
+#define FONA_PWRKEY 6
+#define FONA_RST 7
+//#define FONA_DTR 8 // Connect with solder jumper
+//#define FONA_RI 9 // Need to enable via AT commands
+#define FONA_TX 10 // Microcontroller RX
+#define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
 
-// For LTE shield v4
+// For SIM7500 shield
 //#define FONA_PWRKEY 6
 //#define FONA_RST 7
-////#define FONA_DTR 8 // Connect with solder jumper
-////#define FONA_RI 9 // Need to enable via AT commands
-//#define FONA_TX 10 // Microcontroller RX
-//#define FONA_RX 11 // Microcontroller TX
-////#define T_ALERT 12 // Connect with solder jumper
+////#define FONA_DTR 9 // Connect with solder jumper
+////#define FONA_RI 8 // Need to enable via AT commands
+//#define FONA_TX 11 // Microcontroller RX
+//#define FONA_RX 10 // Microcontroller TX
+////#define T_ALERT 5 // Connect with solder jumper
 
 // this is a large buffer for replies
 char replybuffer[255];
@@ -71,47 +83,87 @@ char replybuffer[255];
 // and uncomment the HardwareSerial line
 #include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+// Use the following line for ESP8266
+// NOTE: Go to boards manager and make sure you have 2.3.0 of esp8266 package! 2.4.0+ won't compile
+//SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
+
 SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
-//  HardwareSerial *fonaSerial = &Serial1;
+//HardwareSerial *fonaSerial = &Serial1;
 
-// Use this for FONA 800 and 808s
-//Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-// Use this one for FONA 3G
-//Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
-// Use this one for FONA LTE
+// For ESP32 hardware serial use these lines instead
+//#include <HardwareSerial.h>
+//HardwareSerial fonaSS(1);
+
+// Use this for 2G modules
+#ifdef SIMCOM_2G
+  Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
+  
+// Use this one for 3G modules
+#elif defined(SIMCOM_3G)
+  Adafruit_FONA_3G fona = Adafruit_FONA_3G(FONA_RST);
+  
+// Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
+#elif defined(SIMCOM_7000) || defined(SIMCOM_7500)
+  Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
+#endif
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 uint8_t type;
 char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
 
 void setup() {
-  while (!Serial);
+//  while (!Serial);
 
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH); // Default state
   
   pinMode(FONA_PWRKEY, OUTPUT);
-  // Turn on the SIM7000 by pulsing PWRKEY low for at least 72ms
-  // This won't hurt even if the module is already on, because you need
-  // to pulse PWRKEY for at least 1.2s to turn it off!
-  pinMode(FONA_PWRKEY, LOW);
-  delay(100);
-  pinMode(FONA_PWRKEY, HIGH);
+  
+  // Turn on the module by pulsing PWRKEY low for a little bit
+  // This amount of time depends on the specific module that's used
+  powerOn(); // See function definition at the very end of the sketch
 
   Serial.begin(115200);
-  Serial.println(F("FONA SMS caller ID test"));
-  Serial.println(F("Initializing....(May take 3 seconds)"));
+  Serial.println(F("FONA basic test"));
+  Serial.println(F("Initializing....(May take several seconds)"));
 
-  // The baud rate always resets back to default (115200) after
-  // being powered down so let's try 115200 first. Hats off to
-  // anyone who can figure out how to make it remember the new
-  // baud rate even after being power cycled! If you are using
-  // hardware serial then this shouldn't be an issue because
-  // you can just use the default 115200 baud.
+  // Configure a GPRS APN, username, and password.
+  // You might need to do this to access your network's GPRS/data
+  // network.  Contact your provider for the exact APN, username,
+  // and password values.  Username and password are optional and
+  // can be removed, but APN is required.
+  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
+  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
+
+  // Optionally configure HTTP gets to follow redirects over SSL.
+  // Default is not to follow SSL redirects, however if you uncomment
+  // the following line then redirects over SSL will be followed.
+  //fona.setHTTPSRedirect(true);
+
+  // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
+  // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
+  // Press reset button if the module is still turning on and the board doesn't find it.
+  // When the module is on it should communicate right after pressing reset
+  fonaSS.begin(115200); // Default SIM7000 shield baud rate
+  
+  Serial.println(F("Configuring to 4800 baud"));
+  fonaSS.println("AT+IPR=4800"); // Set baud rate
+  fonaSS.begin(4800);
+  if (! fona.begin(fonaSS)) {
+    Serial.println(F("Couldn't find FONA"));
+    while(1); // Don't proceed if it couldn't find the device
+  }
+
+  // The commented block of code below is an alternative that will find the module at 115200
+  // Then switch it to 4800 without having to wait for the module to turn on and manually
+  // press the reset button in order to establish communication. However, once the baud is set
+  // this method will be much slower.
+  /*
   fonaSerial->begin(115200); // Default LTE shield baud rate
   fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
 
@@ -119,33 +171,40 @@ void setup() {
   fona.setBaudrate(4800); // Set to 4800 baud
   fonaSerial->begin(4800);
   if (!fona.begin(*fonaSerial)) {
-    Serial.println(F("Couldn't find FONA"));
+    Serial.println(F("Couldn't find modem"));
     while(1); // Don't proceed if it couldn't find the device
   }
+  */
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
   switch (type) {
-    case FONA800L:
-      Serial.println(F("FONA 800L")); break;
-    case FONA800H:
-      Serial.println(F("FONA 800H")); break;
-    case FONA808_V1:
-      Serial.println(F("FONA 808 (v1)")); break;
-    case FONA808_V2:
-      Serial.println(F("FONA 808 (v2)")); break;
-    case FONA3G_A:
-      Serial.println(F("FONA 3G (American)")); break;
-    case FONA3G_E:
-      Serial.println(F("FONA 3G (European)")); break;
-    case FONA_LTE_A:
-      Serial.println(F("FONA 4G LTE (American)")); break;
-    case FONA_LTE_C:
-      Serial.println(F("FONA 4G LTE (Chinese)")); break;
-    case FONA_LTE_E:
-      Serial.println(F("FONA 4G LTE (European)")); break;
-    default: 
+    case SIM800L:
+      Serial.println(F("SIM800L")); break;
+    case SIM800H:
+      Serial.println(F("SIM800H")); break;
+    case SIM808_V1:
+      Serial.println(F("SIM808 (v1)")); break;
+    case SIM808_V2:
+      Serial.println(F("SIM808 (v2)")); break;
+    case SIM5320A:
+      Serial.println(F("SIM5320A (American)")); break;
+    case SIM5320E:
+      Serial.println(F("SIM5320E (European)")); break;
+    case SIM7000A:
+      Serial.println(F("SIM7000A (American)")); break;
+    case SIM7000C:
+      Serial.println(F("SIM7000C (Chinese)")); break;
+    case SIM7000E:
+      Serial.println(F("SIM7000E (European)")); break;
+    case SIM7000G:
+      Serial.println(F("SIM7000G (Global)")); break;
+    case SIM7500A:
+      Serial.println(F("SIM7500A (American)")); break;
+    case SIM7500E:
+      Serial.println(F("SIM7500E (European)")); break;
+    default:
       Serial.println(F("???")); break;
   }
   
@@ -249,4 +308,21 @@ void sendText(char* textMessage) {
     Serial.print(F("Couldn't delete SMS in slot ")); Serial.println(slot);
     fona.print(F("AT+CMGD=?\r\n"));
   }
+}
+
+// Power on the module
+void powerOn() {
+  digitalWrite(FONA_PWRKEY, LOW);
+  // See spec sheets for your particular module
+  #if defined(SIMCOM_2G)
+    delay(1050);
+  #elif defined(SIMCOM_3G)
+    delay(180); // For SIM5320
+  #elif defined(SIMCOM_7000)
+    delay(100); // For SIM7000
+  #elif defined(SIMCOM_7500)
+    delay(500); // For SIM7500
+  #endif
+  
+  digitalWrite(FONA_PWRKEY, HIGH);
 }
