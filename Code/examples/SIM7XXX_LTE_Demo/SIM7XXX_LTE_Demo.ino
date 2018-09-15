@@ -5,7 +5,7 @@
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
  *  Last Updated: 9/15/2018
  *  License: GNU GPL v3.0
-  */
+ */
 
 /******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
