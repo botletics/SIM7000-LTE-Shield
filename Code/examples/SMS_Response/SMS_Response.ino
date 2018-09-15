@@ -9,6 +9,7 @@
  *  License: GNU GPL v3.0
  */
 
+/******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
 
