@@ -29,8 +29,6 @@
  ****************************************************/
 
 /*
-THIS CODE IS STILL IN PROGRESS!
-
 Open up the serial console on the Arduino at 115200 baud to interact with FONA
 
 
