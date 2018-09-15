@@ -3,7 +3,7 @@
  *  Adafruit.io and the SIM7000 shield so give it a try! Just make sure to replace
  *  the access point and Adafruit IO credentials with your own in the sections below!
  *  
- *  Date: 2/5/18
+ *  Last updated: 9/15/2018
  *  
  *  Botletics SIM7000 LTE CAT-M/NB-IoT Shield: https://www.botletics.com/products/sim7000-shield
  *  Github page: https://github.com/botletics/SIM7000-LTE-Shield
@@ -37,43 +37,32 @@
 
 /*************************** FONA Pins ***********************************/
 
-// Default pins for Feather 32u4 FONA
-//#define FONA_RX  9
-//#define FONA_TX  8
-//#define FONA_RST 4
+// For SIM7000 shield
+#define FONA_PWRKEY 6
+#define FONA_RST 7
+//#define FONA_DTR 8 // Connect with solder jumper
+//#define FONA_RI 9 // Need to enable via AT commands
+#define FONA_TX 10 // Microcontroller RX
+#define FONA_RX 11 // Microcontroller TX
+//#define T_ALERT 12 // Connect with solder jumper
 
-// For SIM7000 shield v1
-#define FONA_PWRKEY 4
-#define FONA_RX 7
-#define FONA_TX 6
-#define FONA_RST 8
-
-// For SIM7000 shield v3
-//#define FONA_PWRKEY 3
-////#define FONA_DTR 4 // Can be used to wake up SIM7000 from sleep
-//#define FONA_RI 5 // Need to enable via AT commands
-//#define FONA_RX 7
-//#define FONA_TX 6
-//#define FONA_RST 8
-////#define T_ALERT 12 // Connect with solder jumper
-
-// For SIM7000 shield v4
+// For SIM7500 shield
 //#define FONA_PWRKEY 6
 //#define FONA_RST 7
-////#define FONA_DTR 8 // Connect with solder jumper
-////#define FONA_RI 9 // Need to enable via AT commands
-//#define FONA_TX 10 // Microcontroller RX
-//#define FONA_RX 11 // Microcontroller TX
-////#define T_ALERT 12 // Connect with solder jumper
+////#define FONA_DTR 9 // Connect with solder jumper
+////#define FONA_RI 8 // Need to enable via AT commands
+//#define FONA_TX 11 // Microcontroller RX
+//#define FONA_RX 10 // Microcontroller TX
+////#define T_ALERT 5 // Connect with solder jumper
 
 #define LED 13
 
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 
 //Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-Adafruit_FONA_LTE fona = Adafruit_FONA_LTE(); // For SIM7000
+Adafruit_FONA_LTE fona = Adafruit_FONA_LTE(); // For SIM7000 and SIM7500
 
-/************************* WiFi Access Point *********************************/
+/************************* APN Setup *********************************/
 
   // Optionally configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
@@ -88,8 +77,8 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE(); // For SIM7000
 
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "ArduinoGuru"
-#define AIO_KEY         "450a3ef9db96445dac2ffe22893c4939"
+#define AIO_USERNAME    "yourUsernameHere"
+#define AIO_KEY         "YourAIOkeyHere"
 
 /************ Global State (you don't need to change this!) ******************/
 
