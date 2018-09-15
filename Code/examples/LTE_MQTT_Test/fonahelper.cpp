@@ -40,7 +40,7 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
   delay(5000);  // wait a few seconds to stabilize connection
   Watchdog.reset();
   
-  fona.setGPRSNetworkSettings(apn, username, password);
+  fona.setNetworkSettings(apn, username, password);
 
   Serial.println(F("Disabling GPRS"));
   fona.enableGPRS(false);
