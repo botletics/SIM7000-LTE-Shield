@@ -113,15 +113,13 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = SIM5320A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIMCOM_SIM5320E")) != 0) {
     _type = SIM5320E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A")) != 0) {
     _type = SIM7000A;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A-A R13")) != 0) {
-    _type = SIM7000A;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C")) != 0) {
     _type = SIM7000C;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E")) != 0) {
     _type = SIM7000E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G R13")) != 0) {
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G")) != 0) {
     _type = SIM7000G;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A")) != 0) {
     _type = SIM7500A;
@@ -1033,6 +1031,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
     if ((year != NULL) && (month != NULL) && (day != NULL) && (hour != NULL) && (min != NULL) && (sec != NULL)) {
       char *date = strtok(NULL, ",");
       if (! date) return false;
+      
       // Seconds
       char *ptr = date + 12;
       *sec = atof(ptr);
@@ -1041,18 +1040,22 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
       ptr[0] = 0;
       ptr = date + 10;
       *min = atoi(ptr);
+
       // Hours
       ptr[0] = 0;
       ptr = date + 8;
       *hour = atoi(ptr);
+
       // Day
       ptr[0] = 0;
       ptr = date + 6;
       *day = atoi(ptr);
+
       // Month
       ptr[0] = 0;
       ptr = date + 4;
       *month = atoi(ptr);
+
       // Year
       ptr[0] = 0;
       ptr = date;
@@ -1346,35 +1349,37 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	      if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
 	        return false;
 
-	      // send AT+CSTT,"apn","user","pass"
-	      flushInput();
+        // if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+  	      // send AT+CSTT,"apn","user","pass"
+  	      flushInput();
 
-	      mySerial->print(F("AT+CSTT=\""));
-	      mySerial->print(apn);
-	      if (apnusername) {
-					mySerial->print("\",\"");
-					mySerial->print(apnusername);
-	      }
-	      if (apnpassword) {
-					mySerial->print("\",\"");
-					mySerial->print(apnpassword);
-	      }
-	      mySerial->println("\"");
+  	      mySerial->print(F("AT+CSTT=\""));
+  	      mySerial->print(apn);
+  	      if (apnusername) {
+  					mySerial->print("\",\"");
+  					mySerial->print(apnusername);
+  	      }
+  	      if (apnpassword) {
+  					mySerial->print("\",\"");
+  					mySerial->print(apnpassword);
+  	      }
+  	      mySerial->println("\"");
 
-	      DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
-	      DEBUG_PRINT(apn); 
-	      
-	      if (apnusername) {
-					DEBUG_PRINT("\",\"");
-					DEBUG_PRINT(apnusername); 
-	      }
-	      if (apnpassword) {
-					DEBUG_PRINT("\",\"");
-					DEBUG_PRINT(apnpassword); 
-	      }
-	      DEBUG_PRINTLN("\"");
-	      
-	      if (! expectReply(ok_reply)) return false;
+  	      DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
+  	      DEBUG_PRINT(apn);
+  	      
+  	      if (apnusername) {
+  					DEBUG_PRINT("\",\"");
+  					DEBUG_PRINT(apnusername); 
+  	      }
+  	      if (apnpassword) {
+  					DEBUG_PRINT("\",\"");
+  					DEBUG_PRINT(apnpassword); 
+  	      }
+  	      DEBUG_PRINTLN("\"");
+  	      
+  	      if (! expectReply(ok_reply)) return false;
+        // } // UNCOMMENT FOR LTE ONLY!
 	    
 	      // set username/password
 	      if (apnusername) {
@@ -1397,7 +1402,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 		    // bring up wireless connection
 		    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
 		      return false;
-		// } // UNCOMMENT FOR LTE ONLY!
+		  // } // UNCOMMENT FOR LTE ONLY!
 
 	  } else {
 	    // disconnect all sockets
@@ -1499,6 +1504,8 @@ void Adafruit_FONA::setNetworkSettings(FONAFlashStringPtr apn,
   this->apn = apn;
   this->apnusername = username;
   this->apnpassword = password;
+
+  // sendCheckReplyQuoted(F("AT+CGDCONT=1,\"IP\","), apn, ok_reply, 10000);
 }
 
 boolean Adafruit_FONA::getGSMLoc(uint16_t *errorcode, char *buff, uint16_t maxlen) {
