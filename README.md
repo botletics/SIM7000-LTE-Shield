@@ -29,9 +29,9 @@ The following list is a summary of the things I've done so far:
 - Dedicated MQTT commands for SIM7000? (Waiting for SIMCom to release)
 - Add FTP functions (image transfer tutorial?)
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
-- Get NTP working? (SIMCom firmware issue? AT+CNTPCID=1 fails)
 
 ### Completed Tasks
+- Confirmed NTP time sync on SIM7000G firmware version 1529B01SIM7000G
 - Added "postData3G" function for SIM5320 and other 3G modules
 - Successfully tested MQTT connect and publish using TCP/IP!
 - Added "getNetworkInfo()" function (command "1" in LTE_Demo sketch) to get connection info, connection status, cellular band, etc.
