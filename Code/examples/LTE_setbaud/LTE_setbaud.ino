@@ -4,7 +4,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 9/15/2018
+ *  Last Updated: 9/22/2018
  *  License: GNU GPL v3.0
  */
 
@@ -31,19 +31,19 @@
 #include "Adafruit_FONA.h"
 
 // For TinySine SIM5320 shield
-#define FONA_PWRKEY 8
-#define FONA_RST 9
-#define FONA_TX 2 // Microcontroller RX
-#define FONA_RX 3 // Microcontroller TX
+//#define FONA_PWRKEY 8
+//#define FONA_RST 9
+//#define FONA_TX 2 // Microcontroller RX
+//#define FONA_RX 3 // Microcontroller TX
 
 // For SIM7000 shield
-//#define FONA_PWRKEY 6
-//#define FONA_RST 7
-////#define FONA_DTR 8 // Connect with solder jumper
-////#define FONA_RI 9 // Need to enable via AT commands
-//#define FONA_TX 10 // Microcontroller RX
-//#define FONA_RX 11 // Microcontroller TX
-////#define T_ALERT 12 // Connect with solder jumper
+#define FONA_PWRKEY 6
+#define FONA_RST 7
+//#define FONA_DTR 8 // Connect with solder jumper
+//#define FONA_RI 9 // Need to enable via AT commands
+#define FONA_TX 10 // Microcontroller RX
+#define FONA_RX 11 // Microcontroller TX
+//#define T_ALERT 12 // Connect with solder jumper
 
 // For SIM7500 shield
 //#define FONA_PWRKEY 6
@@ -119,4 +119,5 @@ void setup() {
 }
 
 void loop() {
+  
 }
