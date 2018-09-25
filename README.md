@@ -26,6 +26,7 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
+- Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
 - Dedicated MQTT commands for SIM7000? (Waiting for SIMCom to release)
 - Add FTP functions (image transfer tutorial?)
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
