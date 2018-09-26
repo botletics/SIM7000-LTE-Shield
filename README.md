@@ -15,6 +15,7 @@ The library in this repo is an altered library built upon the original [Adafruit
 The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
+- FTP functions on SIM7000G firmware version 1529B01SIM7000G
 - Hologram SIM card works great on both the AT&T and Verizon CAT-M1 networks in the USA!
 - HTTP and HTTPS via 3G with SIM5320
 - MQTT working with SIM7000 and SIM808
