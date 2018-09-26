@@ -305,8 +305,16 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
  public:
   Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; _type = SIM7500A;}
 
-    boolean setBaudrate(uint16_t baud);
-    boolean hangUp(void);
+  boolean setBaudrate(uint16_t baud);
+  boolean hangUp(void);
+
+  // FTP Functions
+  boolean FTP_Connect(const char* serverIP, uint16_t port, const char* username, const char* password);
+  boolean FTP_Quit();
+  boolean FTP_Rename(const char* filePath, const char* oldName, const char* newName);
+  boolean FTP_Delete(const char* fileName, const char* filePath);
+  boolean FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
+  boolean FTP_PUT(const char* fileName, const char* filePath, const char* content, uint16_t numBytes);
 };
 
 #endif

@@ -1788,13 +1788,10 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 }
 
 /********* FTP FUNCTIONS  ************************************/
-/*
-// Download data from FTP server
-boolean Adafruit_FONA::FTP_GET(const char* serverIP, const char* username, const char* password, const char* fileName,
-															 const char* filePath,, uint16_t numBytes) {
-	char auxStr[100];
+boolean Adafruit_FONA_LTE::FTP_Connect(const char* serverIP, uint16_t port, const char* username, const char* password) {
+  char auxStr[100];
 
-	if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
+  if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
     return false;
 
   sprintf(auxStr, "AT+FTPSERV=%s", serverIP);
@@ -1802,19 +1799,67 @@ boolean Adafruit_FONA::FTP_GET(const char* serverIP, const char* username, const
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
+  if (port != 21) {
+    sprintf(auxStr, "AT+FTPPORT=%i", port);
+
+    if (! sendCheckReply(auxStr, ok_reply, 10000))
+      return false;
+  }
+
   if (strlen(username) > 0) {
-  	sprintf(auxStr, "AT+FTPUN=%s", username);
+    sprintf(auxStr, "AT+FTPUN=%s", username);
 
-	  if (! sendCheckReply(auxStr, ok_reply, 10000))
-	    return false;
+    if (! sendCheckReply(auxStr, ok_reply, 10000))
+      return false;
   }
 
-	if (strlen(password) > 0) {
-  	sprintf(auxStr, "AT+FTPPW=%s", password);
+  if (strlen(password) > 0) {
+    sprintf(auxStr, "AT+FTPPW=%s", password);
 
-	  if (! sendCheckReply(auxStr, ok_reply, 10000))
-	    return false;
+    if (! sendCheckReply(auxStr, ok_reply, 10000))
+      return false;
   }
+
+  return true;
+}
+
+boolean Adafruit_FONA_LTE::FTP_Quit() {
+  if (! sendCheckReply(F("AT+FTPQUIT"), ok_reply, 10000))
+    return false;
+
+  return true;
+}
+
+boolean Adafruit_FONA_LTE::FTP_Rename(const char* filePath, const char* oldName, const char* newName) {
+  char auxStr[50];
+
+  sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPGETNAME=%s", oldName);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPPUTNAME=%s", newName);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  if (! sendCheckReply(F("AT+FTPRENAME"), ok_reply, 2000))
+    return false;
+
+  readline(5000);
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  if (strcmp(replybuffer, "+FTPRENAME:1,0") != 0) return false;
+
+  return true;
+}
+
+boolean Adafruit_FONA_LTE::FTP_Delete(const char* fileName, const char* filePath) {
+  char auxStr[50];
 
   sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
 
@@ -1826,21 +1871,128 @@ boolean Adafruit_FONA::FTP_GET(const char* serverIP, const char* username, const
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
-  if (! sendCheckReply(F("AT+FTPGET=1"), ok_reply, 10000)) // Open FTP GET session
+  if (! sendCheckReply(F("AT+FTPDELE=1"), ok_reply, 2000))
     return false;
 
-  sprintf(auxStr, "AT+FTPGET=2,%i", fileName); // Read data
+  readline(5000);
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  if (strcmp(replybuffer, "+FTPDELE: 1,0") != 0) return false;
 
-  
-  
+  return true;
+}
+
+boolean Adafruit_FONA_LTE::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
+	char auxStr[100];
+
+  sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  if (! sendCheckReply(F("AT+FTPGET=1"), ok_reply, 10000))
+    return false;
+
+  readline(10000);
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  if (strcmp(replybuffer, "+FTPGET: 1,1") != 0) return false;
+
+  if (numBytes < 1024) sprintf(auxStr, "AT+FTPGET=2,%i", numBytes);
+  else sprintf(auxStr, "AT+FTPEXTGET=2,%i,10000", numBytes);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
 
 	return true;
 }
 
-boolean Adafruit_FONA::FTP_PUT() {
+boolean Adafruit_FONA_LTE::FTP_PUT(const char* fileName, const char* filePath, const char* content, uint16_t numBytes) {
+  char auxStr[100];
 
+  sprintf(auxStr, "AT+FTPPUTNAME=%s", fileName);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPPUTPATH=%s", filePath);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  // Use extended PUT method if there's more than 1024 bytes to send
+  if (numBytes > 1024) {
+    if (! sendCheckReply(F("AT+FTPEXTPUT=1"), ok_reply, 10000))
+      return false;
+
+    sprintf(auxStr, "AT+FTPEXTPUT=2,0,%i,10000", numBytes);
+
+    if (! sendCheckReply(auxStr, F("+FTPEXTPUT: 0,"), 10000))
+      return false;
+
+    if (! sendCheckReply(content, ok_reply, 10000))
+      return false;
+  }
+
+  if (! sendCheckReply(F("AT+FTPPUT=1"), ok_reply, 10000))
+    return false;
+
+  uint16_t maxlen;
+  readline(10000);
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+  
+  // Use regular FTPPUT method if there is less than 1024 bytes of data to send
+  if (numBytes < 1024) {
+    if (! parseReply(F("+FTPPUT: 1,1"), &maxlen, ',', 1))
+        return false;
+
+    // Repeatedly PUT data until all data is sent
+    uint16_t remBytes = numBytes;
+
+    while (remBytes > 0) {
+      if (remBytes > maxlen) sprintf(auxStr, "AT+FTPPUT=2,%i", maxlen);
+      else sprintf(auxStr, "AT+FTPPUT=2,%i", remBytes);
+
+      getReply(auxStr);
+
+      uint16_t sentBytes;
+      if (! parseReply(F("+FTPPUT: 2"), &sentBytes, ',', 1))
+        return false;
+
+      if (sentBytes != maxlen) return false; // Check if they match
+
+      if (! sendCheckReply(content, ok_reply, 10000))
+        return false;
+
+      remBytes = remBytes - maxlen; // Decrement counter
+
+      // Check again for max length to send, repeat if needed
+      readline(10000);
+      DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+      if (! parseReply(F("+FTPPUT: 1,1"), &maxlen, ',', 1))
+        return false;
+    }
+
+    // No more data to be uploaded
+    if (! sendCheckReply(F("AT+FTPPUT=2,0"), ok_reply, 10000))
+      return false;
+
+    readline(10000);
+    DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+    if (strcmp(replybuffer, "+FTPPUT: 1,0") != 0) return false;
+  }
+  else {
+    if (strcmp(replybuffer, "+FTPPUT: 1,0") != 0) return false;
+  }
+
+  if (! sendCheckReply(F("AT+FTPEXTPUT=0"), ok_reply, 10000))
+    return false;
+
+  return true;
 }
-*/
 
 /********* MQTT FUNCTIONS  ************************************/
 
