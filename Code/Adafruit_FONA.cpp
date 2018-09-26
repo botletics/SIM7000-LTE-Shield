@@ -1788,7 +1788,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 }
 
 /********* FTP FUNCTIONS  ************************************/
-boolean Adafruit_FONA_LTE::FTP_Connect(const char* serverIP, uint16_t port, const char* username, const char* password) {
+boolean Adafruit_FONA::FTP_Connect(const char* serverIP, uint16_t port, const char* username, const char* password) {
   char auxStr[100];
 
   if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
@@ -1823,14 +1823,14 @@ boolean Adafruit_FONA_LTE::FTP_Connect(const char* serverIP, uint16_t port, cons
   return true;
 }
 
-boolean Adafruit_FONA_LTE::FTP_Quit() {
+boolean Adafruit_FONA::FTP_Quit() {
   if (! sendCheckReply(F("AT+FTPQUIT"), ok_reply, 10000))
     return false;
 
   return true;
 }
 
-boolean Adafruit_FONA_LTE::FTP_Rename(const char* filePath, const char* oldName, const char* newName) {
+boolean Adafruit_FONA::FTP_Rename(const char* filePath, const char* oldName, const char* newName) {
   char auxStr[50];
 
   sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
@@ -1858,7 +1858,7 @@ boolean Adafruit_FONA_LTE::FTP_Rename(const char* filePath, const char* oldName,
   return true;
 }
 
-boolean Adafruit_FONA_LTE::FTP_Delete(const char* fileName, const char* filePath) {
+boolean Adafruit_FONA::FTP_Delete(const char* fileName, const char* filePath) {
   char auxStr[50];
 
   sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
@@ -1881,7 +1881,7 @@ boolean Adafruit_FONA_LTE::FTP_Delete(const char* fileName, const char* filePath
   return true;
 }
 
-boolean Adafruit_FONA_LTE::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
+boolean Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
 	char auxStr[100];
 
   sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
@@ -1910,7 +1910,7 @@ boolean Adafruit_FONA_LTE::FTP_GET(const char* fileName, const char* filePath, u
 	return true;
 }
 
-boolean Adafruit_FONA_LTE::FTP_PUT(const char* fileName, const char* filePath, const char* content, uint16_t numBytes) {
+boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, const char* content, uint16_t numBytes) {
   char auxStr[100];
 
   sprintf(auxStr, "AT+FTPPUTNAME=%s", fileName);
