@@ -178,6 +178,7 @@ float latitude, longitude, speed_kph, heading, altitude, second;
 uint16_t year;
 uint8_t month, day, hour, minute;
 uint8_t counter = 0;
+//const char PIN = "1234"; // SIM card PIN
 
 char URL[200];  // Make sure this is long enough for your request URL
 char body[100]; // Make sure this is long enough for POST body
@@ -205,6 +206,14 @@ void setup() {
     Serial.println("Couldn't find the MCP9808!");
     while (1);
   }
+ 
+  // Unlock SIM card if needed
+  // Remember to uncomment the "PIN" variable definition above
+  /*
+  if (!fona.unlockSIM(PIN)) {
+    Serial.println(F("Failed to unlock SIM card"));
+  }
+  */
 
   // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
