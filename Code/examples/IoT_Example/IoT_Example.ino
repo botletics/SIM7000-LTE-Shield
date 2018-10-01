@@ -178,7 +178,7 @@ float latitude, longitude, speed_kph, heading, altitude, second;
 uint16_t year;
 uint8_t month, day, hour, minute;
 uint8_t counter = 0;
-//const char PIN = "1234"; // SIM card PIN
+//char PIN[5] = "1234"; // SIM card PIN
 
 char URL[200];  // Make sure this is long enough for your request URL
 char body[100]; // Make sure this is long enough for POST body
