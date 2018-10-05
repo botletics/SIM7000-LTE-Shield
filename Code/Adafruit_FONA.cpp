@@ -1910,7 +1910,7 @@ boolean Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint1
 	return true;
 }
 
-boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, const char* content, uint16_t numBytes) {
+boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char* content, uint16_t numBytes) {
   char auxStr[100];
 
   sprintf(auxStr, "AT+FTPPUTNAME=%s", fileName);
@@ -1924,17 +1924,36 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, const
     return false;
 
   // Use extended PUT method if there's more than 1024 bytes to send
-  if (numBytes > 1024) {
-    if (! sendCheckReply(F("AT+FTPEXTPUT=1"), ok_reply, 10000))
-      return false;
+  if (numBytes >= 1024) {
+    // Repeatedly PUT data until all data is sent
+    uint16_t remBytes = numBytes;
+    uint16_t offset = 0; // Data offset
+    char sendArray[strlen(content)+1];
+    strcpy(sendArray, content);
 
-    sprintf(auxStr, "AT+FTPEXTPUT=2,0,%i,10000", numBytes);
+    while (remBytes > 0) {
+      if (! sendCheckReply(F("AT+FTPEXTPUT=1"), ok_reply, 10000))
+        return false;
 
-    if (! sendCheckReply(auxStr, F("+FTPEXTPUT: 0,"), 10000))
-      return false;
+      if (remBytes >= 300000) {
+        sprintf(auxStr, "AT+FTPEXTPUT=2,%i,300000,10000", offset); // Extended PUT handles up to 300k
+        offset = offset + 300000;
+        remBytes = remBytes - 300000;
 
-    if (! sendCheckReply(content, ok_reply, 10000))
-      return false;
+        strcpy(sendArray, content - offset); // Chop off the beginning
+        if (strlen(sendArray) > 300000) strcpy(sendArray, sendArray - 300000); // Chop off the end
+      }
+      else {
+        sprintf(auxStr, "AT+FTPEXTPUT=2,%i,%i,10000", offset, remBytes);
+        remBytes = 0;
+      }
+
+      if (! sendCheckReply(auxStr, F("+FTPEXTPUT: 0,"), 10000))
+        return false;
+
+      if (! sendCheckReply(sendArray, ok_reply, 10000))
+        return false;
+    }
   }
 
   if (! sendCheckReply(F("AT+FTPPUT=1"), ok_reply, 10000))

@@ -182,7 +182,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean FTP_Rename(const char* filePath, const char* oldName, const char* newName);
   boolean FTP_Delete(const char* fileName, const char* filePath);
   boolean FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
-  boolean FTP_PUT(const char* fileName, const char* filePath, const char* content, uint16_t numBytes);
+  boolean FTP_PUT(const char* fileName, const char* filePath, char* content, uint16_t numBytes);
 
   // HTTP low level interface (maps directly to SIM800 commands).
   boolean HTTP_init();
