@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 9/15/2018
+ *  Last Updated: 10/10/2018
  *  License: GNU GPL v3.0
  */
 
@@ -138,6 +138,7 @@ void setup() {
   // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
   // Press reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
+  /*
   fonaSS.begin(115200); // Default SIM7000 shield baud rate
   
   Serial.println(F("Configuring to 4800 baud"));
@@ -147,12 +148,13 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while(1); // Don't proceed if it couldn't find the device
   }
+  */
 
   // The commented block of code below is an alternative that will find the module at 115200
   // Then switch it to 4800 without having to wait for the module to turn on and manually
   // press the reset button in order to establish communication. However, once the baud is set
   // this method will be much slower.
-  /*
+  
   fonaSerial->begin(115200); // Default LTE shield baud rate
   fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
 
@@ -163,7 +165,7 @@ void setup() {
     Serial.println(F("Couldn't find modem"));
     while(1); // Don't proceed if it couldn't find the device
   }
-  */
+  
   
   type = fona.type();
   Serial.println(F("FONA is OK"));
