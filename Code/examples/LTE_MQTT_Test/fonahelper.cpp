@@ -20,9 +20,9 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
   // you can just use the default 115200 baud.
   fonaSS.begin(115200); // Default SIM7000 shield baud rate
 
-  Serial.println(F("Configuring to 4800 baud"));
-  fonaSS.println("AT+IPR=4800");
-  fonaSS.begin(4800);
+  Serial.println(F("Configuring to 9600 baud"));
+  fonaSS.println("AT+IPR=9600");
+  fonaSS.begin(9600);
   if (! fona.begin(fonaSS)) {
     Serial.println(F("Couldn't find FONA"));
     return false; // Don't proceed if it couldn't find the device
