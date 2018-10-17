@@ -12,7 +12,7 @@
 /***************************************************
   This is an example for our Adafruit FONA Cellular Module
   since the FONA 3G does not do auto-baud very well, this demo
-  fixes the baud rate to 4800 from the default 115200
+  fixes the baud rate to 9600 from the default 115200
 
   Designed specifically to work with the Adafruit FONA 3G
   ----> http://www.adafruit.com/products/2691
@@ -96,12 +96,12 @@ void setup() {
   fonaSerial->begin(115200);
   fona.begin(*fonaSerial);
 
-  // send the command to reset the baud rate to 4800
-  fona.setBaudrate(4800);
+  // send the command to reset the baud rate to 9600
+  fona.setBaudrate(9600);
 
-  // restart with 4800 baud
-  fonaSerial->begin(4800);
-  Serial.println(F("Initializing @ 4800 baud..."));
+  // restart with 9600 baud
+  fonaSerial->begin(9600);
+  Serial.println(F("Initializing @ 9600 baud..."));
 
   if (! fona.begin(*fonaSerial)) {
     Serial.println(F("Couldn't find FONA"));
