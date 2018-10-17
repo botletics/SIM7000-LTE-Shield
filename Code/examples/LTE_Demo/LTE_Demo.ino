@@ -151,7 +151,7 @@ void setup() {
   
 
   // The commented block of code below is an alternative that will find the module at 115200
-  // Then switch it to 4800 without having to wait for the module to turn on and manually
+  // Then switch it to 9600 without having to wait for the module to turn on and manually
   // press the reset button in order to establish communication. However, once the baud is set
   // this method will be much slower.
   /*
@@ -159,7 +159,7 @@ void setup() {
   fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
 
   Serial.println(F("Configuring to 9600 baud"));
-  fona.setBaudrate(9600); // Set to 4800 baud
+  fona.setBaudrate(9600); // Set to 9600 baud
   fonaSerial->begin(9600);
   if (!fona.begin(*fonaSerial)) {
   Serial.println(F("Couldn't find modem"));
