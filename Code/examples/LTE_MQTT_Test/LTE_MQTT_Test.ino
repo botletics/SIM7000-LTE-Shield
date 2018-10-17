@@ -3,7 +3,7 @@
  *  Adafruit.io and the SIM7000 shield so give it a try! Just make sure to replace
  *  the access point and Adafruit IO credentials with your own in the sections below!
  *  
- *  Last updated: 9/15/2018
+ *  Last updated: 10/17/2018
  *  
  *  Botletics SIM7000 LTE CAT-M/NB-IoT Shield: https://www.botletics.com/products/sim7000-shield
  *  Github page: https://github.com/botletics/SIM7000-LTE-Shield
