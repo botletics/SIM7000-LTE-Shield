@@ -12,7 +12,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 4/24/2018
+ *  Last Updated: 10/17/2018
  *  License: GNU GPL v3.0
  */
 
@@ -56,7 +56,7 @@ void setup() {
   // Can use the "BAUD" command to switch baud rate
   // at any time in case of a baud rate mismatch
   fona.begin(115200); // Default baud rate
-//  fona.begin(4800);
+//  fona.begin(9600);
   
   Serial.println("Turning off echo!");
   fona.println(" --> ATE0"); // Turn off echo
