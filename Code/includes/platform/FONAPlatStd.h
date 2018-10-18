@@ -48,7 +48,11 @@
 // DebugStream	sets the Stream output to use
 // for debug (only applies when ADAFRUIT_FONA_DEBUG
 // is defined in config)
-#define DebugStream		Serial
+#if defined(ARDUINO_ARCH_SAMD)
+  #define DebugStream   SERIAL_PORT_USBVIRTUAL // Needed for SAMD21
+#else
+  #define DebugStream		Serial
+#endif
 
 #ifdef ADAFRUIT_FONA_DEBUG
 // need to do some debugging...
