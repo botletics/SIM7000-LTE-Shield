@@ -1599,6 +1599,8 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
 		if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
 	    return false;
 
+    delay(100); // Needed for fast baud rates (ex: 115200 baud with SAMD21 hardware serial)
+
 		if (! sendCheckReply(body, ok_reply, 10000))
 	    return false;
 
