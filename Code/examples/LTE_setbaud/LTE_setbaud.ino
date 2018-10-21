@@ -4,7 +4,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/17/2018
+ *  Last Updated: 10/20/2018
  *  License: GNU GPL v3.0
  */
 
@@ -53,9 +53,6 @@
 //#define FONA_TX 11 // Microcontroller RX
 //#define FONA_RX 10 // Microcontroller TX
 ////#define T_ALERT 5 // Connect with solder jumper
-
-// this is a large buffer for replies
-char replybuffer[255];
 
 // We default to using software serial. If you want to use hardware serial
 // (because softserial isnt supported) comment out the following three lines
