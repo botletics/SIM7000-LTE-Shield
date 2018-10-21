@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/17/2018
+ *  Last Updated: 10/21/2018
  *  License: GNU GPL v3.0
  */
 
@@ -120,6 +120,7 @@ void setup() {
   
   Serial.println(F("Configuring to 9600 baud"));
   fonaSS.println("AT+IPR=9600"); // Set baud rate
+  delay(100); // Short pause to let the command run
   fonaSS.begin(9600);
   if (! fona.begin(fonaSS)) {
     Serial.println(F("Couldn't find FONA"));
