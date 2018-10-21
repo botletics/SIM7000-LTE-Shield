@@ -22,6 +22,7 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
 
   Serial.println(F("Configuring to 9600 baud"));
   fonaSS.println("AT+IPR=9600");
+  delay(100); // Short pause to let the command run
   fonaSS.begin(9600);
   if (! fona.begin(fonaSS)) {
     Serial.println(F("Couldn't find FONA"));
