@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/17/2018
+ *  Last Updated: 10/20/2018
  *  License: GNU GPL v3.0
   */
 
@@ -171,7 +171,6 @@ Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0}; // Use this for device ID
-char replybuffer[255]; // Large buffer for replies
 uint8_t type;
 uint16_t battLevel = 0; // Battery level (percentage)
 float latitude, longitude, speed_kph, heading, altitude, second;
