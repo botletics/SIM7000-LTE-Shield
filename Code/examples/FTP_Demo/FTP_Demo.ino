@@ -2,7 +2,7 @@
  *  library supports FTP connect, GET/PUT, extended GET/PUT for larger files, rename,
  *  delete, and disconnect methods.
  *  
- *  NOTE: This code (and library FTP functions) is still in progress!
+ *  NOTE: This code is still in progress!
  *  
  *  Should work on SIMCom modules that support FTP commands: SIM800/900/7000
  *  
@@ -10,7 +10,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/21/2018
+ *  Last Updated: 10/22/2018
  *  License: GNU GPL v3.0
  */
 
@@ -221,7 +221,7 @@ void setup() {
     Serial.print(F("Minute: ")); Serial.println(minute);
     Serial.print(F("Second: ")); Serial.println(second);
   }
-
+  
   // Now the really cool part! We're going to upload
   // a picture to the server using the extended PUT
   // method (auto-detected inside the FTP_PUT method
@@ -229,7 +229,7 @@ void setup() {
   // NOTE: Haven't tested extended PUT method yet because
   // SIM7000G firmware does not support it for some reason...
   /*
-  uint32_t fileSize;
+  size_t fileSize;
   char * uploadContent = readFromFile("test.png", &fileSize);
 
   Serial.print("File size: "); Serial.print(fileSize); Serial.println(F(" bytes"));
@@ -380,7 +380,7 @@ bool writeToFile(const char fileName, char * content) {
 }
 
 // Read the contents of a file in the SD card
-char readFromFile(const char fileName, uint32_t * fileSize) {
+char readFromFile(const char fileName, size_t * fileSize) {
   char contentBuff[250];
   
   myFile = SD.open(fileName);
