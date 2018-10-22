@@ -34,9 +34,8 @@ The following list is a summary of the things I've done so far:
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
-- Added setFunctionality() function to set AT+CFUN value
-- Tested FTP connect, GET/PUT, rename, delete, last modified timestamp (FTDM), and quit methods
-- Added FTP functions
+- Fixed and tested FTP connect, GET/PUT, rename, delete, and quit functions
+- Added setFunctionality() method for changing AT+CFUN
 - Confirmed NTP time sync on SIM7000G firmware version 1529B01SIM7000G
 - Added "postData3G" function for SIM5320 and other 3G modules
 - Successfully tested MQTT connect and publish using TCP/IP!
