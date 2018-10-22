@@ -159,14 +159,6 @@ void setup() {
   // Read the contents of a text file in the root directory of the FTP server
   // Make sure the file exists on your FTP server in the specified directory!
   Serial.println(F("Reading file from FTP server..."));
-  
-//  char replyContent[255];
-//  if (!fona.FTP_GET("test.txt", "/", 1024, &* replyContent)) {
-//    Serial.println(F("Failed to read file from FTP server!"));
-//  }
-//  else {
-//    Serial.println(replyContent);
-//  }
 
   char * readContent = fona.FTP_GET("test.txt", "/", 1024);
   Serial.println(readContent); // DEBUG
@@ -234,6 +226,8 @@ void setup() {
   // a picture to the server using the extended PUT
   // method (auto-detected inside the FTP_PUT method
   // based on the content size
+  // NOTE: Haven't tested extended PUT method yet because
+  // SIM7000G firmware does not support it for some reason...
   /*
   uint32_t fileSize;
   char * uploadContent = readFromFile("test.png", &fileSize);
