@@ -234,6 +234,17 @@ boolean Adafruit_FONA::getADCVoltage(uint16_t *v) {
   return sendParseReply(F("AT+CADC?"), F("+CADC: 1,"), v);
 }
 
+// Uses the AT+CFUN command to set functionality (refer to AT+CFUN in manual)
+// 0 --> Minimum functionality
+// 1 --> Full functionality
+// 4 --> Disable RF
+// 5 --> Factory test mode
+// 6 --> Restarts module
+// 7 --> Offline mode
+boolean Adafruit_FONA::setFunctionality(uint8_t option) {
+  return sendCheckReply(F("AT+CFUN="), option, ok_reply);
+}
+
 /********* SIM ***********************************************************/
 
 uint8_t Adafruit_FONA::unlockSIM(char *pin)
@@ -1793,10 +1804,12 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 boolean Adafruit_FONA::FTP_Connect(const char* serverIP, uint16_t port, const char* username, const char* password) {
   char auxStr[100];
 
-  if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
-    return false;
+  // if (! sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000))
+  //   return false;
 
-  sprintf(auxStr, "AT+FTPSERV=%s", serverIP);
+  sendCheckReply(F("AT+FTPCID=1"), ok_reply, 10000); // Don't return false in case this is a reconnect attempt
+
+  sprintf(auxStr, "AT+FTPSERV=\"%s\"", serverIP);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1809,14 +1822,14 @@ boolean Adafruit_FONA::FTP_Connect(const char* serverIP, uint16_t port, const ch
   }
 
   if (strlen(username) > 0) {
-    sprintf(auxStr, "AT+FTPUN=%s", username);
+    sprintf(auxStr, "AT+FTPUN=\"%s\"", username);
 
     if (! sendCheckReply(auxStr, ok_reply, 10000))
       return false;
   }
 
   if (strlen(password) > 0) {
-    sprintf(auxStr, "AT+FTPPW=%s", password);
+    sprintf(auxStr, "AT+FTPPW=\"%s\"", password);
 
     if (! sendCheckReply(auxStr, ok_reply, 10000))
       return false;
@@ -1835,17 +1848,17 @@ boolean Adafruit_FONA::FTP_Quit() {
 boolean Adafruit_FONA::FTP_Rename(const char* filePath, const char* oldName, const char* newName) {
   char auxStr[50];
 
-  sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
+  sprintf(auxStr, "AT+FTPGETPATH=\"%s\"", filePath);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
-  sprintf(auxStr, "AT+FTPGETNAME=%s", oldName);
+  sprintf(auxStr, "AT+FTPGETNAME=\"%s\"", oldName);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
-  sprintf(auxStr, "AT+FTPPUTNAME=%s", newName);
+  sprintf(auxStr, "AT+FTPPUTNAME=\"%s\"", newName);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1853,9 +1866,7 @@ boolean Adafruit_FONA::FTP_Rename(const char* filePath, const char* oldName, con
   if (! sendCheckReply(F("AT+FTPRENAME"), ok_reply, 2000))
     return false;
 
-  readline(5000);
-  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-  if (strcmp(replybuffer, "+FTPRENAME:1,0") != 0) return false;
+  if (! expectReply(F("+FTPRENAME: 1,0"))) return false;
 
   return true;
 }
@@ -1863,12 +1874,12 @@ boolean Adafruit_FONA::FTP_Rename(const char* filePath, const char* oldName, con
 boolean Adafruit_FONA::FTP_Delete(const char* fileName, const char* filePath) {
   char auxStr[50];
 
-  sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
+  sprintf(auxStr, "AT+FTPGETNAME=\"%s\"", fileName);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
-  sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
+  sprintf(auxStr, "AT+FTPGETPATH=\"%s\"", filePath);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1876,22 +1887,75 @@ boolean Adafruit_FONA::FTP_Delete(const char* fileName, const char* filePath) {
   if (! sendCheckReply(F("AT+FTPDELE=1"), ok_reply, 2000))
     return false;
 
-  readline(5000);
-  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-  if (strcmp(replybuffer, "+FTPDELE: 1,0") != 0) return false;
+  if (! expectReply(F("+FTPDELE: 1,0"))) return false;
 
   return true;
 }
 
-boolean Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
-	char auxStr[100];
+// boolean Adafruit_FONA::FTP_MDTM(const char* fileName, const char* filePath, char & timestamp) {
+boolean Adafruit_FONA::FTP_MDTM(const char* fileName, const char* filePath, uint16_t* year,
+                                uint8_t* month, uint8_t* day, uint8_t* hour, uint8_t* minute, uint8_t* second) {
+  char auxStr[50];
 
-  sprintf(auxStr, "AT+FTPGETNAME=%s", fileName);
+  sprintf(auxStr, "AT+FTPGETNAME=\"%s\"", fileName);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
-  sprintf(auxStr, "AT+FTPGETPATH=%s", filePath);
+  sprintf(auxStr, "AT+FTPGETPATH=\"%s\"", filePath);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  if (! sendCheckReply(F("AT+FTPMDTM"), ok_reply, 2000))
+    return false;
+
+  readline(10000);
+  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+
+  if (strstr(replybuffer, "+FTPMDTM: 1,0,") == NULL) return false;
+
+  char timestamp[20];
+  strcpy(timestamp, replybuffer + 14);
+  // DEBUG_PRINTLN(timestamp); // DEBUG
+
+  // Timestamp format for SIM7000 is YYYYMMDDHHMMSS
+  memset(auxStr, 0, sizeof(auxStr)); // Clear auxStr contents
+  strncpy(auxStr, timestamp, 4);
+  *year = atoi(auxStr);
+
+  memset(auxStr, 0, sizeof(auxStr));
+  strncpy(auxStr, timestamp + 4, 2);
+  *month = atoi(auxStr);
+
+  // memset(auxStr, 0, sizeof(auxStr));
+  strncpy(auxStr, timestamp + 6, 2);
+  *day = atoi(auxStr);
+
+  // memset(auxStr, 0, sizeof(auxStr));
+  strncpy(auxStr, timestamp + 8, 2);
+  *hour = atoi(auxStr);
+
+  // memset(auxStr, 0, sizeof(auxStr));
+  strncpy(auxStr, timestamp + 10, 2);
+  *minute = atoi(auxStr);
+
+  // memset(auxStr, 0, sizeof(auxStr));
+  strncpy(auxStr, timestamp + 12, 2);
+  *second = atoi(auxStr);
+
+  return true;
+}
+
+char * Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
+	char auxStr[100];
+
+  sprintf(auxStr, "AT+FTPGETNAME=\"%s\"", fileName);
+
+  if (! sendCheckReply(auxStr, ok_reply, 10000))
+    return false;
+
+  sprintf(auxStr, "AT+FTPGETPATH=\"%s\"", filePath);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1899,28 +1963,38 @@ boolean Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint1
   if (! sendCheckReply(F("AT+FTPGET=1"), ok_reply, 10000))
     return false;
 
+  if (! expectReply(F("+FTPGET: 1,1"))) return false;
+
+  if (numBytes <= 1024) {
+    sprintf(auxStr, "AT+FTPGET=2,%i", numBytes);
+    getReply(auxStr, 10000);
+    if (strstr(replybuffer, "+FTPGET: 2,") == NULL) return false;
+  } 
+  else {
+    sprintf(auxStr, "AT+FTPEXTGET=2,%i,10000", numBytes);
+    getReply(auxStr, 10000);
+    if (strstr(replybuffer, "+FTPEXTGET: 2,") == NULL) return false;
+  }
+
   readline(10000);
-  DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-  if (strcmp(replybuffer, "+FTPGET: 1,1") != 0) return false;
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
 
-  if (numBytes < 1024) sprintf(auxStr, "AT+FTPGET=2,%i", numBytes);
-  else sprintf(auxStr, "AT+FTPEXTGET=2,%i,10000", numBytes);
+  // if (! expectReply(ok_reply)) return false;
 
-  if (! sendCheckReply(auxStr, ok_reply, 10000))
-    return false;
+  // if (! expectReply(F("+FTPGET: 1,0"))) return false;
 
-	return true;
+	return replybuffer;
 }
 
 boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char* content, uint16_t numBytes) {
   char auxStr[100];
 
-  sprintf(auxStr, "AT+FTPPUTNAME=%s", fileName);
+  sprintf(auxStr, "AT+FTPPUTNAME=\"%s\"", fileName);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
 
-  sprintf(auxStr, "AT+FTPPUTPATH=%s", filePath);
+  sprintf(auxStr, "AT+FTPPUTPATH=\"%s\"", filePath);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
     return false;
@@ -1970,6 +2044,8 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char*
     if (! parseReply(F("+FTPPUT: 1,1"), &maxlen, ',', 1))
         return false;
 
+    // DEBUG_PRINTLN(maxlen); // DEBUG
+
     // Repeatedly PUT data until all data is sent
     uint16_t remBytes = numBytes;
 
@@ -1983,34 +2059,32 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char*
       if (! parseReply(F("+FTPPUT: 2"), &sentBytes, ',', 1))
         return false;
 
-      if (sentBytes != maxlen) return false; // Check if they match
+      // DEBUG_PRINTLN(sentBytes); // DEBUG
 
       if (! sendCheckReply(content, ok_reply, 10000))
         return false;
 
-      remBytes = remBytes - maxlen; // Decrement counter
+      remBytes = remBytes - sentBytes; // Decrement counter
 
       // Check again for max length to send, repeat if needed
-      readline(10000);
-      DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-      if (! parseReply(F("+FTPPUT: 1,1"), &maxlen, ',', 1))
-        return false;
+      // readline(10000);
+      // DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+      // if (! parseReply(F("+FTPPUT: 1,1"), &maxlen, ',', 1))
+      //   return false;
     }
 
     // No more data to be uploaded
     if (! sendCheckReply(F("AT+FTPPUT=2,0"), ok_reply, 10000))
       return false;
 
-    readline(10000);
-    DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+FTPPUT: 1,0") != 0) return false;
+    if (! expectReply(F("+FTPPUT: 1,0"))) return false;
   }
   else {
     if (strcmp(replybuffer, "+FTPPUT: 1,0") != 0) return false;
-  }
 
-  if (! sendCheckReply(F("AT+FTPEXTPUT=0"), ok_reply, 10000))
-    return false;
+    if (! sendCheckReply(F("AT+FTPEXTPUT=0"), ok_reply, 10000))
+      return false;
+  }
 
   return true;
 }

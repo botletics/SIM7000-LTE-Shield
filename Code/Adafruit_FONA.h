@@ -96,11 +96,12 @@ class Adafruit_FONA : public FONAStreamType {
   boolean enableRTC(uint8_t i);
   boolean readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec);
 
-  // Power, battery and ADC
+  // Power, battery, functionality, and ADC
   boolean powerDown(void);
   boolean getADCVoltage(uint16_t *v);
   boolean getBattPercent(uint16_t *p);
   boolean getBattVoltage(uint16_t *v);
+  boolean setFunctionality(uint8_t option);
 
   // SIM query
   uint8_t unlockSIM(char *pin);
@@ -181,7 +182,8 @@ class Adafruit_FONA : public FONAStreamType {
   boolean FTP_Quit();
   boolean FTP_Rename(const char* filePath, const char* oldName, const char* newName);
   boolean FTP_Delete(const char* fileName, const char* filePath);
-  boolean FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
+  boolean FTP_MDTM(const char* fileName, const char* filePath, uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, uint8_t* minute, uint8_t* second);
+  char * FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
   boolean FTP_PUT(const char* fileName, const char* filePath, char* content, uint16_t numBytes);
 
   // HTTP low level interface (maps directly to SIM800 commands).
