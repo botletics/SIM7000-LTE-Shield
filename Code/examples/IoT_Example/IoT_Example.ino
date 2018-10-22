@@ -399,6 +399,10 @@ void loop() {
     sprintf(body, "{\"lat\":%s,\"long\":%s}", latBuff, longBuff);
 
     // Let's try a POST request to thingsboard.io
+    // Please note this can me memory-intensive for the Arduino Uno
+    // and may not work. You might have to split it up into a couple requests
+    // and send part of the data in one request, and the rest in the other, etc.
+    // Perhaps an easier solution is to swap out the Uno with an Arduino Mega.
     /*
     const char * token = "qFeFpQIC9C69GDFLWdAv"; // From thingsboard.io device
     sprintf(URL, "http://demo.thingsboard.io/api/v1/%s/telemetry", token);
