@@ -931,7 +931,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
   char gpsbuffer[120];
 
   // we need at least a 2D fix
-  if (_type != SIM7500A && _type != SIM7500E) { // SIM7500 doesn't support AT+CGPSSTATUS? command
+  if (_type < SIM7000A) { // SIM7500 doesn't support AT+CGPSSTATUS? command
   	if (GPSstatus() < 2)
 	    return false;
   }
