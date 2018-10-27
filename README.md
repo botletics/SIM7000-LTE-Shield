@@ -34,6 +34,7 @@ The following list is a summary of the things I've done so far:
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
+- Added enableSleepMode(), set_eDRX(), enablePSM(), and setNetLED() methods
 - Fixed and tested FTP connect, GET/PUT, rename, delete, and quit functions
 - Added setFunctionality() method for changing AT+CFUN
 - Confirmed NTP time sync on SIM7000G firmware version 1529B01SIM7000G
