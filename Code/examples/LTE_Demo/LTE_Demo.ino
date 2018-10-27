@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/20/2018
+ *  Last Updated: 10/27/2018
  *  License: GNU GPL v3.0
  */
 
@@ -205,6 +205,18 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
+
+  /*
+  // Examples of some things you can set:
+  fona.setFunctionality(1);
+  fona.enableSleepMode(true);
+  fona.set_eDRX(1, 4, "0010");
+  fona.enablePSM(true);
+
+  // Set the network status LED blinking pattern while connected to a network (see AT+SLEDS command)
+  fona.setNetLED(true, 2, 64, 3000); // on/off, mode, timer_on, timer_off
+  fona.setNetLED(false); // Disable network status LED
+  */
 
   printMenu();
 }
