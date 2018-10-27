@@ -96,12 +96,18 @@ class Adafruit_FONA : public FONAStreamType {
   boolean enableRTC(uint8_t i);
   boolean readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec);
 
-  // Power, battery, functionality, and ADC
+  // Power, battery, and ADC
   boolean powerDown(void);
   boolean getADCVoltage(uint16_t *v);
   boolean getBattPercent(uint16_t *p);
   boolean getBattVoltage(uint16_t *v);
-  boolean setFunctionality(uint8_t option);
+
+  // Functionality and operation mode settings
+  boolean setFunctionality(uint8_t option); // AT+CFUN command
+  boolean enableSleepMode(bool onoff); // AT+CSCLK command
+  boolean set_eDRX(uint8_t mode, uint8_t connType, char * eDRX_val); // AT+CEDRXS command
+  boolean enablePSM(bool onoff); // AT+CPSMS command
+  boolean setNetLED(bool onoff, uint8_t mode = 0, uint16_t timer_on = 64, uint16_t timer_off = 3000); // AT+CNETLIGHT and AT+SLEDS commands
 
   // SIM query
   uint8_t unlockSIM(char *pin);
@@ -183,8 +189,9 @@ class Adafruit_FONA : public FONAStreamType {
   boolean FTP_Rename(const char* filePath, const char* oldName, const char* newName);
   boolean FTP_Delete(const char* fileName, const char* filePath);
   boolean FTP_MDTM(const char* fileName, const char* filePath, uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, uint8_t* minute, uint8_t* second);
+  // boolean FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes, char * replybuffer);
   char * FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
-  boolean FTP_PUT(const char* fileName, const char* filePath, char* content, uint16_t numBytes);
+  boolean FTP_PUT(const char* fileName, const char* filePath, char* content, size_t numBytes);
 
   // HTTP low level interface (maps directly to SIM800 commands).
   boolean HTTP_init();

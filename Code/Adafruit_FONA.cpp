@@ -234,6 +234,9 @@ boolean Adafruit_FONA::getADCVoltage(uint16_t *v) {
   return sendParseReply(F("AT+CADC?"), F("+CADC: 1,"), v);
 }
 
+
+/********* POWER, BATTERY & ADC ********************************************/
+
 // Uses the AT+CFUN command to set functionality (refer to AT+CFUN in manual)
 // 0 --> Minimum functionality
 // 1 --> Full functionality
@@ -243,6 +246,53 @@ boolean Adafruit_FONA::getADCVoltage(uint16_t *v) {
 // 7 --> Offline mode
 boolean Adafruit_FONA::setFunctionality(uint8_t option) {
   return sendCheckReply(F("AT+CFUN="), option, ok_reply);
+}
+
+// Sleep mode reduces power consumption significantly while remaining registered to the network
+// NOTE: USB port must be disconnected before this will take effect
+boolean Adafruit_FONA::enableSleepMode(bool onoff) {
+  return sendCheckReply(F("AT+CSCLK="), onoff, ok_reply);
+}
+
+// NOTE: Network must support eDRX mode
+boolean Adafruit_FONA::set_eDRX(uint8_t mode, uint8_t connType, char * eDRX_val) {
+  if (strlen(eDRX_val) > 4) return false;
+
+  char auxStr[21];
+
+  sprintf(auxStr, "AT+CEDRXS=%i,%i,%s", mode, connType, eDRX_val);
+
+  return sendCheckReply(auxStr, ok_reply);
+}
+
+// NOTE: Network must support PSM and modem needs to restart before it takes effect
+boolean Adafruit_FONA::enablePSM(bool onoff) {
+  return sendCheckReply(F("AT+CPSMS="), onoff, ok_reply);
+}
+
+// Enable, disable, or set the blinking frequency of the network status LED
+// Default settings are the following:
+// Not connected to network --> 1,64,800
+// Connected to network     --> 2,64,3000
+// Data connection enabled  --> 3,64,300
+boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, uint16_t timer_off) {
+  if (onoff) {
+    if (! sendCheckReply(F("AT+CNETLIGHT=0"), ok_reply)) return false;
+
+    if (mode > 0) {
+      char auxStr[24];
+
+      sprintf(auxStr, "AT+SLEDS=%i,%i,%i", mode, timer_on, timer_off);
+
+      return sendCheckReply(auxStr, ok_reply);
+    }
+    else {
+      return false;
+    }
+  }
+  else {
+    return sendCheckReply(F("AT+CNETLIGHT=0"), ok_reply);
+  }
 }
 
 /********* SIM ***********************************************************/
