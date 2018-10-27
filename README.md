@@ -15,12 +15,15 @@ The library in this repo is an altered library built upon the original [Adafruit
 The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
+- Sleep mode and e-DRX configuration (~1.5mA)
+- FTP functions on SIM7000A firmware version 1351B03SIM7000A
 - FTP functions on SIM7000G firmware version 1529B01SIM7000G
 - Hologram SIM card works great on both the AT&T and Verizon CAT-M1 networks in the USA!
 - HTTP and HTTPS via 3G with SIM5320
 - MQTT working with SIM7000 and SIM808
 - HTTP functions on SIM808 and other 2G modules
 - Network time works
+- Ultra low-power power down mode (~7.4uA)
 - GPS works on SIM7000 without a SIM card! The NMEA data includes UTC date/time, latitutde, longitude, altitude, etc and is quite accurate! It also obtains a GPS fix fairly quickly, only about 20-30s from cold start and even less (a couple seconds or so) when the device has already been on! However, this may differ based on your location and how deep you're buried inside a building.
 - HTTP functions via LTE CAT-M1 with SIM7000
 - SMS functions (sending/reading/deleting SMS)
