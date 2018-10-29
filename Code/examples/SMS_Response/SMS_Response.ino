@@ -5,7 +5,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 10/21/2018
+ *  Last Updated: 10/29/2018
  *  License: GNU GPL v3.0
  */
 
@@ -240,7 +240,7 @@ void loop() {
         // OPTIONAL: Check for a magic password and do something special!
         // Maybe turn on a relay, send a reading only with this password,
         // or send GPS coordinates! Use your imagination!
-        char* magicPass = "OPEN SESAME!"; // You can create more magic passwords!
+        const char* magicPass = "OPEN SESAME!"; // You can create more magic passwords!
         if (strcmp(smsBuffer, magicPass) == 0) { // Check if strictly identical
           // Unlock the secret stash of chocolate!
           sendText("Treasure chest unlocked!");
@@ -268,7 +268,7 @@ void loop() {
 }
 
 // Send an SMS response
-void sendText(char* textMessage) {
+void sendText(const char* textMessage) {
   Serial.println("Sending reponse...");
   
   if (!fona.sendSMS(callerIDbuffer, textMessage)) {
