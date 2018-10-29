@@ -681,7 +681,7 @@ boolean Adafruit_FONA::getSMSSender(uint8_t i, char *sender, int senderlen) {
   return result;
 }
 
-boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
+boolean Adafruit_FONA::sendSMS(const char *smsaddr, const char *smsmsg) {
   if (! sendCheckReply(F("AT+CMGF=1"), ok_reply)) return false;
 
   char sendcmd[30] = "AT+CMGS=\"";
