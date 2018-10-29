@@ -154,8 +154,8 @@ class Adafruit_FONA : public FONAStreamType {
   boolean getGSMLoc(uint16_t *replycode, char *buff, uint16_t maxlen);
   boolean getGSMLoc(float *lat, float *lon);
   void setNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
-  boolean postData(const char *request_type, const char *URL, char *body = "", const char *token = "");
-  boolean postData(const char *server, uint16_t port, const char *connType, char *URL, char *body = "");
+  boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "");
+  boolean postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body = "");
   void getNetworkInfo(void);
 
   // GPS handling
@@ -190,7 +190,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean FTP_Delete(const char* fileName, const char* filePath);
   boolean FTP_MDTM(const char* fileName, const char* filePath, uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, uint8_t* minute, uint8_t* second);
   // boolean FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes, char * replybuffer);
-  char * FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
+  const char * FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes);
   boolean FTP_PUT(const char* fileName, const char* filePath, char* content, size_t numBytes);
 
   // HTTP low level interface (maps directly to SIM800 commands).
@@ -229,9 +229,9 @@ class Adafruit_FONA : public FONAStreamType {
 
   // Helper functions to verify responses.
   boolean expectReply(FONAFlashStringPtr reply, uint16_t timeout = 10000);
-  boolean sendCheckReply(char *send, char *reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
+  boolean sendCheckReply(const char *send, const char *reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReply(FONAFlashStringPtr send, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
-  boolean sendCheckReply(char* send, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
+  boolean sendCheckReply(const char* send, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
 
 
  protected:
@@ -252,7 +252,7 @@ class Adafruit_FONA : public FONAStreamType {
   void flushInput();
   uint16_t readRaw(uint16_t b);
   uint8_t readline(uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS, boolean multiline = false);
-  uint8_t getReply(char *send, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
+  uint8_t getReply(const char *send, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   uint8_t getReply(FONAFlashStringPtr send, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   uint8_t getReply(FONAFlashStringPtr prefix, char *suffix, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   uint8_t getReply(FONAFlashStringPtr prefix, int32_t suffix, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
@@ -306,7 +306,7 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
     boolean pickUp(void);
     // boolean enableGPRS(boolean onoff);
     // boolean enableGPS(boolean onoff);
-    boolean postData3G(const char *server, uint16_t port, const char *connType, char *URL);
+    // boolean postData3G(const char *server, uint16_t port, const char *connType, const char *URL);
 
  protected:
     boolean parseReply(FONAFlashStringPtr toreply,

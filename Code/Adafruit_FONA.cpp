@@ -723,7 +723,7 @@ boolean Adafruit_FONA::sendSMS(char *smsaddr, char *smsmsg) {
 
 boolean Adafruit_FONA::deleteSMS(uint8_t i) {
     if (! sendCheckReply(F("AT+CMGF=1"), ok_reply)) return false;
-  // read an sms
+  // delete an sms
   char sendbuff[12] = "AT+CMGD=000";
   sendbuff[8] = (i / 100) + '0';
   i %= 100;
@@ -1613,7 +1613,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char *body, const char *token) {
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token) {
   // NOTE: Need to open socket/enable GPRS before using this function
   // char auxStr[64];
 
@@ -1700,7 +1700,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, char 
 
 /********************************* HTTPS FUNCTION *********************************/
 // boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
-boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, char *URL, char *body) {
+boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body) {
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
 
   // Start HTTPS stack
@@ -1978,60 +1978,57 @@ boolean Adafruit_FONA::FTP_MDTM(const char* fileName, const char* filePath, uint
   strncpy(auxStr, timestamp + 4, 2);
   *month = atoi(auxStr);
 
-  // memset(auxStr, 0, sizeof(auxStr));
   strncpy(auxStr, timestamp + 6, 2);
   *day = atoi(auxStr);
 
-  // memset(auxStr, 0, sizeof(auxStr));
   strncpy(auxStr, timestamp + 8, 2);
   *hour = atoi(auxStr);
 
-  // memset(auxStr, 0, sizeof(auxStr));
   strncpy(auxStr, timestamp + 10, 2);
   *minute = atoi(auxStr);
 
-  // memset(auxStr, 0, sizeof(auxStr));
   strncpy(auxStr, timestamp + 12, 2);
   *second = atoi(auxStr);
 
   return true;
 }
 
-char * Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
+const char * Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
 	char auxStr[100];
+  const char *err = "error";
 
   sprintf(auxStr, "AT+FTPGETNAME=\"%s\"", fileName);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
-    return false;
+    return err;
 
   sprintf(auxStr, "AT+FTPGETPATH=\"%s\"", filePath);
 
   if (! sendCheckReply(auxStr, ok_reply, 10000))
-    return false;
+    return err;
 
   if (! sendCheckReply(F("AT+FTPGET=1"), ok_reply, 10000))
-    return false;
+    return err;
 
-  if (! expectReply(F("+FTPGET: 1,1"))) return false;
+  if (! expectReply(F("+FTPGET: 1,1"))) return err;
 
   if (numBytes <= 1024) {
     sprintf(auxStr, "AT+FTPGET=2,%i", numBytes);
     getReply(auxStr, 10000);
-    if (strstr(replybuffer, "+FTPGET: 2,") == NULL) return false;
+    if (strstr(replybuffer, "+FTPGET: 2,") == NULL) return err;
   } 
   else {
     sprintf(auxStr, "AT+FTPEXTGET=2,%i,10000", numBytes);
     getReply(auxStr, 10000);
-    if (strstr(replybuffer, "+FTPEXTGET: 2,") == NULL) return false;
+    if (strstr(replybuffer, "+FTPEXTGET: 2,") == NULL) return err;
   }
 
   readline(10000);
   DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
 
-  // if (! expectReply(ok_reply)) return false;
+  // if (! expectReply(ok_reply)) return err;
 
-  // if (! expectReply(F("+FTPGET: 1,0"))) return false;
+  // if (! expectReply(F("+FTPGET: 1,0"))) return err;
 
 	return replybuffer;
 }
@@ -2794,7 +2791,7 @@ uint8_t Adafruit_FONA::readline(uint16_t timeout, boolean multiline) {
   return replyidx;
 }
 
-uint8_t Adafruit_FONA::getReply(char *send, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReply(const char *send, uint16_t timeout) {
   flushInput();
 
 
@@ -2904,7 +2901,7 @@ uint8_t Adafruit_FONA::getReplyQuoted(FONAFlashStringPtr prefix, FONAFlashString
   return l;
 }
 
-boolean Adafruit_FONA::sendCheckReply(char *send, char *reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(const char *send, const char *reply, uint16_t timeout) {
   if (! getReply(send, timeout) )
 	  return false;
 /*
@@ -2927,7 +2924,7 @@ boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr send, FONAFlashStringPt
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
-boolean Adafruit_FONA::sendCheckReply(char* send, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(const char* send, FONAFlashStringPtr reply, uint16_t timeout) {
   if (! getReply(send, timeout) )
 	  return false;
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
