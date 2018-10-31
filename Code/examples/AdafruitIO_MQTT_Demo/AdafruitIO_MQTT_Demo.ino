@@ -1,7 +1,7 @@
-/* This example sketch allows your device to send values via MQTT to the cloud!!!
- *  You can connect, publish, and subsribe to MQTT topics. Works great with
- *  Adafruit.io and the SIM7000 shield so give it a try! Just make sure to replace
- *  the access point and Adafruit IO credentials with your own in the sections below!
+/*  This example sketch allows your device to collect GPS, temperature, and battery 
+ *  data and send those values via MQTT to Adafruit IO. You can connect, publish, and
+ *  subsribe to MQTT topics. Works great on the Botletics SIM7000 shield! Just make
+ *  sure to replace Adafruit IO credentials with your own in the section below!
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
