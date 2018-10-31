@@ -314,12 +314,6 @@ void loop() {
   // Delay until next post
   Serial.print(F("Waiting for ")); Serial.print(samplingRate); Serial.println(F(" seconds\r\n"));
   delay(samplingRate * 1000UL); // Delay
-
-  // Only run the initialization again if the module was powered off
-  // since it resets back to 115200 baud instead of 9600.
-  #ifdef turnOffShield
-    moduleSetup();
-  #endif
 }
 
 // Power on the module
