@@ -1,7 +1,8 @@
 /*  This example sketch allows your device to collect GPS, temperature, and battery 
  *  data and send those values via MQTT to Adafruit IO. You can connect, publish, and
  *  subsribe to MQTT topics. Works great on the Botletics SIM7000 shield! Just make
- *  sure to replace Adafruit IO credentials with your own in the section below!
+ *  sure to replace Adafruit IO credentials with your own, and change the names of the
+ *  feeds you want to use to publish and subscribe.
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
@@ -228,8 +229,6 @@ void loop() {
 
   float temperature = tempC; // Select what unit you want to use for this example
 
-  delay(500); // I found that this helps
-
   // Turn on GPS if it wasn't on already (e.g., if the module wasn't turned off)
 #ifdef turnOffShield
   while (!fona.enableGPS(true)) {
@@ -263,9 +262,6 @@ void loop() {
   Serial.print(F("Second: ")); Serial.println(second);
   */
   Serial.println(F("---------------------"));
-
-  // Post something like temperature and battery level to the web API
-  // Construct URL and post the data to the web API
 
   // Format the floating point numbers
   dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
