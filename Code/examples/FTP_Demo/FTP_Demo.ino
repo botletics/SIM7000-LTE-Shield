@@ -10,7 +10,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/22/2018
+ *  Last Updated: 11/5/2018
  *  License: GNU GPL v3.0
  */
 
@@ -107,6 +107,9 @@ void setup() {
   powerOn(); // Power on the module
   moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
+  // Set modem to full functionality
+  fona.setFunctionality(1); // AT+CFUN=1
+
   // Configure a GPRS APN, username, and password.
   // You might need to do this to access your network's GPRS/data
   // network.  Contact your provider for the exact APN, username,
@@ -116,11 +119,22 @@ void setup() {
   //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
   //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
   fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
-  
+
   // Optionally configure HTTP gets to follow redirects over SSL.
   // Default is not to follow SSL redirects, however if you uncomment
   // the following line then redirects over SSL will be followed.
   //fona.setHTTPSRedirect(true);
+
+  /*
+  // Other examples of some things you can set:
+  fona.enableSleepMode(true);
+  fona.set_eDRX(1, 4, "0010");
+  fona.enablePSM(true);
+
+  // Set the network status LED blinking pattern while connected to a network (see AT+SLEDS command)
+  fona.setNetLED(true, 2, 64, 3000); // on/off, mode, timer_on, timer_off
+  fona.setNetLED(false); // Disable network status LED
+  */
 
   // Connect to cell network and verify connection
   // If unsuccessful, keep retrying every 2s until a connection is made
