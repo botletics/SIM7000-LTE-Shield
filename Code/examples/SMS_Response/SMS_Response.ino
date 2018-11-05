@@ -5,7 +5,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 10/29/2018
+ *  Last Updated: 11/5/2018
  *  License: GNU GPL v3.0
  */
 
