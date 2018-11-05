@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/27/2018
+ *  Last Updated: 11/5/2018
  *  License: GNU GPL v3.0
  */
 
@@ -104,13 +104,13 @@ uint8_t type;
 char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
 
 void setup() {
-//  while (!Serial);
+  //  while (!Serial);
 
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH); // Default state
-  
+
   pinMode(FONA_PWRKEY, OUTPUT);
-  
+
   // Turn on the module by pulsing PWRKEY low for a little bit
   // This amount of time depends on the specific module that's used
   powerOn(); // See function definition at the very end of the sketch
@@ -118,21 +118,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take several seconds)"));
-
-  // Configure a GPRS APN, username, and password.
-  // You might need to do this to access your network's GPRS/data
-  // network.  Contact your provider for the exact APN, username,
-  // and password values.  Username and password are optional and
-  // can be removed, but APN is required.
-  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
-  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
-  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
-
-  // Optionally configure HTTP gets to follow redirects over SSL.
-  // Default is not to follow SSL redirects, however if you uncomment
-  // the following line then redirects over SSL will be followed.
-  //fona.setHTTPSRedirect(true);
 
   // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
   // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
@@ -152,7 +137,7 @@ void setup() {
   
 
   // The commented block of code below is an alternative that will find the module at 115200
-  // Then switch it to 9600 without having to wait for the module to turn on and manually
+  // Then switch it to 4800 without having to wait for the module to turn on and manually
   // press the reset button in order to establish communication. However, once the baud is set
   // this method will be much slower.
   /*
@@ -160,14 +145,14 @@ void setup() {
   fona.begin(*fonaSerial); // Don't use if statement because an OK reply could be sent incorrectly at 115200 baud
 
   Serial.println(F("Configuring to 9600 baud"));
-  fona.setBaudrate(9600); // Set to 9600 baud
+  fona.setBaudrate(9600); // Set to 4800 baud
   fonaSerial->begin(9600);
   if (!fona.begin(*fonaSerial)) {
   Serial.println(F("Couldn't find modem"));
   while(1); // Don't proceed if it couldn't find the device
   }
   */
-  
+
   type = fona.type();
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
@@ -199,16 +184,33 @@ void setup() {
     default:
       Serial.println(F("???")); break;
   }
-  
+
   // Print module IMEI number.
   uint8_t imeiLen = fona.getIMEI(imei);
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
 
+  // Set modem to full functionality
+  fona.setFunctionality(1); // AT+CFUN=1
+
+  // Configure a GPRS APN, username, and password.
+  // You might need to do this to access your network's GPRS/data
+  // network.  Contact your provider for the exact APN, username,
+  // and password values.  Username and password are optional and
+  // can be removed, but APN is required.
+  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
+  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
+
+  // Optionally configure HTTP gets to follow redirects over SSL.
+  // Default is not to follow SSL redirects, however if you uncomment
+  // the following line then redirects over SSL will be followed.
+  //fona.setHTTPSRedirect(true);
+
   /*
-  // Examples of some things you can set:
-  fona.setFunctionality(1);
+  // Other examples of some things you can set:
   fona.enableSleepMode(true);
   fona.set_eDRX(1, 4, "0010");
   fona.enablePSM(true);
