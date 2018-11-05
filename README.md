@@ -37,6 +37,8 @@ The following list is a summary of the things I've done so far:
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
+- Set AT+CFUN=1 and AT+CGDCONT (PDP context) in example code during module initialization
+- Set PDP context with AT+CGDCONT in setNetworkSettings() function
 - Added enableSleepMode(), set_eDRX(), enablePSM(), and setNetLED() methods
 - Fixed and tested FTP connect, GET/PUT, rename, delete, and quit functions
 - Added setFunctionality() method for changing AT+CFUN
