@@ -3,7 +3,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 10/21/2018
+ *  Last Updated: 11/5/2018
  *  License: GNU GPL v3.0
  */
 
@@ -97,21 +97,6 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
-  // Configure a GPRS APN, username, and password.
-  // You might need to do this to access your network's GPRS/data
-  // network.  Contact your provider for the exact APN, username,
-  // and password values.  Username and password are optional and
-  // can be removed, but APN is required.
-  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
-  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
-  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
-  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
-
-  // Optionally configure HTTP gets to follow redirects over SSL.
-  // Default is not to follow SSL redirects, however if you uncomment
-  // the following line then redirects over SSL will be followed.
-  //fona.setHTTPSRedirect(true);
-
   // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
   // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
   // Press reset button if the module is still turning on and the board doesn't find it.
@@ -148,18 +133,6 @@ void setup() {
   Serial.println(F("FONA is OK"));
   Serial.print(F("Found "));
   switch (type) {
-    case SIM800L:
-      Serial.println(F("SIM800L")); break;
-    case SIM800H:
-      Serial.println(F("SIM800H")); break;
-    case SIM808_V1:
-      Serial.println(F("SIM808 (v1)")); break;
-    case SIM808_V2:
-      Serial.println(F("SIM808 (v2)")); break;
-    case SIM5320A:
-      Serial.println(F("SIM5320A (American)")); break;
-    case SIM5320E:
-      Serial.println(F("SIM5320E (European)")); break;
     case SIM7000A:
       Serial.println(F("SIM7000A (American)")); break;
     case SIM7000C:
@@ -181,6 +154,35 @@ void setup() {
   if (imeiLen > 0) {
     Serial.print("Module IMEI: "); Serial.println(imei);
   }
+
+  // Set modem to full functionality
+  fona.setFunctionality(1); // AT+CFUN=1
+
+  // Configure a GPRS APN, username, and password.
+  // You might need to do this to access your network's GPRS/data
+  // network.  Contact your provider for the exact APN, username,
+  // and password values.  Username and password are optional and
+  // can be removed, but APN is required.
+  //fona.setNetworkSettings(F("your APN"), F("your username"), F("your password"));
+  //fona.setNetworkSettings(F("m2m.com.attz")); // For AT&T IoT SIM card
+  //fona.setNetworkSettings(F("telstra.internet")); // For Telstra (Australia) SIM card - CAT-M1 (Band 28)
+  fona.setNetworkSettings(F("hologram")); // For Hologram SIM card
+
+  // Optionally configure HTTP gets to follow redirects over SSL.
+  // Default is not to follow SSL redirects, however if you uncomment
+  // the following line then redirects over SSL will be followed.
+  //fona.setHTTPSRedirect(true);
+
+  /*
+  // Other examples of some things you can set:
+  fona.enableSleepMode(true);
+  fona.set_eDRX(1, 4, "0010");
+  fona.enablePSM(true);
+
+  // Set the network status LED blinking pattern while connected to a network (see AT+SLEDS command)
+  fona.setNetLED(true, 2, 64, 3000); // on/off, mode, timer_on, timer_off
+  fona.setNetLED(false); // Disable network status LED
+  */
 
   printMenu();
 }
