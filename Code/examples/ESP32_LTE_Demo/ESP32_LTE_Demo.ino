@@ -10,6 +10,7 @@
     - D5 (ESP32) --> 7 (shield's RST)
     - D18 (ESP32) --> 6 (shield's PWRKEY)
     - Also make sure to connect a 3.7V LiPo battery to the shield's JST connector!!!
+    - Optional: SCL (GPIO22) and SDA (GPIO21) if you want to use the temperature sensor
 
     Note that you can change the pin definitions to use TX1/RX1 but some ESP32 dev boards do not have these pins
     broken out (like the DOIT ESP32 dev board, for example). You can also change the TX/RX pins to pretty much
