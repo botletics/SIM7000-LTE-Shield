@@ -6,7 +6,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 11/5/2018
+ *  Last Updated: 11/11/2018
  *  License: GNU GPL v3.0
  */
 
@@ -16,6 +16,11 @@
 // You can find the Adafruit MQTT library here: https://github.com/adafruit/Adafruit_MQTT_Library
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_FONA.h"
+
+#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
+  // Required for Serial on Zero based boards
+  #define Serial SERIAL_PORT_USBVIRTUAL
+#endif
 
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
