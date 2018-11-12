@@ -1,11 +1,17 @@
-/*  This is an example sketch to test the core functionalities of SIMCom-based cellular modules. 
- *  This code supports the SIM7000-series modules (LTE/NB-IoT shields) for low-power IoT devices!
- *  
- *  Author: Timothy Woo (www.botletics.com)
- *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 11/5/2018
- *  License: GNU GPL v3.0
- */
+/*  This is an example sketch to test the core functionalities of SIMCom-based cellular modules.
+    This code supports the SIM7000-series modules (LTE/NB-IoT shields) for low-power IoT devices!
+
+    Note: this code is specifically meant for AVR microcontrollers (Arduino Uno, Mega, Leonardo, etc)
+    However, if you are using an ESP8266 please make the minor modifications mentioned below in the
+    comments for the software serial initialization.
+
+    For ESP32 please use the ESP32_LTE_Demo instead: https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/ESP32_LTE_Demo/ESP32_LTE_Demo.ino
+
+    Author: Timothy Woo (www.botletics.com)
+    Github: https://github.com/botletics/SIM7000-LTE-Shield
+    Last Updated: 11/11/2018
+    License: GNU GPL v3.0
+*/
 
 /******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
@@ -80,10 +86,6 @@ SoftwareSerial *fonaSerial = &fonaSS;
 
 // Hardware serial is also possible!
 //HardwareSerial *fonaSerial = &Serial1;
-
-// For ESP32 hardware serial use these lines instead
-//#include <HardwareSerial.h>
-//HardwareSerial fonaSS(1);
 
 // Use this for 2G modules
 #ifdef SIMCOM_2G
