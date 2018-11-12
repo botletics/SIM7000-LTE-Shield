@@ -3,7 +3,7 @@
 
     Note: this code is specifically meant for AVR microcontrollers (Arduino Uno, Mega, Leonardo, etc)
     However, if you are using an ESP8266 please make the minor modifications mentioned below in the
-    comments for the software serial initialization.
+    comments for the pin definitions and software serial initialization.
 
     For ESP32 please use the ESP32_LTE_Demo instead: https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/ESP32_LTE_Demo/ESP32_LTE_Demo.ino
 
@@ -51,6 +51,12 @@
 //#define FONA_RST 9
 //#define FONA_TX 2 // Microcontroller RX (note: won't work on Mega)
 //#define FONA_RX 3 // Microcontroller TX
+
+// ESP8266 + SIM7000 shield
+//#define FONA_PWRKEY 14 // D5 on NodeMCU
+//#define FONA_RST 12 // D6 on NodeMCU
+//#define FONA_TX 4 // D2 on NodeMCU, microcontroller RX
+//#define FONA_RX 5 // D1 on NodeMCU, microcontroller TX
 
 // For SIM7000 shield
 #define FONA_PWRKEY 6
