@@ -12,11 +12,13 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/NB-IoT-Shield
- *  Last Updated: 10/17/2018
+ *  Last Updated: 11/12/2018
  *  License: GNU GPL v3.0
  */
 
 #include <SoftwareSerial.h> // This is for communicating with the SIM7000 module
+
+#define BAUD_RATE 115200 // Default baud rate for SIM7000
 
 // For SIM7000 shield
 #define FONA_PWRKEY 6
@@ -55,8 +57,7 @@ void setup() {
   // Hard-code baud rate
   // Can use the "BAUD" command to switch baud rate
   // at any time in case of a baud rate mismatch
-  fona.begin(115200); // Default baud rate
-//  fona.begin(9600);
+  fona.begin(BAUD_RATE);
   
   Serial.println("Turning off echo!");
   fona.println(" --> ATE0"); // Turn off echo
