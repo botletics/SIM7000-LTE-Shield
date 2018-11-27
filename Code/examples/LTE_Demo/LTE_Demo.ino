@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 11/11/2018
+    Last Updated: 11/27/2018
     License: GNU GPL v3.0
 */
 
@@ -40,11 +40,6 @@
 //#define SIMCOM_3G // SIM5320A/E
 #define SIMCOM_7000 // SIM7000A/C/E/G
 //#define SIMCOM_7500 // SIM7500A/E
-
-// Default Adafruit settings
-//#define FONA_RX 2
-//#define FONA_TX 3
-//#define FONA_RST 4
 
 // For TinySine SIM5320 shield
 //#define FONA_PWRKEY 8
@@ -85,7 +80,6 @@ char replybuffer[255];
 #include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 // Use the following line for ESP8266
-// NOTE: Go to boards manager and make sure you have 2.3.0 of esp8266 package! 2.4.0+ won't compile
 //SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
 
 SoftwareSerial *fonaSerial = &fonaSS;
