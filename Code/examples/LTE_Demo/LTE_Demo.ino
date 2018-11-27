@@ -79,7 +79,8 @@ char replybuffer[255];
 // and uncomment the HardwareSerial line
 #include <SoftwareSerial.h>
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-// Use the following line for ESP8266
+
+// Use the following line for ESP8266 instead of the line above (comment out the one above)
 //SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX, false, 256); // TX, RX, inverted logic, buffer size
 
 SoftwareSerial *fonaSerial = &fonaSS;
