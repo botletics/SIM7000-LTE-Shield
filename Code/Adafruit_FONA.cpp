@@ -345,7 +345,12 @@ uint8_t Adafruit_FONA::getIMEI(char *imei) {
 uint8_t Adafruit_FONA::getNetworkStatus(void) {
   uint16_t status;
 
-  if (! sendParseReply(F("AT+CREG?"), F("+CREG: "), &status, ',', 1)) return 0;
+  if (_type >= SIM7000A) {
+    if (! sendParseReply(F("AT+CGREG?"), F("+CGREG: "), &status, ',', 1)) return 0;
+  }
+  else {
+    if (! sendParseReply(F("AT+CREG?"), F("+CREG: "), &status, ',', 1)) return 0;
+  }
 
   return status;
 }
@@ -482,7 +487,7 @@ boolean Adafruit_FONA::setPWM(uint16_t period, uint8_t duty) {
 /********* CALL PHONES **************************************************/
 boolean Adafruit_FONA::callPhone(char *number) {
   char sendbuff[35] = "ATD";
-  strncpy(sendbuff+3, number, min(30, strlen(number)));
+  strncpy(sendbuff+3, number, min(30, (int)strlen(number)));
   uint8_t x = strlen(sendbuff);
   sendbuff[x] = ';';
   sendbuff[x+1] = 0;
@@ -639,7 +644,7 @@ boolean Adafruit_FONA::readSMS(uint8_t i, char *smsbuff,
 
   flushInput();
 
-  uint16_t thelen = min(maxlen, strlen(replybuffer));
+  uint16_t thelen = min(maxlen, (uint16_t)strlen(replybuffer));
   strncpy(smsbuff, replybuffer, thelen);
   smsbuff[thelen] = 0; // end the string
 
@@ -827,7 +832,7 @@ boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
     return false;
 
   char *p = replybuffer+7;
-  uint16_t lentocopy = min(maxlen-1, strlen(p));
+  uint16_t lentocopy = min(maxlen-1, (int)strlen(p));
   strncpy(buff, p, lentocopy+1);
   buff[lentocopy] = 0;
 
@@ -966,7 +971,7 @@ uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
 
   p+=6;
 
-  uint8_t len = max(maxbuff-1, strlen(p));
+  uint8_t len = max(maxbuff-1, (int)strlen(p));
   strncpy(buffer, p, len);
   buffer[len] = 0;
 
@@ -1577,7 +1582,7 @@ boolean Adafruit_FONA::getGSMLoc(uint16_t *errorcode, char *buff, uint16_t maxle
     return false;
 
   char *p = replybuffer+14;
-  uint16_t lentocopy = min(maxlen-1, strlen(p));
+  uint16_t lentocopy = min(maxlen-1, (int)strlen(p));
   strncpy(buff, p, lentocopy+1);
 
   readline(); // eat OK
