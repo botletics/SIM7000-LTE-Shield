@@ -1,11 +1,13 @@
-/*  This is an example sketch to test the core functionalities of the SIM7000 and SIM7500 modules. 
- *  Please see the "LTE_Demo" sketch which supports many other SIMCom 2G, 3G modules
+/*  This is an example sketch to test the core functionalities of the SIM7000 and SIM7500 modules.
+ *  Please see the "LTE_Demo" sketch which supports many other SIMCom 2G, 3G modules; this sketch
+ *  takes up less memory than the LTE_Demo sketch and is therefore suitable for microcontrollers
+ *  like the ATmega32u4.
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
  *  Last Updated: 11/27/2018
  *  License: GNU GPL v3.0
- */
+  */
 
 /******* ORIGINAL ADAFRUIT FONA LIBRARY TEXT *******/
 /***************************************************
@@ -28,11 +30,6 @@
  ****************************************************/
 
 #include "Adafruit_FONA.h"
-
-#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
-  // Required for Serial on Zero based boards
-  #define Serial SERIAL_PORT_USBVIRTUAL
-#endif
 
 // Define *one* of the following lines:
 #define SIMCOM_7000  // SIM7000A/C/E/G
@@ -99,8 +96,7 @@ void setup() {
   powerOn(); // See function definition at the very end of the sketch
 
   Serial.begin(115200);
-  Serial.println(F("FONA basic test"));
-  Serial.println(F("Initializing....(May take several seconds)"));
+  Serial.println(F("SIM7000/SIM7500 LTE Demo"));
 
   // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
   // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
@@ -201,13 +197,13 @@ void printMenu(void) {
   Serial.println(F("[U] Unlock SIM with PIN code"));
   Serial.println(F("[i] Read signal strength (RSSI)"));
   Serial.println(F("[n] Get network status"));
+  
 #ifdef SIMCOM_7500
-  Serial.println(F("[v] Set audio Volume (SIM7500)"));
-  Serial.println(F("[V] Get volume (SIM7500)"));
-  Serial.println(F("[H] Set headphone audio (SIM7500)"));
-  Serial.println(F("[e] Set external audio (SIM7500)"));
-//  Serial.println(F("[T] Play audio Tone"));
-//  Serial.println(F("[P] PWM/buzzer out (SIM800/808)"));
+  // Audio/Volume
+  Serial.println(F("[v] Set audio Volume"));
+  Serial.println(F("[V] Get volume"));
+  Serial.println(F("[H] Set headphone audio"));
+  Serial.println(F("[e] Set external audio"));
 
   // Phone
   Serial.println(F("[c] Make phone Call"));
@@ -222,7 +218,6 @@ void printMenu(void) {
   Serial.println(F("[R] Read all SMS"));
   Serial.println(F("[d] Delete SMS #"));
   Serial.println(F("[s] Send SMS"));
-//  Serial.println(F("[u] Send USSD"));
   
   // Time
   Serial.println(F("[y] Enable local time stamp"));
@@ -232,21 +227,24 @@ void printMenu(void) {
   // Data Connection
   Serial.println(F("[G] Enable GPRS"));
   Serial.println(F("[g] Disable GPRS"));
-  Serial.println(F("[w] Read webpage (GPRS)"));
-  Serial.println(F("[W] Post to website (GPRS)"));
+//  Serial.println(F("[w] Read webpage (GPRS)"));
+//  Serial.println(F("[W] Post to website (GPRS)"));
   Serial.println(F("[1] Get connection info")); // See what connection type and band you're on!
+  
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
   // IoT_example sketch for an actual application of this function!
-  Serial.println(F("[2] Post to dweet.io via LTE CAT-M / NB-IoT (SIM70000)")); // SIM7000
+#ifdef SIMCOM_7000
+  Serial.println(F("[2] Post to dweet.io via LTE CAT-M / NB-IoT")); // SIM7000
+#elif defined(SIMCOM_7500)
   Serial.println(F("[3] Post to dweet.io via 4G LTE (SIM7500)")); // SIM7500
+#endif
 
   // GPS
   Serial.println(F("[O] Turn GPS on)"));
   Serial.println(F("[o] Turn GPS off"));
   Serial.println(F("[L] Query GPS location"));
-//  Serial.println(F("[E] Raw NMEA out (SIM808)"));
   
-  Serial.println(F("[S] Create serial passthru tunnel"));
+//  Serial.println(F("[S] Create serial passthru tunnel"));
   Serial.println(F("-------------------------------------"));
   Serial.println(F(""));
 }
@@ -409,106 +407,7 @@ void loop() {
         fona.setMicVolume(FONA_EXTAUDIO, 10);
         break;
       }
-/*
-    case 'T': {
-        // play tone
-        flushSerial();
-        Serial.print(F("Play tone #"));
-        uint8_t kittone = readnumber();
-        Serial.println();
-        // play for 1 second (1000 ms)
-        if (! fona.playToolkitTone(kittone, 1000)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-*/
-    /*** FM Radio ***/
-/*
-    case 'f': {
-        // get freq
-        flushSerial();
-        Serial.print(F("FM Freq (eg 1011 == 101.1 MHz): "));
-        uint16_t station = readnumber();
-        Serial.println();
-        // FM radio ON using headset
-        if (fona.FMradio(true, FONA_HEADSETAUDIO)) {
-          Serial.println(F("Opened"));
-        }
-        if (! fona.tuneFMradio(station)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("Tuned"));
-        }
-        break;
-      }
-    case 'F': {
-        // FM radio off
-        if (! fona.FMradio(false)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-    case 'm': {
-        // Set FM volume.
-        flushSerial();
-        Serial.print(F("Set FM Vol [0-6]:"));
-        uint8_t vol = readnumber();
-        Serial.println();
-        if (!fona.setFMVolume(vol)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-    case 'M': {
-        // Get FM volume.
-        uint8_t fmvol = fona.getFMVolume();
-        if (fmvol < 0) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.print(F("FM volume: "));
-          Serial.println(fmvol, DEC);
-        }
-        break;
-      }
-    case 'q': {
-        // Get FM station signal level (in decibels).
-        flushSerial();
-        Serial.print(F("FM Freq (eg 1011 == 101.1 MHz): "));
-        uint16_t station = readnumber();
-        Serial.println();
-        int8_t level = fona.getFMSignalLevel(station);
-        if (level < 0) {
-          Serial.println(F("Failed! Make sure FM radio is on (tuned to station)."));
-        } else {
-          Serial.print(F("Signal level (dB): "));
-          Serial.println(level, DEC);
-        }
-        break;
-      }
-*/
-    /*** PWM ***/
-/*
-    case 'P': {
-        // PWM Buzzer output @ 2KHz max
-        flushSerial();
-        Serial.print(F("PWM Freq, 0 = Off, (1-2000): "));
-        uint16_t freq = readnumber();
-        Serial.println();
-        if (! fona.setPWM(freq)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-*/
+
     /*** Call ***/
     case 'c': {
         // call a phone!
@@ -668,27 +567,7 @@ void loop() {
 
         break;
       }
-/*
-    case 'u': {
-      // send a USSD!
-      char message[141];
-      flushSerial();
-      Serial.print(F("Type out one-line message (140 char): "));
-      readline(message, 140);
-      Serial.println(message);
 
-      uint16_t ussdlen;
-      if (!fona.sendUSSD(message, replybuffer, 250, &ussdlen)) { // pass in buffer and max len!
-        Serial.println(F("Failed"));
-      } else {
-        Serial.println(F("Sent!"));
-        Serial.print(F("***** USSD Reply"));
-        Serial.print(" ("); Serial.print(ussdlen); Serial.println(F(") bytes *****"));
-        Serial.println(replybuffer);
-        Serial.println(F("*****"));
-      }
-    }
-*/
     /*** Time ***/
 
     case 'y': {
@@ -715,7 +594,7 @@ void loop() {
       }
 
 
-    /*********************************** GPS (SIM808 only) */
+    /******* GPS *******/
 
     case 'o': {
         // turn GPS off
@@ -729,20 +608,6 @@ void loop() {
           Serial.println(F("Failed to turn on"));
         break;
       }
-/*
-    case 'x': {
-        int8_t stat;
-        // check GPS fix
-        stat = fona.GPSstatus();
-        if (stat < 0)
-          Serial.println(F("Failed to query"));
-        if (stat == 0) Serial.println(F("GPS off"));
-        if (stat == 1) Serial.println(F("No fix"));
-        if (stat == 2) Serial.println(F("2D fix"));
-        if (stat == 3) Serial.println(F("3D fix"));
-        break;
-      }
-*/
     case 'L': {
         /*
         // Uncomment this block if all you want to see is the AT command response
@@ -761,13 +626,15 @@ void loop() {
         break;
         */
 
-        float latitude, longitude, speed_kph, heading, altitude, second;
-        uint16_t year;
-        uint8_t month, day, hour, minute;
+        float latitude, longitude, speed_kph, heading, altitude;
 
-        // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
-        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
-//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
+        // Uncomment the definitions below and the line immediately below the definitions if you want
+        // to parse UTC time data as well, or use the line below it if you don't care
+//        float second;
+//        uint16_t year;
+//        uint8_t month, day, hour, minute;
+//        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
+        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
           Serial.println(F("---------------------"));
           Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
           Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
@@ -775,34 +642,21 @@ void loop() {
           Serial.print(F("Heading: ")); Serial.println(heading);
           Serial.print(F("Altitude: ")); Serial.println(altitude);
           // Comment out the stuff below if you don't care about UTC time
+          /*
           Serial.print(F("Year: ")); Serial.println(year);
           Serial.print(F("Month: ")); Serial.println(month);
           Serial.print(F("Day: ")); Serial.println(day);
           Serial.print(F("Hour: ")); Serial.println(hour);
           Serial.print(F("Minute: ")); Serial.println(minute);
           Serial.print(F("Second: ")); Serial.println(second);
+          */
           Serial.println(F("---------------------"));
         }
 
         break;
       }
-/*
-    case 'E': {
-        flushSerial();
-        if (type == SIM808_V1) {
-          Serial.print(F("GPS NMEA output sentences (0 = off, 34 = RMC+GGA, 255 = all)"));
-        } else {
-          Serial.print(F("On (1) or Off (0)? "));
-        }
-        uint8_t nmeaout = readnumber();
 
-        // turn on NMEA output
-        fona.enableGPSNMEA(nmeaout);
-
-        break;
-      }
-*/
-    /*********************************** GPRS */
+    /******* GPRS *******/
 
     case 'g': {
         // turn GPRS off
@@ -821,22 +675,8 @@ void loop() {
           Serial.println(F("Failed to turn on"));
         break;
       }
+
 /*
-    case 'l': {
-        // check for GSMLOC (requires GPRS)
-        uint16_t returncode;
-
-        if (!fona.getGSMLoc(&returncode, replybuffer, 250))
-          Serial.println(F("Failed!"));
-        if (returncode == 0) {
-          Serial.println(replybuffer);
-        } else {
-          Serial.print(F("Fail code #")); Serial.println(returncode);
-        }
-
-        break;
-      }
-*/
     case 'w': {
         // read website URL
         uint16_t statuscode;
@@ -860,7 +700,7 @@ void loop() {
 
             // Serial.write is too slow, we'll write directly to Serial register!
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
-            loop_until_bit_is_set(UCSR0A, UDRE0); /* Wait until data register empty. */
+            loop_until_bit_is_set(UCSR0A, UDRE0); // Wait until data register empty
             UDR0 = c;
 #else
             Serial.write(c);
@@ -900,7 +740,7 @@ void loop() {
             char c = fona.read();
 
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
-            loop_until_bit_is_set(UCSR0A, UDRE0); /* Wait until data register empty. */
+            loop_until_bit_is_set(UCSR0A, UDRE0); // Wait until data register empty
             UDR0 = c;
 #else
             Serial.write(c);
@@ -914,6 +754,7 @@ void loop() {
         fona.HTTP_POST_end();
         break;
       }
+*/
     case '1': {
         // Get connection type, cellular band, carrier name, etc.
         fona.getNetworkInfo();        
@@ -933,9 +774,8 @@ void loop() {
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
         char URL[150];
-        char body[100];
-        char tempBuff[16];
-        char battLevelBuff[16];
+        char tempBuff[12];
+        char battLevelBuff[12];
       
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
@@ -953,6 +793,8 @@ void loop() {
         
         // POST request
         /*
+        char body[100];
+        
         sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
         sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
         
@@ -962,9 +804,8 @@ void loop() {
       
         break;
       }
-#endif
-
-#if defined(SIMCOM_3G) || defined(SIMCOM_7500)
+      
+#elif defined(SIMCOM_7500)
     case '3': {
         // Post data to website via 3G or 4G LTE
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
@@ -975,8 +816,8 @@ void loop() {
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
         char URL[150];
-        char tempBuff[16];
-        char battLevelBuff[16];
+        char tempBuff[12];
+        char battLevelBuff[12];
       
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
@@ -988,13 +829,8 @@ void loop() {
         // GET request
         sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n", imei, tempBuff, battLevelBuff);
 
-        if ((type == SIM5320A) || (type == SIM5320E) || (type = SIM7500A) || (type = SIM7500E)) {
-          if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
-            Serial.println(F("Failed to complete HTTP/HTTPS request..."));
-        }
-        else {
-          Serial.println(F("Wrong module for this function!"));
-        }
+        if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
+          Serial.println(F("Failed to complete HTTP/HTTPS request..."));
       
         break;
       }
