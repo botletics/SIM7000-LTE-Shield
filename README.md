@@ -67,5 +67,5 @@ The following list is a summary of the things I've done so far:
 - Added "hangUp()" function
 - Created "FONA_LTE_setbaud.ino" sketch to set baud rate to 4800 from default 115200 because at 115200 some parts of text would show up weird in the serial monitor.
 -	Added “setBaudrate(uint16_t baud)” function for LTE class using "AT+IPR=<rate>". 
--	Included FONA_LTE_A and FONA_LTE_E types in .h file but not in .cpp declaration (I don't have a SIM7000E module with me so I don't know what its manufacturer-assigned name is)
+-	Included SIM7000 types (A/C/E/G versions)
 -	Included FONA_LTE class to the library for SIM7000A module
