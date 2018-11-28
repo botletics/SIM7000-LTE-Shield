@@ -230,7 +230,7 @@ void printMenu(void) {
   Serial.println(F("-------------------------------------"));
   // General
   Serial.println(F("[?] Print this menu"));
-  Serial.println(F("[a] Read the ADC 2.8V max for SIM800/808, 1.7V max for SIM7000 shield"));
+  Serial.println(F("[a] Read the ADC; 2.8V max for SIM800/808, 0V-VBAT for SIM7000 shield"));
   Serial.println(F("[b] Read supply voltage")); // Will also give battery % charged for most modules
   Serial.println(F("[C] Read the SIM CCID"));
   Serial.println(F("[U] Unlock SIM with PIN code"));
