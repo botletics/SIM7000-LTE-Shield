@@ -191,7 +191,7 @@ void setup() {
 void printMenu(void) {
   Serial.println(F("-------------------------------------"));
   Serial.println(F("[?] Print this menu"));
-  Serial.println(F("[a] Read the ADC, 1.7V max for SIM7000"));
+  Serial.println(F("[a] Read the ADC, 0V-VBAT for SIM7000"));
   Serial.println(F("[b] Read supply voltage")); // Will also give battery % charged for LiPo battery
   Serial.println(F("[C] Read the SIM CCID"));
   Serial.println(F("[U] Unlock SIM with PIN code"));
