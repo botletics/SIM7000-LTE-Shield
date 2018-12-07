@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 11/27/2018
+    Last Updated: 12/7/2018
     License: GNU GPL v3.0
 */
 
@@ -118,7 +118,7 @@ void setup() {
   // This amount of time depends on the specific module that's used
   powerOn(); // See function definition at the very end of the sketch
 
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
