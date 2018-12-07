@@ -109,7 +109,7 @@ void setup() {
   powerOn(); // See function definition at the very end of the sketch
 
   Serial.begin(9600);
-  Serial.println(F("SMS response test"));
+  Serial.println(F("SMS Response Test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
   // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
