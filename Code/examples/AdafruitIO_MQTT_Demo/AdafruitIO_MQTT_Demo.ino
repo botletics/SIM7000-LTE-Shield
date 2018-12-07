@@ -6,7 +6,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 11/27/2018
+ *  Last Updated: 12/7/2018
  *  License: GNU GPL v3.0
  */
 
@@ -137,7 +137,7 @@ char latBuff[12], longBuff[12], locBuff[50], speedBuff[12],
      headBuff[12], altBuff[12], tempBuff[12], battBuff[12];
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println(F("*** SIMCom Module MQTT Example ***"));
 
   #ifdef LED
