@@ -10,7 +10,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 11/27/2018
+ *  Last Updated: 12/7/2018
  *  License: GNU GPL v3.0
  */
 
@@ -97,7 +97,7 @@ uint8_t type;
 char imei[16] = {0}; // MUST use a 16 character buffer for IMEI!
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println(F("*** FTP Example ***"));
 
   #ifdef LED
