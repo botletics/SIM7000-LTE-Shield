@@ -266,8 +266,14 @@ boolean Adafruit_FONA_LTE::setPreferredLTEMode(uint8_t mode) {
 // Useful for choosing a certain carrier only
 // For example, AT&T uses band 12 in the US for LTE CAT-M
 // whereas Verizon uses band 13
-boolean Adafruit_FONA_LTE::setOperatingBand(uint8_t band) {
-  return sendCheckReply(F("AT+CBANDCFG="), band, ok_reply);
+// Mode: "CAT-M" or "NB-IoT"
+// Band: The cellular EUTRAN band number
+boolean Adafruit_FONA_LTE::setOperatingBand(const char * mode, uint8_t band) {
+  char cmdBuff[24];
+
+  sprintf(cmdBuff, "AT+CBANDCFG=\"%s\",%i", mode, band);
+
+  return sendCheckReply(cmdBuff, ok_reply);
 }
 
 // Sleep mode reduces power consumption significantly while remaining registered to the network

@@ -324,7 +324,7 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
 
   boolean setPreferredMode(uint8_t mode);
   boolean setPreferredLTEMode(uint8_t mode);
-  boolean setOperatingBand(uint8_t band);
+  boolean setOperatingBand(const char * mode, uint8_t band);
   boolean setBaudrate(uint16_t baud);
   boolean hangUp(void);
 };
