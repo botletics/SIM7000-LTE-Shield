@@ -248,6 +248,28 @@ boolean Adafruit_FONA::setFunctionality(uint8_t option) {
   return sendCheckReply(F("AT+CFUN="), option, ok_reply);
 }
 
+// 2  - Automatic
+// 13 - GSM only
+// 38 - LTE only
+// 51 - GSM and LTE only
+boolean Adafruit_FONA_LTE::setPreferredMode(uint8_t mode) {
+  return sendCheckReply(F("AT+CNMP="), mode, ok_reply);
+}
+
+// 1 - CAT-M
+// 2 - NB-IoT
+// 3 - CAT-M and NB-IoT
+boolean Adafruit_FONA_LTE::setPreferredLTEMode(uint8_t mode) {
+  return sendCheckReply(F("AT+CMNB="), mode, ok_reply);
+}
+
+// Useful for choosing a certain carrier only
+// For example, AT&T uses band 12 in the US for LTE CAT-M
+// whereas Verizon uses band 13
+boolean Adafruit_FONA_LTE::setOperatingBand(uint8_t band) {
+  return sendCheckReply(F("AT+CBANDCFG="), band, ok_reply);
+}
+
 // Sleep mode reduces power consumption significantly while remaining registered to the network
 // NOTE: USB port must be disconnected before this will take effect
 boolean Adafruit_FONA::enableSleepMode(bool onoff) {
@@ -345,12 +367,12 @@ uint8_t Adafruit_FONA::getIMEI(char *imei) {
 uint8_t Adafruit_FONA::getNetworkStatus(void) {
   uint16_t status;
 
-  if (_type >= SIM7000A) {
-    if (! sendParseReply(F("AT+CGREG?"), F("+CGREG: "), &status, ',', 1)) return 0;
-  }
-  else {
+  // if (_type >= SIM7000A) {
+  //   if (! sendParseReply(F("AT+CGREG?"), F("+CGREG: "), &status, ',', 1)) return 0;
+  // }
+  // else {
     if (! sendParseReply(F("AT+CREG?"), F("+CREG: "), &status, ',', 1)) return 0;
-  }
+  // }
 
   return status;
 }
@@ -2144,7 +2166,6 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char*
 /********* MQTT FUNCTIONS  ************************************/
 
 ////////////////////////////////////////////////////////////
-// MQTT helper functions
 void Adafruit_FONA::mqtt_connect_message(const char *protocol, byte *mqtt_message, const char *clientID, const char *username, const char *password) {
   uint8_t i = 0;
   byte protocol_length = strlen(protocol);

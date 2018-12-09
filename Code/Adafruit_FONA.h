@@ -322,6 +322,9 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
  public:
   Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; _type = SIM7500A;}
 
+  boolean setPreferredMode(uint8_t mode);
+  boolean setPreferredLTEMode(uint8_t mode);
+  boolean setOperatingBand(uint8_t band);
   boolean setBaudrate(uint16_t baud);
   boolean hangUp(void);
 };
