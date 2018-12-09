@@ -37,6 +37,7 @@ The following list is a summary of the things I've done so far:
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
+- Added setPreferredMode(), setPreferredLTEMode(), and setOperatingBand() functions
 - Added SAMD_LTE_Demo sketch for ATSAMD microcontrollers (Arduino Zero, Adafruit M0, etc.)
 - Added ESP32_LTE_Demo sketch
 - Set AT+CFUN=1 and AT+CGDCONT (PDP context) in example code during module initialization
