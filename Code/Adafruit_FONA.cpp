@@ -373,12 +373,12 @@ uint8_t Adafruit_FONA::getIMEI(char *imei) {
 uint8_t Adafruit_FONA::getNetworkStatus(void) {
   uint16_t status;
 
-  // if (_type >= SIM7000A) {
-  //   if (! sendParseReply(F("AT+CGREG?"), F("+CGREG: "), &status, ',', 1)) return 0;
-  // }
-  // else {
+  if (_type >= SIM7000A) {
+    if (! sendParseReply(F("AT+CGREG?"), F("+CGREG: "), &status, ',', 1)) return 0;
+  }
+  else {
     if (! sendParseReply(F("AT+CREG?"), F("+CREG: "), &status, ',', 1)) return 0;
-  // }
+  }
 
   return status;
 }
