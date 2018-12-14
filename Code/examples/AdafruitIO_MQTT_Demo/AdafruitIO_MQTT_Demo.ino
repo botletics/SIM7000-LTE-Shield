@@ -6,7 +6,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 12/9/2018
+ *  Last Updated: 12/14/2018
  *  License: GNU GPL v3.0
  */
 
@@ -190,7 +190,7 @@ void setup() {
   fona.setPreferredLTEMode(1); // Use LTE CAT-M only, not NB-IoT
   fona.setOperatingBand("CAT-M", 12); // AT&T uses band 12
 //  fona.setOperatingBand("CAT-M", 13); // Verizon uses band 13
-  fona.enableNetworkTimeSync(true);
+  fona.enableRTC(true);
   
   fona.enableSleepMode(true);
   fona.set_eDRX(1, 4, "0010");
