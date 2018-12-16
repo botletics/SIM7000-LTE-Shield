@@ -162,23 +162,6 @@ boolean Adafruit_FONA_LTE::setBaudrate(uint16_t baud) {
 }
 
 
-/********* Real Time Clock ********************************************/
-
-boolean Adafruit_FONA::readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec) {
-  uint16_t v;
-  sendParseReply(F("AT+CCLK?"), F("+CCLK: "), &v, '/', 0);
-  *year = v;
-
-  DEBUG_PRINTLN(*year);
-}
-
-boolean Adafruit_FONA::enableRTC(uint8_t i) {
-  if (! sendCheckReply(F("AT+CLTS="), i, ok_reply))
-    return false;
-  return sendCheckReply(F("AT&W"), ok_reply);
-}
-
-
 /********* POWER, BATTERY & ADC ********************************************/
 
 /* returns value in mV (uint16_t) */
@@ -266,7 +249,7 @@ boolean Adafruit_FONA_LTE::setPreferredLTEMode(uint8_t mode) {
 // Useful for choosing a certain carrier only
 // For example, AT&T uses band 12 in the US for LTE CAT-M
 // whereas Verizon uses band 13
-// Mode: "CAT-M" or "NB-IoT"
+// Mode: "CAT-M" or "NB-IOT"
 // Band: The cellular EUTRAN band number
 boolean Adafruit_FONA_LTE::setOperatingBand(const char * mode, uint8_t band) {
   char cmdBuff[24];
@@ -281,6 +264,19 @@ boolean Adafruit_FONA_LTE::setOperatingBand(const char * mode, uint8_t band) {
 boolean Adafruit_FONA::enableSleepMode(bool onoff) {
   return sendCheckReply(F("AT+CSCLK="), onoff, ok_reply);
 }
+
+// Set e-RX parameters
+// Mode options:
+// 0  Disable the use of eDRX
+// 1  Enable the use of eDRX
+// 2  Enable the use of eDRX and auto report
+// 3  Disable the use of eDRX(Reserved)
+
+// Connection type options:
+// 4 - CAT-M
+// 5 - NB-IoT
+
+// See AT command manual for eDRX values (options 0-15)
 
 // NOTE: Network must support eDRX mode
 boolean Adafruit_FONA::set_eDRX(uint8_t mode, uint8_t connType, char * eDRX_val) {
@@ -395,10 +391,15 @@ uint8_t Adafruit_FONA::getRSSI(void) {
 /********* AUDIO *******************************************************/
 
 boolean Adafruit_FONA::setAudio(uint8_t a) {
-  // 0 is headset, 1 is external audio
-  if (a > 1) return false;
+  // For SIM5320, 1 is headset, 3 is speaker phone, 4 is PCM interface
+  if ( (_type == SIM5320A || _type == SIM5320E) && (a != 1 && a != 3 && a != 4) ) return false;
+  // For SIM7500, 1 is headset, 3 is speaker phone
+  else if ( (_type == SIM7500A || _type == SIM7500E) && (a != 1 && a != 3) ) return false;
+  // For SIM800, 0 is main audio channel, 1 is aux, 2 is main audio channel (hands-free), 3 is aux channel (hands-free), 4 is PCM channel
+  else if (a > 4) return false; // 0 is headset, 1 is external audio
 
-  return sendCheckReply(F("AT+CHFA="), a, ok_reply);
+  if (_type <= SIM808) return sendCheckReply(F("AT+CHFA="), a, ok_reply);
+  else return sendCheckReply(F("AT+CSDVC="), a, ok_reply);
 }
 
 uint8_t Adafruit_FONA::getVolume(void) {
@@ -435,8 +436,8 @@ boolean Adafruit_FONA_3G::playToolkitTone(uint8_t t, uint16_t len) {
 }
 
 boolean Adafruit_FONA::setMicVolume(uint8_t a, uint8_t level) {
-  // 0 is headset, 1 is external audio
-  if (a > 1) return false;
+  // For SIM800, 0 is main audio channel, 1 is aux, 2 is main audio channel (hands-free), 3 is aux channel (hands-free)
+  if (a > 3) return false;
 
   return sendCheckReply(F("AT+CMIC="), a, level, ok_reply);
 }
@@ -533,7 +534,7 @@ uint8_t Adafruit_FONA::getCallStatus(void) {
   if (! sendParseReply(F("AT+CPAS"), F("+CPAS: "), &phoneStatus)) 
     return FONA_CALL_FAILED; // 1, since 0 is actually a known, good reply
 
-  return phoneStatus;  // 0 ready, 2 unkown, 3 ringing, 4 call in progress
+  return phoneStatus;  // 0 ready, 2 unknown, 3 ringing, 4 call in progress
 }
 
 boolean Adafruit_FONA::hangUp(void) {
@@ -809,6 +810,7 @@ boolean Adafruit_FONA::sendUSSD(char *ussdmsg, char *ussdbuff, uint16_t maxlen, 
 
 /********* TIME **********************************************************/
 
+/*
 boolean Adafruit_FONA::enableNetworkTimeSync(boolean onoff) {
   if (onoff) {
     if (! sendCheckReply(F("AT+CLTS=1"), ok_reply))
@@ -822,6 +824,7 @@ boolean Adafruit_FONA::enableNetworkTimeSync(boolean onoff) {
 
   return true;
 }
+*/
 
 boolean Adafruit_FONA::enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpserver) {
   if (onoff) {
@@ -867,6 +870,24 @@ boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
   readline(); // eat OK
 
   return true;
+}
+
+/********* Real Time Clock ********************************************/
+
+boolean Adafruit_FONA::readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec) {
+  uint16_t v;
+  if (! sendParseReply(F("AT+CCLK?"), F("+CCLK: "), &v, '/', 0) ) return false;
+  *year = v;
+
+  DEBUG_PRINTLN(*year);
+
+  return true;
+}
+
+boolean Adafruit_FONA::enableRTC(uint8_t i) {
+  if (! sendCheckReply(F("AT+CLTS="), i, ok_reply))
+    return false;
+  return sendCheckReply(F("AT&W"), ok_reply);
 }
 
 /********* GPS **********************************************************/
@@ -1584,7 +1605,7 @@ void Adafruit_FONA::getNetworkInfo(void) {
 	getReply(F("AT+COPS?"));
 }
 
-uint8_t Adafruit_FONA::GPRSstate(void) {
+int8_t Adafruit_FONA::GPRSstate(void) {
   uint16_t state;
 
   if (! sendParseReply(F("AT+CGATT?"), F("+CGATT: "), &state) )
@@ -2717,7 +2738,7 @@ boolean Adafruit_FONA::HTTP_setup(char *url) {
 
   // HTTPS redirect
   if (httpsredirect) {
-    if (! HTTP_para(F("REDIR"),1))
+    if (! HTTP_para(F("REDIR"), 1))
       return false;
 
     if (! HTTP_ssl(true))

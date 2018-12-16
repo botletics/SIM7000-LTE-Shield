@@ -92,10 +92,6 @@ class Adafruit_FONA : public FONAStreamType {
   // FONA 3G requirements
   boolean setBaudrate(uint16_t baud);
 
-  // RTC
-  boolean enableRTC(uint8_t i);
-  boolean readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec);
-
   // Power, battery, and ADC
   boolean powerDown(void);
   boolean getADCVoltage(uint16_t *v);
@@ -144,13 +140,17 @@ class Adafruit_FONA : public FONAStreamType {
   boolean sendUSSD(char *ussdmsg, char *ussdbuff, uint16_t maxlen, uint16_t *readlen);
 
   // Time
-  boolean enableNetworkTimeSync(boolean onoff);
+  // boolean enableNetworkTimeSync(boolean onoff);
   boolean enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpserver=0);
   boolean getTime(char *buff, uint16_t maxlen);
+  
+  // RTC
+  boolean enableRTC(uint8_t i);
+  boolean readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec);
 
   // GPRS handling
   boolean enableGPRS(boolean onoff);
-  uint8_t GPRSstate(void);
+  int8_t GPRSstate(void);
   boolean getGSMLoc(uint16_t *replycode, char *buff, uint16_t maxlen);
   boolean getGSMLoc(float *lat, float *lon);
   void setNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
