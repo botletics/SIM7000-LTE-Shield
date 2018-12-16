@@ -39,6 +39,8 @@ The following list is a summary of the things I've done so far:
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
+- Documented all available library functions [on this page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
+- Fixed some minor inconsistencies in some Adafruit functions, mainly functions that were declared as int32_t but never actually outputting a negative number, or spelling mistakes in comments, among other things.
 - Added setPreferredMode(), setPreferredLTEMode(), and setOperatingBand() functions
 - Added SAMD_LTE_Demo sketch for ATSAMD microcontrollers (Arduino Zero, Adafruit M0, etc.)
 - Added ESP32_LTE_Demo sketch
