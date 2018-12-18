@@ -398,7 +398,7 @@ boolean Adafruit_FONA::setAudio(uint8_t a) {
   // For SIM800, 0 is main audio channel, 1 is aux, 2 is main audio channel (hands-free), 3 is aux channel (hands-free), 4 is PCM channel
   else if (a > 4) return false; // 0 is headset, 1 is external audio
 
-  if (_type <= SIM808) return sendCheckReply(F("AT+CHFA="), a, ok_reply);
+  if (_type <= SIM808_V2) return sendCheckReply(F("AT+CHFA="), a, ok_reply);
   else return sendCheckReply(F("AT+CSDVC="), a, ok_reply);
 }
 
