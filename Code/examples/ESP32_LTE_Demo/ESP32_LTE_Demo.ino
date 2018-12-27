@@ -19,7 +19,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 12/14/2018
+    Last Updated: 12/26/2018
     License: GNU GPL v3.0
 */
 
@@ -728,7 +728,7 @@ void loop() {
 
     case 'y': {
         // enable network time sync
-        if (!fona.enableNetworkTimeSync(true))
+        if (!fona.enableRTC(true))
           Serial.println(F("Failed to enable"));
         break;
       }
