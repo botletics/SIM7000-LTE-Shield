@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 12/26/2018
+    Last Updated: 1/15/2018
     License: GNU GPL v3.0
 */
 
@@ -286,9 +286,11 @@ void printMenu(void) {
   Serial.println(F("[G] Enable cellular data"));
   Serial.println(F("[g] Disable cellular data"));
   Serial.println(F("[l] Query GSMLOC (2G)"));
+#if !defined(SIMCOM_3G) && !defined(SIMCOM_7500) 
   Serial.println(F("[w] Read webpage"));
   Serial.println(F("[W] Post to website"));
-  // The following option below posts dummy data to dweet.io for demonstration purposes. See the 
+#endif
+  // The following option below posts dummy data to dweet.io for demonstration purposes. See the
   // IoT_example sketch for an actual application of this function!
   Serial.println(F("[2] Post to dweet.io via 2G / LTE CAT-M / NB-IoT")); // This can be SIM800/808/900/7000
   Serial.println(F("[3] Post to dweet.io via 3G / 4G LTE")); // SIM5320/7500
@@ -905,6 +907,9 @@ void loop() {
 
         break;
       }
+
+#if !defined(SIMCOM_3G) && !defined(SIMCOM_7500)
+    // The code below was written by Adafruit and only works on some modules
     case 'w': {
         // read website URL
         uint16_t statuscode;
@@ -981,6 +986,7 @@ void loop() {
         fona.HTTP_POST_end();
         break;
       }
+#endif
 
 #if defined(SIMCOM_2G) || defined(SIMCOM_7000)
     case '2': {
