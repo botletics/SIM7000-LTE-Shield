@@ -1667,7 +1667,7 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
-boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token) {
+boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token, uint32_t bodylen) {
   // NOTE: Need to open socket/enable GPRS before using this function
   // char auxStr[64];
 
@@ -1690,12 +1690,14 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   if (! sendCheckReply(urlBuff, ok_reply, 10000))
     return false;
 
-  // Perform request based on specified request type
+  // Perform request based on specified request Type
+  if (strlen(body) > 0) bodylen = strlen(body);
+
   if (request_type == "GET") {
   	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
     	return false;
   }
-  else if (request_type == "POST" && strlen(body) > 0) { // POST with content body
+  else if (request_type == "POST" && bodylen > 0 ) { // POST with content body
   	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
     	return false;
 
@@ -1708,9 +1710,9 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 	  		return false;
 	  }
 
-    char dataBuff[strlen(body) + 20];
+    char dataBuff[sizeof(bodylen) + 20];
 
-		sprintf(dataBuff, "AT+HTTPDATA=%d,10000", strlen(body));
+		sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
 		if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
 	    return false;
 
@@ -1722,7 +1724,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
     	return false;
   }
-  else if (request_type == "POST" && strlen(body) == 0) { // POST with query parameters
+  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
   	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
     	return false;
   }

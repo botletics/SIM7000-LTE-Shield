@@ -154,7 +154,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean getGSMLoc(uint16_t *replycode, char *buff, uint16_t maxlen);
   boolean getGSMLoc(float *lat, float *lon);
   void setNetworkSettings(FONAFlashStringPtr apn, FONAFlashStringPtr username=0, FONAFlashStringPtr password=0);
-  boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "");
+  boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "", uint32_t bodylen = 0);
   boolean postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body = "");
   void getNetworkInfo(void);
 
