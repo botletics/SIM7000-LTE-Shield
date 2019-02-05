@@ -32,10 +32,10 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
-- Finish FTP image transfer tutorial
-- Finish writing and testing FTP extended GET/PUT methods
+- FTP image transfering
+- FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
-- Dedicated MQTT commands for SIM7000? (Waiting for SIMCom to release)
+- Integrate dedicated MQTT(S) commands for SIM7000
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
