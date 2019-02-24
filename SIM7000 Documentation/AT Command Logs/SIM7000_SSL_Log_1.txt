@@ -1,0 +1,86 @@
+AT+GMR
+Revision:1351B05SIM7000E
+
+OK
+AT+CNACT?
++CNACT: 1,"10.250.5.248"
+
+OK
+AT+CSSLCFG="convert",2,"bdr.cer"
+OK
+AT+SHSSL=1,"bdr.cer"
+OK
+AT+SHCONF="URL","https://www.baidu.com"
+OK
+AT+SHCONF="BODYLEN",64
+OK
+AT+SHCONF="HEADERLEN",64
+OK
+AT+SHCONN
+ERROR
+AT+SHDISC
+OK
+AT+SHCONN
+OK
+AT+SHBOD="SIMCOMBODY",10
+OK
+AT+SHAHEAD="Content-Length","120"
+OK
+AT+SHSTATE?
++SHSTATE: 1
+
+OK
+AT+SHREQ=1
+ERROR
+AT+SHREQ=1
+ERROR
+AT+SHCONN
+ERROR
+AT+SHDISC
+OK
+AT+CSSLCFG="convert",2,"bdr.cer"
+OK
+AT+SHSSL=1,"bdr.cer"
+OK
+AT+SHSSL=1,"bdr.cer"
+OK
+AT+SHCONF="URL","https://www.baidu.com"
+OK
+AT+SHCONF="BODYLEN",64
+OK
+AT+SHCONF="HEADERLEN",64
+OK
+AT+SHCONN
+OK
+AT+SHBOD="SIMCOMBODY",10
+OK
+AT+SHAHEAD="Content-Length","120"
+OK
+AT+SHSTATE?
++SHSTATE: 1
+
+OK
+AT+SHREQ=1
+OK
+
++SHSTATE: 0
+AT+SHCONN
+OK
+AT+SHREQ=1
+OK
+
++SHREQ: "GET",200,227
+AT+SHREAD=0,227
+OK
+
++SHREAD: 227
+<html>
+<head>
+	<script>
+		location.replace(location.href.replace("https://","http://"));
+	</script>
+</head>
+<body>
+	<noscript><meta http-equiv="refresh" content="0;url=http://www.baidu.com/"></noscript>
+</body>
+</html>
