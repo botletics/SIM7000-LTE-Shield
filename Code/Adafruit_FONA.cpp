@@ -1693,11 +1693,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // Perform request based on specified request Type
   if (strlen(body) > 0) bodylen = strlen(body);
 
-  if (request_type == "GET") {
+  if (strcmp(request_type, "GET") == 0) {
   	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
     	return false;
   }
-  else if (request_type == "POST" && bodylen > 0 ) { // POST with content body
+  else if (strcmp(request_type, "POST") == 0 && bodylen > 0 ) { // POST with content body
   	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
     	return false;
 
@@ -1724,11 +1724,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
     	return false;
   }
-  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
+  else if (strcmp(request_type, "POST") == 0 && bodylen == 0) { // POST with query parameters
   	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
     	return false;
   }
-  else if (request_type == "HEAD") {
+  else if (strcmp(request_type, "HEAD") == 0) {
   	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
     	return false;
   }
@@ -1760,7 +1760,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
 
   // Start HTTPS stack
-  if (_type == SIM7500A | _type == SIM7500E) {
+  if ((_type == SIM7500A) | (_type == SIM7500E)) {
     getReply(F("AT+CHTTPSSTART")); // Don't check if true/false since it will return false if already started (not stopped before)
 
   	// if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
@@ -1794,7 +1794,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   // if (! sendCheckReply(auxStr, ok_reply, 10000))
   //   return false;
 
-  if (_type == SIM7500A | _type == SIM7500E) {
+  if ((_type == SIM7500A) | (_type == SIM7500E)) {
     // sendParseReply(auxStr, F("+CHTTPSOPSE: "), &reply);
     // if (reply != 0) return false;
 
@@ -1825,7 +1825,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   if (! sendCheckReply(auxStr, ">", 10000))
     return false;
 
-  if (_type == SIM7500A | _type == SIM7500E) {
+  if ((_type == SIM7500A) | (_type == SIM7500E)) {
     // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
     // if (reply != 0) return false;
 
@@ -2382,15 +2382,15 @@ boolean Adafruit_FONA::MQTTsubscribe(const char* topic, byte QoS) {
 }
 
 boolean Adafruit_FONA::MQTTunsubscribe(const char* topic) {
-
+  return true;
 }
 
 boolean Adafruit_FONA::MQTTreceive(const char* topic, const char* buf, int maxlen) {
-
+  return true;
 }
 
 boolean Adafruit_FONA::MQTTdisconnect(void) {
-	
+	return true;
 }
 
 
@@ -3172,3 +3172,4 @@ boolean Adafruit_FONA_3G::parseReply(FONAFlashStringPtr toreply,
 
   return true;
 }
+
