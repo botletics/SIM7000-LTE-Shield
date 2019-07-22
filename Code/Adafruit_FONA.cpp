@@ -301,7 +301,7 @@ boolean Adafruit_FONA::enablePSM(bool onoff) {
 // Data connection enabled  --> 3,64,300
 boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, uint16_t timer_off) {
   if (onoff) {
-    if (! sendCheckReply(F("AT+CNETLIGHT=0"), ok_reply)) return false;
+    if (! sendCheckReply(F("AT+CNETLIGHT=1"), ok_reply)) return false;
 
     if (mode > 0) {
       char auxStr[24];
