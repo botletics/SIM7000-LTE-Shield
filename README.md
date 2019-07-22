@@ -32,13 +32,12 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
-- Add and test MQTTS commands in library
+- Add SSL commands to the library and create examples
 - Test SIM7000 MQTT commands
 - FTP image transfering
 - FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
 - Integrate dedicated MQTT(S) commands for SIM7000
-- Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
 - Added [SIM7000_MQTT_Demo](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino)
