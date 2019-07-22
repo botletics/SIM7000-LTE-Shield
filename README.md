@@ -22,7 +22,7 @@ The following list is a summary of the things I've done so far:
 - FTP functions on SIM7000G firmware version 1529B01SIM7000G
 - Hologram SIM card works great on both the AT&T and Verizon CAT-M1 networks in the USA!
 - HTTP and HTTPS via 3G with SIM5320
-- MQTT working with SIM7000 and SIM808
+- MQTT working with SIM7000 and SIM808 using TCP commands
 - HTTP functions on SIM808 and other 2G modules
 - Network time works
 - Ultra low-power power down mode (~7.4uA)
@@ -40,7 +40,7 @@ The following list is a summary of the things I've done so far:
 - Integrate dedicated MQTT(S) commands for SIM7000
 
 ### Completed Tasks
-- Added [SIM7000_MQTT_Demo](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino)
+- Added the [SIM7000_MQTT_Demo sketch](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino) which uses the dedicated MQTT commands
 - Added MQTT functions for SIM7000 (see [SIM7000 MQTT app note](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/SIM7000%20Documentation/Technical%20Documents/SIM7000%20Series_MQTT_Application%20Note.pdf))
 - Documented all available library functions [on this page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
 - Fixed some minor inconsistencies in some Adafruit functions, mainly functions that were declared as int32_t but never actually outputting a negative number, or spelling mistakes in comments, among other things.
