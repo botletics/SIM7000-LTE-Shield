@@ -3,7 +3,7 @@ The code in this repository is an improved version of the Adafruit FONA library 
 The text below is from the original Adafruit FONA library:
 
 ------------------------------------------
-# Adafruit FONA Library [![Build Status](https://secure.travis-ci.org/adafruit/Adafruit_FONA_Library.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_FONA_Library)
+# Adafruit FONA Library
 
 **This library requires Arduino v1.0.6 or higher**
 
