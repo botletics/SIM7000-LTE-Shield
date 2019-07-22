@@ -65,6 +65,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // Set topic names to publish and subscribe to
 #define GPS_TOPIC       "location"
 #define TEMP_TOPIC      "temperature"
+#define BATT_TOPIC      "battery"
 #define SUB_TOPIC       "command"     // Subscribe topic name
 
 // How many transmission failures in a row we're OK with before reset
@@ -271,7 +272,8 @@ void loop() {
 
   // Now publish all the GPS and temperature data to their respective topics!
   fona.MQTTpublish(GPS_TOPIC, locBuff, sizeof(locBuff), 1, 0); // Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
-  fona.MQTTpublish(TEMP_TOPIC, tempBuff, sizeof(tempBuff), 1, 0);
+  fona.MQTTpublish(TEMP_TOPIC, tempBuff, sizeof(tempBuff), 1, 0); // Send temperature
+  fona.MQTTpublish(BATT_TOPIC, battBuff, sizeof(battBuff), 1, 0); // Send battery level
 
   fona.MQTTsubscribe(SUB_TOPIC, 0); // Topic name, QoS
   
