@@ -32,6 +32,8 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
+- Add and test MQTTS commands in library
+- Test SIM7000 MQTT commands
 - FTP image transfering
 - FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
