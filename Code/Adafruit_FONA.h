@@ -322,11 +322,22 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
  public:
   Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; _type = SIM7500A;}
 
+  boolean openWirelessConnection(bool onoff);
+  boolean wirelessConnStatus(void);
   boolean setPreferredMode(uint8_t mode);
   boolean setPreferredLTEMode(uint8_t mode);
   boolean setOperatingBand(const char * mode, uint8_t band);
   boolean setBaudrate(uint16_t baud);
   boolean hangUp(void);
+
+  // MQTT(S)
+  boolean MQTTsetParameter(const char* paramTag, const char* paramValue, uint32_t port = 0);
+  boolean MQTTconnect(bool yesno);
+  boolean MQTTconnectionStatus(void);
+  boolean MQTTsubscribe(const char* topic, byte QoS);
+  boolean MQTTunsubscribe(const char* topic);
+  boolean MQTTpublish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain);
+  boolean MQTTdataFormatHex(bool yesno);
 };
 
 #endif

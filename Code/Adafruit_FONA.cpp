@@ -218,7 +218,7 @@ boolean Adafruit_FONA::getADCVoltage(uint16_t *v) {
 }
 
 
-/********* POWER, BATTERY & ADC ********************************************/
+/********* NETWORK AND WIRELESS CONNECTION SETTINGS ***********************/
 
 // Uses the AT+CFUN command to set functionality (refer to AT+CFUN in manual)
 // 0 --> Minimum functionality
@@ -317,6 +317,28 @@ boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, ui
   else {
     return sendCheckReply(F("AT+CNETLIGHT=0"), ok_reply);
   }
+}
+
+// Open or close wireless data connection
+boolean Adafruit_FONA_LTE::openWirelessConnection(bool onoff) {
+  if (!onoff) return sendCheckReply(F("AT+CNACT=0"), ok_reply); // Disconnect wireless
+  else {
+    getReplyQuoted(F("AT+CNACT=1,"), apn);
+    readline(); // Eat 'OK'
+
+    if (strcmp(replybuffer, "+APP PDP: ACTIVE") == 0) return true;
+    else return false;
+  }
+}
+
+// Query wireless connection status
+boolean Adafruit_FONA_LTE::wirelessConnStatus(void) {
+  getReply(F("AT+CNACT?"));
+  // Format of response:
+  // +CNACT: <status>,<ip_addr>
+  readline();
+  if (strstr(replybuffer, "+CNACT: 1") == 0) return false;
+  return true;
 }
 
 /********* SIM ***********************************************************/
@@ -2391,6 +2413,78 @@ boolean Adafruit_FONA::MQTTreceive(const char* topic, const char* buf, int maxle
 
 boolean Adafruit_FONA::MQTTdisconnect(void) {
 	
+}
+
+/********* SIM7000 MQTT(S) FUNCTIONS  ************************************/
+// Set MQTT parameters
+// Parameter tags can be "CLIENTID", "URL", "KEEPTIME", "CLEANSS", "USERNAME",
+// "PASSWORD", "QOS", "TOPIC", "MESSAGE", or "RETAIN"
+boolean Adafruit_FONA_LTE::MQTTsetParameter(const char* paramTag, const char* paramValue, uint32_t port) {
+  char cmdStr[32];
+
+  if (strcmp(paramTag, "CLIENTID") == 0 || strcmp(paramTag, "URL") == 0 || strcmp(paramTag, "TOPIC") == 0 || strcmp(paramTag, "MESSAGE") == 0) {
+    if (port == 0) sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\"", paramTag, paramValue); // Quoted paramValue
+    else sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\",%i", paramTag, paramValue, port);
+    if (! sendCheckReply(cmdStr, ok_reply)) return false;
+  }
+  else {
+    sprintf(cmdStr, "AT+SMCONF=\"%s\",%s", paramTag, paramValue); // Unquoted paramValue
+    if (! sendCheckReply(cmdStr, ok_reply)) return false;
+  }
+  
+  return true;
+}
+
+// Connect or disconnect MQTT
+boolean Adafruit_FONA_LTE::MQTTconnect(bool yesno) {
+  if (yesno) return sendCheckReply(F("AT+SMCONN"), ok_reply);
+  else return sendCheckReply(F("AT+SMDISC"), ok_reply);
+}
+
+// Query MQTT connection status
+boolean Adafruit_FONA_LTE::MQTTconnectionStatus(void) {
+  if (! sendCheckReply(F("AT+SMSTATE?"), F("+SMSTATE: 1"))) return false;
+  return true;
+}
+
+// Subscribe to specified MQTT topic
+// QoS can be from 0-2
+boolean Adafruit_FONA_LTE::MQTTsubscribe(const char* topic, byte QoS) {
+  char cmdStr[32];
+  sprintf(cmdStr, "AT+SMSUB=\"%s\",%i", topic, QoS);
+
+  if (! sendCheckReply(cmdStr, ok_reply)) return false;
+  return true;
+}
+
+// Unsubscribe from specified MQTT topic
+boolean Adafruit_FONA_LTE::MQTTunsubscribe(const char* topic) {
+  char cmdStr[32];
+  sprintf(cmdStr, "AT+SMUNSUB=\"%s\"", topic);
+  if (! sendCheckReply(cmdStr, ok_reply)) return false;
+  return true;
+}
+
+// Publish to specified topic
+// Message length can be from 0-512 bytes
+// QoS can be from 0-2
+// Server hold message flag can be 0 or 1
+boolean Adafruit_FONA_LTE::MQTTpublish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain) {
+  char cmdStr[40];
+  sprintf(cmdStr, "AT+SMPUB=\"%s\",%i, %i, %i", topic, contentLength, QoS, retain);
+
+  if (! sendCheckReply(cmdStr, F(">"), 5000)) return false; // Wait for ">" to send message
+  else {
+    sendCheckReply(message, ok_reply, 5000); // Now send the message
+  }
+
+  return true;
+}
+
+// Change MQTT data format to hex
+// Enter "true" if you want hex, "false" if you don't
+boolean Adafruit_FONA_LTE::MQTTdataFormatHex(bool yesno) {
+  if (yesno) sendCheckReply(F("AT+SMPUBHEX="), yesno, ok_reply);
 }
 
 
