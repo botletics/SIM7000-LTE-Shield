@@ -39,6 +39,8 @@ The following list is a summary of the things I've done so far:
 - Test SSL on SIM7000 (with Amazon AWS and X.509 certificate)
 
 ### Completed Tasks
+- Added [SIM7000_MQTT_Demo](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino)
+- Added MQTT functions for SIM7000 (see [SIM7000 MQTT app note](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/SIM7000%20Documentation/Technical%20Documents/SIM7000%20Series_MQTT_Application%20Note.pdf))
 - Documented all available library functions [on this page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
 - Fixed some minor inconsistencies in some Adafruit functions, mainly functions that were declared as int32_t but never actually outputting a negative number, or spelling mistakes in comments, among other things.
 - Added setPreferredMode(), setPreferredLTEMode(), and setOperatingBand() functions
