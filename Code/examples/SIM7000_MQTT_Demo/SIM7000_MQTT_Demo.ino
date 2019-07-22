@@ -259,33 +259,33 @@ void loop() {
   sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff); // This could look like "10,33.123456,-85.123456,120.5"
   
   // If not already connected, connect to MQTT
-  if (! fona.MQTTconnectionStatus()) {
+  if (! fona.MQTT_connectionStatus()) {
     // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
-    fona.MQTTsetParameter("URL", MQTT_SERVER, MQTT_PORT);
+    fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
 //    fona.MQTTsetParameter("KEEPTIME", 30); // Server keep time in seconds, 60s by default
     
     Serial.println(F("Connecting to MQTT broker..."));
-    if (! fona.MQTTconnect(true)) {
+    if (! fona.MQTT_connect(true)) {
       Serial.println(F("Failed to connect to broker!"));
     }
   }
 
   // Now publish all the GPS and temperature data to their respective topics!
-  fona.MQTTpublish(GPS_TOPIC, locBuff, sizeof(locBuff), 1, 0); // Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
-  fona.MQTTpublish(TEMP_TOPIC, tempBuff, sizeof(tempBuff), 1, 0); // Send temperature
-  fona.MQTTpublish(BATT_TOPIC, battBuff, sizeof(battBuff), 1, 0); // Send battery level
+  fona.MQTT_publish(GPS_TOPIC, locBuff, sizeof(locBuff), 1, 0); // Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
+  fona.MQTT_publish(TEMP_TOPIC, tempBuff, sizeof(tempBuff), 1, 0); // Send temperature
+  fona.MQTT_publish(BATT_TOPIC, battBuff, sizeof(battBuff), 1, 0); // Send battery level
 
-  fona.MQTTsubscribe(SUB_TOPIC, 0); // Topic name, QoS
+  fona.MQTT_subscribe(SUB_TOPIC, 0); // Topic name, QoS
   
   // Unsubscribe to topics if wanted:
-//  fona.MQTTunsubscribe(GPS_TOPIC);
-//  fona.MQTTunsubscribe(TEMP_TOPIC);
+//  fona.MQTT_unsubscribe(GPS_TOPIC);
+//  fona.MQTT_unsubscribe(TEMP_TOPIC);
 
   // Enable MQTT data format to hex
-//  fona.MQTTdataFormatHex(true); // Input "false" to reverse
+//  fona.MQTT_dataFormatHex(true); // Input "false" to reverse
 
   // Disconnect from MQTT
-//  fona.MQTTconnect(false);
+//  fona.MQTT_connect(false);
 
   // Delay until next post
   Serial.print(F("Waiting for ")); Serial.print(samplingRate); Serial.println(F(" seconds\r\n"));
