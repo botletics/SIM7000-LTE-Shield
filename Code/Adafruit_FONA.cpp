@@ -2419,7 +2419,7 @@ boolean Adafruit_FONA::MQTTdisconnect(void) {
 // Set MQTT parameters
 // Parameter tags can be "CLIENTID", "URL", "KEEPTIME", "CLEANSS", "USERNAME",
 // "PASSWORD", "QOS", "TOPIC", "MESSAGE", or "RETAIN"
-boolean Adafruit_FONA_LTE::MQTTsetParameter(const char* paramTag, const char* paramValue, uint32_t port) {
+boolean Adafruit_FONA_LTE::MQTT_setParameter(const char* paramTag, const char* paramValue, uint32_t port) {
   char cmdStr[32];
 
   if (strcmp(paramTag, "CLIENTID") == 0 || strcmp(paramTag, "URL") == 0 || strcmp(paramTag, "TOPIC") == 0 || strcmp(paramTag, "MESSAGE") == 0) {
@@ -2436,20 +2436,20 @@ boolean Adafruit_FONA_LTE::MQTTsetParameter(const char* paramTag, const char* pa
 }
 
 // Connect or disconnect MQTT
-boolean Adafruit_FONA_LTE::MQTTconnect(bool yesno) {
+boolean Adafruit_FONA_LTE::MQTT_connect(bool yesno) {
   if (yesno) return sendCheckReply(F("AT+SMCONN"), ok_reply);
   else return sendCheckReply(F("AT+SMDISC"), ok_reply);
 }
 
 // Query MQTT connection status
-boolean Adafruit_FONA_LTE::MQTTconnectionStatus(void) {
+boolean Adafruit_FONA_LTE::MQTT_connectionStatus(void) {
   if (! sendCheckReply(F("AT+SMSTATE?"), F("+SMSTATE: 1"))) return false;
   return true;
 }
 
 // Subscribe to specified MQTT topic
 // QoS can be from 0-2
-boolean Adafruit_FONA_LTE::MQTTsubscribe(const char* topic, byte QoS) {
+boolean Adafruit_FONA_LTE::MQTT_subscribe(const char* topic, byte QoS) {
   char cmdStr[32];
   sprintf(cmdStr, "AT+SMSUB=\"%s\",%i", topic, QoS);
 
@@ -2458,7 +2458,7 @@ boolean Adafruit_FONA_LTE::MQTTsubscribe(const char* topic, byte QoS) {
 }
 
 // Unsubscribe from specified MQTT topic
-boolean Adafruit_FONA_LTE::MQTTunsubscribe(const char* topic) {
+boolean Adafruit_FONA_LTE::MQTT_unsubscribe(const char* topic) {
   char cmdStr[32];
   sprintf(cmdStr, "AT+SMUNSUB=\"%s\"", topic);
   if (! sendCheckReply(cmdStr, ok_reply)) return false;
@@ -2469,7 +2469,7 @@ boolean Adafruit_FONA_LTE::MQTTunsubscribe(const char* topic) {
 // Message length can be from 0-512 bytes
 // QoS can be from 0-2
 // Server hold message flag can be 0 or 1
-boolean Adafruit_FONA_LTE::MQTTpublish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain) {
+boolean Adafruit_FONA_LTE::MQTT_publish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain) {
   char cmdStr[40];
   sprintf(cmdStr, "AT+SMPUB=\"%s\",%i, %i, %i", topic, contentLength, QoS, retain);
 
@@ -2483,7 +2483,7 @@ boolean Adafruit_FONA_LTE::MQTTpublish(const char* topic, const char* message, u
 
 // Change MQTT data format to hex
 // Enter "true" if you want hex, "false" if you don't
-boolean Adafruit_FONA_LTE::MQTTdataFormatHex(bool yesno) {
+boolean Adafruit_FONA_LTE::MQTT_dataFormatHex(bool yesno) {
   if (yesno) sendCheckReply(F("AT+SMPUBHEX="), yesno, ok_reply);
 }
 
