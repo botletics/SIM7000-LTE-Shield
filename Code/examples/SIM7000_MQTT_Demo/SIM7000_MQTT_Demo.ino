@@ -9,7 +9,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 7/22/2019
+ *  Last Updated: 7/24/2019
  *  License: GNU GPL v3.0
  */
 
@@ -32,7 +32,7 @@
 
 #define LED 13 // Just for testing if needed!
 
-#define samplingRate 15 // The time we want to delay after each post (in seconds)
+#define samplingRate 30 // The time we want to delay after each post (in seconds)
 
 // We default to using software serial. If you want to use hardware serial
 // (because softserial isnt supported) comment out the following three lines 
@@ -55,8 +55,6 @@ SoftwareSerial *fonaSerial = &fonaSS;
 Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 
 /************************* MQTT PARAMETERS *********************************/
-// MQTT setup (if you're using it, that is)
-// For Adafruit IO:
 #define MQTT_SERVER      "m10.cloudmqtt.com"
 #define MQTT_PORT        16644
 #define MQTT_USERNAME    "MQTT_USERNAME"
@@ -179,8 +177,11 @@ void loop() {
   }
   Serial.println(F("Connected to cell network!"));
 
+  // Disable data just to make sure it was actually off so that we can turn it on
+//  fona.openWirelessConnection(false);
+
   // Open wireless connection if not already activated
-  if (! fona.wirelessConnStatus()) {
+  if (!fona.wirelessConnStatus()) {
     while (!fona.openWirelessConnection(true)) {
       Serial.println(F("Failed to enable connection, retrying..."));
       delay(2000); // Retry every 2s
@@ -254,26 +255,32 @@ void loop() {
   dtostrf(temperature, 1, 2, tempBuff);
   dtostrf(battLevel, 1, 0, battBuff);
 
-  // Also construct a combined, comma-separated location array
-  // (many platforms require this for dashboards, like Adafruit IO):
+  // Construct a combined, comma-separated location array
   sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff); // This could look like "10,33.123456,-85.123456,120.5"
   
   // If not already connected, connect to MQTT
   if (! fona.MQTT_connectionStatus()) {
     // Set up MQTT parameters (see MQTT app note for explanation of parameter values)
     fona.MQTT_setParameter("URL", MQTT_SERVER, MQTT_PORT);
-//    fona.MQTTsetParameter("KEEPTIME", 30); // Server keep time in seconds, 60s by default
+    // Set up MQTT username and password if necessary
+    fona.MQTT_setParameter("USERNAME", MQTT_USERNAME);
+    fona.MQTT_setParameter("PASSWORD", MQTT_PASSWORD);
+//    fona.MQTTsetParameter("KEEPTIME", 30); // Time to connect to server, 60s by default
     
     Serial.println(F("Connecting to MQTT broker..."));
     if (! fona.MQTT_connect(true)) {
       Serial.println(F("Failed to connect to broker!"));
     }
   }
+  else {
+    Serial.println(F("Already connected to MQTT server!"));
+  }
 
   // Now publish all the GPS and temperature data to their respective topics!
-  fona.MQTT_publish(GPS_TOPIC, locBuff, sizeof(locBuff), 1, 0); // Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
-  fona.MQTT_publish(TEMP_TOPIC, tempBuff, sizeof(tempBuff), 1, 0); // Send temperature
-  fona.MQTT_publish(BATT_TOPIC, battBuff, sizeof(battBuff), 1, 0); // Send battery level
+  // Parameters for MQTT_publish: Topic, message (0-512 bytes), message length, QoS (0-2), retain (0-1)
+  if (!fona.MQTT_publish(GPS_TOPIC, locBuff, strlen(locBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send GPS location
+  if (!fona.MQTT_publish(TEMP_TOPIC, tempBuff, strlen(tempBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send temperature
+  if (!fona.MQTT_publish(BATT_TOPIC, battBuff, strlen(battBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send battery level
 
   fona.MQTT_subscribe(SUB_TOPIC, 0); // Topic name, QoS
   
@@ -295,17 +302,7 @@ void loop() {
 // Power on the module
 void powerOn() {
   digitalWrite(FONA_PWRKEY, LOW);
-  // See spec sheets for your particular module
-  #if defined(SIMCOM_2G)
-    delay(1050);
-  #elif defined(SIMCOM_3G)
-    delay(180); // For SIM5320
-  #elif defined(SIMCOM_7000)
-    delay(100); // For SIM7000
-  #elif defined(SIMCOM_7500)
-    delay(500); // For SIM7500
-  #endif
-  
+  delay(100); // For SIM7000
   digitalWrite(FONA_PWRKEY, HIGH);
 }
 
