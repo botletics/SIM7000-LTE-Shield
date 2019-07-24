@@ -49,8 +49,8 @@
 
 // Uncomment *one* of the following protocols you want to use
 // to send data to the cloud! Leave the other commented out
-//#define PROTOCOL_HTTP_GET         // Generic
-#define PROTOCOL_HTTP_POST        // Generic
+#define PROTOCOL_HTTP_GET         // Generic
+//#define PROTOCOL_HTTP_POST        // Generic
 //#define PROTOCOL_MQTT_AIO         // Adafruit IO
 //#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
 
