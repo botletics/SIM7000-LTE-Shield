@@ -40,7 +40,7 @@ The following list is a summary of the things I've done so far:
 - Integrate dedicated MQTT(S) commands for SIM7000
 
 ### Completed Tasks
-- Tested SIM7000 dedicated MQTT commands and SIM7000_MQTT_Demo.ino with CloudMQTT on firmware 1351B03SIM7000A
+- Tested SIM7000 dedicated MQTT commands and SIM7000_MQTT_Demo.ino with CloudMQTT
 - Added the [SIM7000_MQTT_Demo sketch](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino) which uses the dedicated MQTT commands
 - Added MQTT functions for SIM7000 (see [SIM7000 MQTT app note](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/SIM7000%20Documentation/Technical%20Documents/SIM7000%20Series_MQTT_Application%20Note.pdf))
 - Documented all available library functions [on this page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
