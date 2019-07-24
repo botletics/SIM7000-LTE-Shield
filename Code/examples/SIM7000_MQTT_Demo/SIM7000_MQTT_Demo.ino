@@ -282,11 +282,10 @@ void loop() {
   if (!fona.MQTT_publish(TEMP_TOPIC, tempBuff, strlen(tempBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send temperature
   if (!fona.MQTT_publish(BATT_TOPIC, battBuff, strlen(battBuff), 1, 0)) Serial.println(F("Failed to publish!")); // Send battery level
 
-  fona.MQTT_subscribe(SUB_TOPIC, 0); // Topic name, QoS
+  fona.MQTT_subscribe(SUB_TOPIC, 1); // Topic name, QoS
   
   // Unsubscribe to topics if wanted:
-//  fona.MQTT_unsubscribe(GPS_TOPIC);
-//  fona.MQTT_unsubscribe(TEMP_TOPIC);
+//  fona.MQTT_unsubscribe(SUB_TOPIC);
 
   // Enable MQTT data format to hex
 //  fona.MQTT_dataFormatHex(true); // Input "false" to reverse
