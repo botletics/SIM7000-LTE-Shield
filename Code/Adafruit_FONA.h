@@ -330,14 +330,17 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
   boolean setBaudrate(uint16_t baud);
   boolean hangUp(void);
 
-  // MQTT(S)
-  boolean MQTT_setParameter(const char* paramTag, const char* paramValue, uint32_t port = 0);
+  // MQTT
+  boolean MQTT_setParameter(const char* paramTag, const char* paramValue, uint16_t port = 0);
   boolean MQTT_connect(bool yesno);
   boolean MQTT_connectionStatus(void);
   boolean MQTT_subscribe(const char* topic, byte QoS);
   boolean MQTT_unsubscribe(const char* topic);
   boolean MQTT_publish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain);
   boolean MQTT_dataFormatHex(bool yesno);
+
+  // SSL
+  
 };
 
 #endif

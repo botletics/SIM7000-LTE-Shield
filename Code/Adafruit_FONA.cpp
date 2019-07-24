@@ -336,8 +336,7 @@ boolean Adafruit_FONA_LTE::wirelessConnStatus(void) {
   getReply(F("AT+CNACT?"));
   // Format of response:
   // +CNACT: <status>,<ip_addr>
-  readline();
-  if (strstr(replybuffer, "+CNACT: 1") == 0) return false;
+  if (strstr(replybuffer, "+CNACT: 1") == NULL) return false;
   return true;
 }
 
@@ -1770,6 +1769,9 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
   getReply(F("AT+HTTPREAD"));
 
+  readline(10000);
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
+
   // Terminate HTTP service
   sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
 
@@ -2415,16 +2417,16 @@ boolean Adafruit_FONA::MQTTdisconnect(void) {
 	
 }
 
-/********* SIM7000 MQTT(S) FUNCTIONS  ************************************/
+/********* SIM7000 MQTT FUNCTIONS  ************************************/
 // Set MQTT parameters
 // Parameter tags can be "CLIENTID", "URL", "KEEPTIME", "CLEANSS", "USERNAME",
 // "PASSWORD", "QOS", "TOPIC", "MESSAGE", or "RETAIN"
-boolean Adafruit_FONA_LTE::MQTT_setParameter(const char* paramTag, const char* paramValue, uint32_t port) {
-  char cmdStr[32];
+boolean Adafruit_FONA_LTE::MQTT_setParameter(const char* paramTag, const char* paramValue, uint16_t port) {
+  char cmdStr[50];
 
   if (strcmp(paramTag, "CLIENTID") == 0 || strcmp(paramTag, "URL") == 0 || strcmp(paramTag, "TOPIC") == 0 || strcmp(paramTag, "MESSAGE") == 0) {
     if (port == 0) sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\"", paramTag, paramValue); // Quoted paramValue
-    else sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\",%i", paramTag, paramValue, port);
+    else sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\",\"%i\"", paramTag, paramValue, port);
     if (! sendCheckReply(cmdStr, ok_reply)) return false;
   }
   else {
@@ -2437,7 +2439,7 @@ boolean Adafruit_FONA_LTE::MQTT_setParameter(const char* paramTag, const char* p
 
 // Connect or disconnect MQTT
 boolean Adafruit_FONA_LTE::MQTT_connect(bool yesno) {
-  if (yesno) return sendCheckReply(F("AT+SMCONN"), ok_reply);
+  if (yesno) return sendCheckReply(F("AT+SMCONN"), ok_reply, 5000);
   else return sendCheckReply(F("AT+SMDISC"), ok_reply);
 }
 
@@ -2471,12 +2473,11 @@ boolean Adafruit_FONA_LTE::MQTT_unsubscribe(const char* topic) {
 // Server hold message flag can be 0 or 1
 boolean Adafruit_FONA_LTE::MQTT_publish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain) {
   char cmdStr[40];
-  sprintf(cmdStr, "AT+SMPUB=\"%s\",%i, %i, %i", topic, contentLength, QoS, retain);
+  sprintf(cmdStr, "AT+SMPUB=\"%s\",%i,%i,%i", topic, contentLength, QoS, retain);
 
-  if (! sendCheckReply(cmdStr, F(">"), 5000)) return false; // Wait for ">" to send message
-  else {
-    sendCheckReply(message, ok_reply, 5000); // Now send the message
-  }
+  getReply(cmdStr, 20000);
+  if (strstr(replybuffer, ">") == NULL) return false; // Wait for "> " to send message
+  if (! sendCheckReply(message, ok_reply, 5000)) return false; // Now send the message
 
   return true;
 }
@@ -2486,6 +2487,9 @@ boolean Adafruit_FONA_LTE::MQTT_publish(const char* topic, const char* message, 
 boolean Adafruit_FONA_LTE::MQTT_dataFormatHex(bool yesno) {
   if (yesno) sendCheckReply(F("AT+SMPUBHEX="), yesno, ok_reply);
 }
+
+/********* SSL FUNCTIONS  ************************************/
+
 
 
 /********* TCP FUNCTIONS  ************************************/
@@ -2713,8 +2717,7 @@ boolean Adafruit_FONA::HTTP_ssl(boolean onoff) {
 
 /********* HTTP HIGH LEVEL FUNCTIONS ***************************/
 
-boolean Adafruit_FONA::HTTP_GET_start(char *url,
-              uint16_t *status, uint16_t *datalen){
+boolean Adafruit_FONA::HTTP_GET_start(char *url, uint16_t *status, uint16_t *datalen) {
   if (! HTTP_setup(url))
     return false;
 
