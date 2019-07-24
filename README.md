@@ -17,6 +17,7 @@ To see a comprehensive list of every available function in the library, please [
 The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
+- Dedicated MQTT commands on SIM7000A. Tested on firmware versions 1351B03SIM7000A and 1351B04SIM7000A
 - Sleep mode and e-DRX configuration (~1.5mA)
 - FTP functions on SIM7000A firmware version 1351B03SIM7000A
 - FTP functions on SIM7000G firmware version 1529B01SIM7000G
