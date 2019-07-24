@@ -66,9 +66,6 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #define BATT_TOPIC      "battery"
 #define SUB_TOPIC       "command"     // Subscribe topic name
 
-// How many transmission failures in a row we're OK with before reset
-uint8_t txfailures = 0;
-
 /****************************** OTHER STUFF ***************************************/
 // For temperature sensor
 #include <Wire.h>
