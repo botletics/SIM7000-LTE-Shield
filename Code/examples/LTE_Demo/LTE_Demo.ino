@@ -122,7 +122,6 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
-  // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
   // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
   // Press reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
