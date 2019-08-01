@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/15/2018
+    Last Updated: 8/1/2019
     License: GNU GPL v3.0
 */
 
@@ -1035,8 +1035,8 @@ void loop() {
 #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
     case '3': {
         // Post data to website via 3G or 4G LTE
-        float temperature = analogRead(A0)*1.23; // Change this to suit your needs
-        
+        float temperature = analogRead(A0) * 1.23; // Change this to suit your needs
+
         // Voltage in mV, just for testing. Use the read battery function instead for real applications.
         uint16_t battLevel = 3700;
 
@@ -1045,20 +1045,30 @@ void loop() {
         char URL[150];
         char tempBuff[16];
         char battLevelBuff[16];
-      
+
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
         dtostrf(battLevel, 1, 0, battLevelBuff);
 
         // Construct the appropriate URL's and body, depending on request type
         // Use IMEI as device ID for this example
-        
+
         // GET request
         sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\n\r\n", imei, tempBuff, battLevelBuff);
-        
+
         if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
           Serial.println(F("Failed to complete HTTP/HTTPS request..."));
-      
+
+        /*
+        // POST request
+        // You could also try a POST request to something like Ubidots!
+        // Make sure to change the device name, token, and content length to test it!
+        sprintf(URL, "POST /api/v1.6/devices/your_device_123 HTTP/1.1\r\nHost: things.ubidots.com\r\nX-Auth-Token: YOUR_TOKEN\r\nContent-Type: application/json\r\nContent-Length: 20\r\n\r\n{\"temperature\":100}\r\n");
+
+        if (!fona.postData("things.ubidots.com", 443, "HTTPS", URL)) // Server, port, connection type, URL
+          Serial.println(F("Failed to complete HTTP/HTTPS request..."));
+        */
+        
         break;
       }
 #endif
