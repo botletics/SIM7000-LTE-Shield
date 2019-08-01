@@ -40,6 +40,10 @@
 #define SIM7500A 11
 #define SIM7500E 12
 
+#define SIM7600A 13
+#define SIM7600C 14
+#define SIM7600E 15
+
 // Set the preferred SMS storage.
 //   Use "SM" for storage on the SIM.
 //   Use "ME" for internal storage on the FONA chip
