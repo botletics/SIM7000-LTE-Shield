@@ -1062,8 +1062,8 @@ void loop() {
         /*
         // POST request
         // You could also try a POST request to something like Ubidots!
-        // Make sure to change the device name, token, and content length to test it!
-        sprintf(URL, "POST /api/v1.6/devices/your_device_123 HTTP/1.1\r\nHost: things.ubidots.com\r\nX-Auth-Token: YOUR_TOKEN\r\nContent-Type: application/json\r\nContent-Length: 20\r\n\r\n{\"temperature\":100}\r\n");
+        // Make sure to change the device name and token to test it!
+        sprintf(URL, "POST /api/v1.6/devices/YOUR_DEVICE_NAME HTTP/1.1\r\nHost: things.ubidots.com\r\nX-Auth-Token: YOUR_TOKEN\r\nContent-Type: application/json\r\nContent-Length: 20\r\n\r\n{\"temperature\":100}\r\n");
 
         if (!fona.postData("things.ubidots.com", 443, "HTTPS", URL)) // Server, port, connection type, URL
           Serial.println(F("Failed to complete HTTP/HTTPS request..."));
