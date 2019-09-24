@@ -26,7 +26,6 @@ The following list is a summary of the things I've done so far:
 - Hologram SIM card works great on both the AT&T and Verizon CAT-M1 networks in the USA!
 - HTTP and HTTPS via 3G with SIM5320
 - MQTT working with SIM7000 and SIM808 using TCP commands
-- MQTTS using TCP commands (To enable the MQTTS feature just check that the variable [SSL](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/72a135b90defe17bd095f201511c032ae35d3995/Code/Adafruit_FONA.h#L83) is in 1)
 - HTTP functions on SIM808 and other 2G modules
 - Network time works
 - Ultra low-power power down mode (~7.4uA)
@@ -36,7 +35,7 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
-- Create examples for SSL
+- Add SSL commands to the library and create examples
 - FTP image transfering
 - FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
@@ -82,3 +81,28 @@ The following list is a summary of the things I've done so far:
 -	Added “setBaudrate(uint16_t baud)” function for LTE class using "AT+IPR=<rate>". 
 -	Included SIM7000 types (A/C/E/G versions)
 -	Included FONA_LTE class to the library for SIM7000A module
+
+### New Functionality
+- MQTTS using TCP commands (To enable the MQTTS feature just check that the variable [SSL_FONA](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/72a135b90defe17bd095f201511c032ae35d3995/Code/Adafruit_FONA.h#L83) is in 1)
+
+#### Things to take into account for MQTTS
+- The TCP Supported SSL feature does [open](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2515) the port 8883 and allows MQTT over TLS
+- This feature is (so far) just for [sending data](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2672) to the broker who is listening to the 8883 port
+- If you want to also receive data, you have to add the respective AT command [here](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2720)
+- If you are ussing the [Adafruit_MQTT library](https://github.com/adafruit/Adafruit_MQTT_Library/blob/master/Adafruit_MQTT.cpp) and you want to test this feature quickly just for sending data add also the following in [here](https://github.com/adafruit/Adafruit_MQTT_Library/blob/3693eb880035e8304b21e179c23ff02c6594b53f/Adafruit_MQTT.cpp#L160) :
+```
+(...)
+  if (!SSL_FONA)
+  {
+  // Read connect response packet and verify it
+  len = readFullPacket(buffer, MAXBUFFERSIZE, CONNECT_TIMEOUT_MS);
+  if (len != 4)
+    return -1;
+  if ((buffer[0] != (MQTT_CTRL_CONNECTACK << 4)) || (buffer[1] != 2))
+    return -1;
+  if (buffer[3] != 0)
+    return buffer[3];
+  } 
+(...)
+```
+Because as I said the receive data function is not implemented yet
