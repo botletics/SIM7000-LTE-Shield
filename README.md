@@ -82,10 +82,10 @@ The following list is a summary of the things I've done so far:
 -	Included SIM7000 types (A/C/E/G versions)
 -	Included FONA_LTE class to the library for SIM7000A module
 
-### New Functionality
+## New Functionality
 - MQTTS using TCP commands (To enable the MQTTS feature just check that the variable [SSL_FONA](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/72a135b90defe17bd095f201511c032ae35d3995/Code/Adafruit_FONA.h#L83) is in 1)
 
-#### Things to take into account for MQTTS
+### Things to take into account for MQTTS
 - The TCP Supported SSL feature does [open](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2515) the port 8883 and allows MQTT over TLS
 - This feature is (so far) just for [sending data](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2672) to the broker who is listening to the 8883 port
 - If you want to also receive data, you have to add the respective AT command [here](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2720)
