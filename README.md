@@ -26,6 +26,7 @@ The following list is a summary of the things I've done so far:
 - Hologram SIM card works great on both the AT&T and Verizon CAT-M1 networks in the USA!
 - HTTP and HTTPS via 3G with SIM5320
 - MQTT working with SIM7000 and SIM808 using TCP commands
+- MQTTS using TCP commands (To enable the MQTTS feature just check that the variable [SSL](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/72a135b90defe17bd095f201511c032ae35d3995/Code/Adafruit_FONA.h#L83) is in 1)
 - HTTP functions on SIM808 and other 2G modules
 - Network time works
 - Ultra low-power power down mode (~7.4uA)
