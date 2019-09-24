@@ -89,7 +89,7 @@ The following list is a summary of the things I've done so far:
 - The TCP Supported SSL feature does [open](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2515) the port 8883 and allows MQTT over TLS
 - This feature is (so far) just for [sending data](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2672) to the broker who is listening to the 8883 port
 - If you want to also receive data, you have to add the respective AT command [here](https://github.com/ikstvn/SIM7000-LTE-Shield/blob/5786e4a31ddeb5e2e476fda96eb3188cad45fd6b/Adafruit_FONA.cpp#L2720)
-- If you are ussing the [Adafruit_MQTT library](https://github.com/adafruit/Adafruit_MQTT_Library/blob/master/Adafruit_MQTT.cpp) and you want to test this feature quickly just for sending data add also the following in [here](https://github.com/adafruit/Adafruit_MQTT_Library/blob/3693eb880035e8304b21e179c23ff02c6594b53f/Adafruit_MQTT.cpp#L160) :
+- If you are ussing the [Adafruit_MQTT library](https://github.com/adafruit/Adafruit_MQTT_Library/blob/master/Adafruit_MQTT.cpp) and want to test this feature quickly just for sending data add also the following in [here](https://github.com/adafruit/Adafruit_MQTT_Library/blob/3693eb880035e8304b21e179c23ff02c6594b53f/Adafruit_MQTT.cpp#L160) :
 ```
 (...)
   if (!SSL_FONA)
