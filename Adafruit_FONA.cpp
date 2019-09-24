@@ -18,7 +18,10 @@
 
 #include "Adafruit_FONA.h"
 
-
+char *server_CA_FONA;
+uint16_t port_CA_FONA = 0;
+int CID_CA_FONA = 0;
+char *rootCA_FONA;
 
 
 Adafruit_FONA::Adafruit_FONA(int8_t rst)
@@ -2494,40 +2497,127 @@ boolean Adafruit_FONA_LTE::MQTT_dataFormatHex(bool yesno) {
 }
 
 /********* SSL FUNCTIONS  ************************************/
+boolean Adafruit_FONA::addRootCA(const char *root_cert) {
+	
+	char rootCA[10240];
+	strcpy(rootCA,root_cert);
+	rootCA_FONA = rootCA;
+	if (!strlen(rootCA_FONA)) return false;
+	
+	return true;
+}
 
 
-
-/********* TCP FUNCTIONS  ************************************/
+/********* TCP FUNCTIONS + SSL ************************************/
 
 
 boolean Adafruit_FONA::TCPconnect(char *server, uint16_t port) {
-  flushInput();
+  if (SSL_FONA) {
+		  		  
+		  flushInput();
+		  
+		  //  Report Mobile Equipment Error
+		  if (! sendCheckReply(F("AT+CMEE=2"), ok_reply) ) return false;
+		  
+		  // Check config error
+		  if (! sendCheckReply(F("AT+CMEE?"), F("+CMEE: 2"), 20000) ) return false;
+		  
+		  //Set TCP/UDP Identifier
+		  if (! sendCheckReply(F("AT+CACID=1"), ok_reply) ) return false;
+		  CID_CA_FONA = 1;
+		  
+		  //Configure SSL Parameters of a Context Identifier
+		  if (! sendCheckReply(F("AT+CSSLCFG=\"sslversion\",1,3"), ok_reply) ) return false;
+		  if (! sendCheckReply(F("AT+CSSLCFG=\"protocol\",1,1"), ok_reply) ) return false;
+		  mySerial->println(F("AT+CSSLCFG=\"ctxindex\",1"));
+		  readline();
+		  if (! expectReply(ok_reply)) return false;
+		  
+		  if (! sendCheckReply(F("AT+CFSINIT"), ok_reply) ) return false;
+		  
+		  //Load CA
+		  mySerial->print(F("AT+CFSWFILE=3,\"ca.crt\",0,\""));
+		  mySerial->print(strlen(rootCA_FONA));
+		  mySerial->print(F("\",\""));
+		  mySerial->print(5000);
+		  mySerial->println(F("\""));
+		  
+		  if (! expectReply(F("DOWNLOAD"))) return false;
+		  
+		  mySerial->print(rootCA_FONA);
+		  readline(2000, true);
+		  if (!((replybuffer[0] == 'O') && (replybuffer[1] == 'K'))) return false;
+		  
+		  
+		  if (! sendCheckReply(F("AT+CFSTERM"), ok_reply) ) return false;
+		  
+		  if (! sendCheckReply(F("AT+CFSINIT"), ok_reply) ) return false;
+		  
+		  char CF[20] = "+CFSGFIS: ";
+		  itoa((int)strlen(rootCA_FONA), CF+10, 10);
+		  
+		  if (! sendCheckReply(F("AT+CFSGFIS=3,\"ca.crt\""), F((char*)CF)) ) return false;
+		  
+		  if (! sendCheckReply(F("AT+CFSTERM"), ok_reply) ) return false;
+		  
+		  if (! sendCheckReply(F("AT+CSSLCFG=\"convert\",2,\"ca.crt\""), ok_reply) ) return false;
+		  
+		  //Set SSL certificate and timeout parameters
+		  if (! sendCheckReply(F("AT+CASSLCFG=1,\"cacert\",\"ca.crt\""), ok_reply) ) return false;
+		  if (! sendCheckReply(F("AT+CASSLCFG=1,\"ssl\",1"), ok_reply) ) return false;
+		  if (! sendCheckReply(F("AT+CASSLCFG=1,\"crindex\",1"), ok_reply) ) return false;
+		  if (! sendCheckReply(F("AT+CASSLCFG=1,\"protocol\",0"), ok_reply) ) return false;
+		  
+		  if (! sendCheckReply(F("AT+CNACT=1,\"yourapn.net\""), ok_reply) ) return false;
+		  
+		  if (! expectReply(F("+APP PDP: ACTIVE"))) return false;
+		  
+		  mySerial->println(F("AT+CNACT?"));
+		  readline();
+		  if (! expectReply(ok_reply)) return false;
+		  
+		  char server_f[100];
+		  strcpy(server_f,server);
+		  server_CA_FONA = server_f;
+		  port_CA_FONA = port;
+		  
+		  mySerial->print(F("AT+CAOPEN=1,\""));
+		  mySerial->print(server);
+		  mySerial->print(F("\",\""));
+		  mySerial->print(port);
+		  mySerial->println(F("\""));
+		  if (! expectReply(F("+CAOPEN: 1,0"))) return false;
+	  }
+	  else
+	  {
+      flushInput();
 
-  // close all old connections
-  if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000) ) return false;
+      // close all old connections
+      if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000) ) return false;
 
-  // single connection at a time
-  if (! sendCheckReply(F("AT+CIPMUX=0"), ok_reply) ) return false;
+      // single connection at a time
+      if (! sendCheckReply(F("AT+CIPMUX=0"), ok_reply) ) return false;
 
-  // manually read data
-  if (! sendCheckReply(F("AT+CIPRXGET=1"), ok_reply) ) return false;
-
-
-  DEBUG_PRINT(F("AT+CIPSTART=\"TCP\",\""));
-  DEBUG_PRINT(server);
-  DEBUG_PRINT(F("\",\""));
-  DEBUG_PRINT(port);
-  DEBUG_PRINTLN(F("\""));
+      // manually read data
+      if (! sendCheckReply(F("AT+CIPRXGET=1"), ok_reply) ) return false;
 
 
-  mySerial->print(F("AT+CIPSTART=\"TCP\",\""));
-  mySerial->print(server);
-  mySerial->print(F("\",\""));
-  mySerial->print(port);
-  mySerial->println(F("\""));
+      DEBUG_PRINT(F("AT+CIPSTART=\"TCP\",\""));
+      DEBUG_PRINT(server);
+      DEBUG_PRINT(F("\",\""));
+      DEBUG_PRINT(port);
+      DEBUG_PRINTLN(F("\""));
 
-  if (! expectReply(ok_reply)) return false;
-  if (! expectReply(F("CONNECT OK"))) return false;
+
+      mySerial->print(F("AT+CIPSTART=\"TCP\",\""));
+      mySerial->print(server);
+      mySerial->print(F("\",\""));
+      mySerial->print(port);
+      mySerial->println(F("\""));
+
+      if (! expectReply(ok_reply)) return false;
+      if (! expectReply(F("CONNECT OK"))) return false;
+    }
 
   // looks like it was a success (?)
   return true;
@@ -2538,7 +2628,27 @@ boolean Adafruit_FONA::TCPclose(void) {
 }
 
 boolean Adafruit_FONA::TCPconnected(void) {
+  if (SSL_FONA)
+  {
+	
+	char CA[100] = "+CAOPEN: ";
+	itoa(CID_CA_FONA, CA+9, 10);
+	strcat(CA,",\"");	
+	strcat(CA,server_CA_FONA);	
+	strcat(CA,"\",");
+	char port_CA_FONA_p[10];
+	itoa((int)port_CA_FONA,port_CA_FONA_p, 10);
+	strcat(CA,port_CA_FONA_p);
+	
+  if (! sendCheckReply(F("AT+CAOPEN?"), F((char*)CA), 100) ){
+  return false;	  
+  }else {
+	  return true;} 
+  } 
+  else
+  {	  
   if (! sendCheckReply(F("AT+CIPSTATUS"), ok_reply, 100) ) return false;
+  }
   readline(100);
 
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
@@ -2559,9 +2669,20 @@ boolean Adafruit_FONA::TCPsend(char *packet, uint8_t len) {
   DEBUG_PRINTLN();
 
 
-  mySerial->print(F("AT+CIPSEND="));
-  mySerial->println(len);
-  readline();
+	  if (SSL_FONA)
+	  {
+		flushInput();
+		mySerial->print(F("AT+CASEND=1,\""));
+		mySerial->print(len);
+		mySerial->println(F("\""));
+		readline();
+	  } 
+	  else
+	  {
+		mySerial->print(F("AT+CIPSEND="));
+		mySerial->println(len);
+		readline();
+	  }
 
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
@@ -2573,7 +2694,14 @@ boolean Adafruit_FONA::TCPsend(char *packet, uint8_t len) {
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
 
-  return (strcmp(replybuffer, "SEND OK") == 0);
+  if (SSL_FONA)
+  {
+    return (strcmp(replybuffer, "OK") == 0);
+  } 
+  else
+  {
+    return (strcmp(replybuffer, "SEND OK") == 0);
+  }
 }
 
 uint16_t Adafruit_FONA::TCPavailable(void) {

@@ -80,6 +80,8 @@
 #define FONA_CALL_RINGING 3
 #define FONA_CALL_INPROGRESS 4
 
+#define SSL_FONA 1
+
 class Adafruit_FONA : public FONAStreamType {
  public:
   Adafruit_FONA(int8_t);
@@ -172,6 +174,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean enableGPSNMEA(uint8_t nmea);
 
   // TCP raw connections
+  boolean addRootCA(const char *root_cert);
   boolean TCPconnect(char *server, uint16_t port);
   boolean TCPclose(void);
   boolean TCPconnected(void);
