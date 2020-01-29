@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/28/2020
+ *  Last Updated: 1/29/2020
  *  License: GNU GPL v3.0
   */
 
@@ -200,7 +200,7 @@ void setup() {
   moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
   // tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
-  if (!tempsensor.begin()) {
+  if (!tempsensor.begin(0x18)) {
     Serial.println("Couldn't find the MCP9808!");
     while (1);
   }
