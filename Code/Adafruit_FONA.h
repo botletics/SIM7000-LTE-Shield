@@ -1,3 +1,6 @@
+// Modified version of Adafruit FONA library for Botletics hardware
+// Original text below:
+
 /***************************************************
   This is a library for our Adafruit FONA Cellular Module
 
@@ -140,7 +143,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean readSMS(uint8_t i, char *smsbuff, uint16_t max, uint16_t *readsize);
   boolean sendSMS(const char *smsaddr, const char *smsmsg);
   boolean deleteSMS(uint8_t i);
-  boolean deleteAllSMS();
+  boolean deleteAllSMS(void);
   boolean getSMSSender(uint8_t i, char *sender, int senderlen);
   boolean sendUSSD(char *ussdmsg, char *ussdbuff, uint16_t maxlen, uint16_t *readlen);
 
