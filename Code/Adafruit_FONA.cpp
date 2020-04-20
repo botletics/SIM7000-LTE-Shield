@@ -1,3 +1,6 @@
+// Modified version of Adafruit FONA library for Botletics hardware
+// Original text below:
+
 /***************************************************
   This is a library for our Adafruit FONA Cellular Module
 
@@ -14,7 +17,6 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-    // next line per http://postwarrior.com/arduino-ethershield-error-prog_char-does-not-name-a-type/
 
 #include "Adafruit_FONA.h"
 
@@ -2254,7 +2256,7 @@ void Adafruit_FONA::mqtt_connect_message(const char *protocol, byte *mqtt_messag
 
 	mqtt_message[1] = rem_length;              // Remaining length of message
 	mqtt_message[2] = 0;                       // Protocol name length MSB
-	mqtt_message[3] = 6;                       // Protocol name length LSB
+	mqtt_message[3] = protocol_length;         // Protocol name length LSB
 
 	// Use the given protocol name (for example, "MQTT" or "MQIsdp")
 	for (int i=0; i<protocol_length; i++) {
@@ -2312,7 +2314,7 @@ void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, const char *topic, 
 	mqtt_message[0] = 48;                                  // MQTT Message Type PUBLISH
 	mqtt_message[1] = 2 + topic_length + message_length;   // Remaining length
 	mqtt_message[2] = 0;                                   // Topic length MSB
-	mqtt_message[3] = topic_length;                    		 // Topic length LSB
+	mqtt_message[3] = topic_length;                        // Topic length LSB
 
   // Topic
   for(i = 0; i < topic_length; i++) {
