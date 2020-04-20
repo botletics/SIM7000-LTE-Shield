@@ -781,7 +781,6 @@ boolean Adafruit_FONA::sendSMS(const char *smsaddr, const char *smsmsg) {
   return true;
 }
 
-
 boolean Adafruit_FONA::deleteSMS(uint8_t i) {
     if (! sendCheckReply(F("AT+CMGF=1"), ok_reply)) return false;
   // delete an sms
@@ -793,6 +792,12 @@ boolean Adafruit_FONA::deleteSMS(uint8_t i) {
   sendbuff[10] = i + '0';
 
   return sendCheckReply(sendbuff, ok_reply, 2000);
+}
+
+
+boolean Adafruit_FONA::deleteAllSMS() {
+  if (! sendCheckReply(F("AT+CMGF=1"), ok_reply)) return false;
+  return sendCheckReply("AT+CMGD=1,4", ok_reply, 2000);
 }
 
 /********* USSD *********************************************************/
