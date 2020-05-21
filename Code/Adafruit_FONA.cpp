@@ -2384,7 +2384,7 @@ boolean Adafruit_FONA::MQTTconnect(const char *protocol, const char *clientID, c
 	mqtt_connect_message(protocol, mqtt_message, clientID, username, password);
 
 
-  if (! mqtt_sendPacket(mqtt_message, 20+strlen(clientID)+strlen(username)+strlen(password))) return false;
+  if (! mqtt_sendPacket(mqtt_message, 14+strlen(protocol)+strlen(clientID)+strlen(username)+strlen(password))) return false;
 
   return true;
 }
