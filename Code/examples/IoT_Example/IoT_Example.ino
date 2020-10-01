@@ -63,6 +63,10 @@
 #define FONA_TX 10 // Microcontroller RX
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
+//RX and TX pin basically use for Communication
+
+
+
 
 // For SIM7500 shield
 //#define FONA_PWRKEY 6
