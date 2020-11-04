@@ -292,7 +292,7 @@ boolean Adafruit_FONA::set_eDRX(uint8_t mode, uint8_t connType, char * eDRX_val)
 
   char auxStr[21];
 
-  sprintf(auxStr, "AT+CEDRXS=%i,%i,%s", mode, connType, eDRX_val);
+  sprintf(auxStr, "AT+CEDRXS=%i,%i,\"%s\"", mode, connType, eDRX_val);
 
   return sendCheckReply(auxStr, ok_reply);
 }
