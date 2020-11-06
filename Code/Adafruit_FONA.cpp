@@ -301,6 +301,32 @@ boolean Adafruit_FONA::set_eDRX(uint8_t mode, uint8_t connType, char * eDRX_val)
 boolean Adafruit_FONA::enablePSM(bool onoff) {
   return sendCheckReply(F("AT+CPSMS="), onoff, ok_reply);
 }
+// Set PSM with custom TAU and active time
+// For both TAU and Active time, leftmost 3 bits represent the multiplier and rightmost 5 bits represent the value in bits.
+
+// For TAU, left 3 bits:
+// 000 10min
+// 001 1hr
+// 010 10hr
+// 011 2s
+// 100 30s
+// 101 1min
+// For Active time, left 3 bits:
+// 000 2s
+// 001 1min
+// 010 6min
+// 111 disabled
+
+// Note: Network decides the final value of the TAU and active time. 
+boolean Adafruit_FONA::enablePSM(bool onoff, char * TAU_val, char * activeTime_val) { // AT+CPSMS command
+    if (strlen(activeTime_val) > 8) return false;
+    if (strlen(TAU_val) > 8) return false;
+
+    char auxStr[35];
+    sprintf(auxStr, "AT+CPSMS=%i,,,\"%s\",\"%s\"", onoff, TAU_val, activeTime_val);
+
+    return sendCheckReply(auxStr, ok_reply);
+}
 
 // Enable, disable, or set the blinking frequency of the network status LED
 // Default settings are the following:

@@ -110,6 +110,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean enableSleepMode(bool onoff); // AT+CSCLK command
   boolean set_eDRX(uint8_t mode, uint8_t connType, char * eDRX_val); // AT+CEDRXS command
   boolean enablePSM(bool onoff); // AT+CPSMS command
+  boolean enablePSM(bool onoff, char * TAU_val, char * activeTime_val); // AT+CPSMS command
   boolean setNetLED(bool onoff, uint8_t mode = 0, uint16_t timer_on = 64, uint16_t timer_off = 3000); // AT+CNETLIGHT and AT+SLEDS commands
 
   // SIM query
