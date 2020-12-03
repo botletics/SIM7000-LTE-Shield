@@ -26,7 +26,7 @@ AT+CASSLCFG=0,ssl,1
 
 OK
 
-AT+CAOPEN=0,"eun-celli-13383-dev-01-iothub1.azure-devices.net",8883
+AT+CAOPEN=0,"URL-goes-here.azure-devices.net",8883
 
 +CAOPEN: 0,0
 
