@@ -1,0 +1,259 @@
+2019-06-26 14:04:04:173[Recv<-]
+
+DST: 0
+
+ 
+
+*PSUTTZ: 19/06/26,06:04:03","+32",0
+
+ 
+
+2019-06-26 14:05:09:055[Send->]AT+CPIN?
+
+ 
+
+2019-06-26 14:05:09:057[Recv<-]AT+CPIN?
+
+ 
+
++CPIN: READY
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:09:975[Send->]AT+CSQ
+
+ 
+
+2019-06-26 14:05:09:977[Recv<-]AT+CSQ
+
+ 
+
++CSQ: 24,99
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:10:887[Send->]AT+CGREG?
+
+ 
+
+2019-06-26 14:05:10:890[Recv<-]AT+CGREG?
+
+ 
+
++CGREG: 0,1
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:12:847[Send->]AT+COPS?
+
+ 
+
+2019-06-26 14:05:12:851[Recv<-]AT+COPS?
+
+ 
+
++COPS: 0,0,"CHINA MOBILE CMCC",3
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:13:655[Send->]AT+CGNAPN
+
+ 
+
+2019-06-26 14:05:13:658[Recv<-]AT+CGNAPN
+
+ 
+
++CGNAPN: 0,""
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:14:983[Send->]AT+CNACT=1,"cmnet"
+
+ 
+
+2019-06-26 14:05:14:987[Recv<-]AT+CNACT=1,"cmnet"
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:15:479[Recv<-]
+
++APP PDP: ACTIVE
+
+ 
+
+2019-06-26 14:05:16:527[Send->]AT+CNACT?
+
+ 
+
+2019-06-26 14:05:16:531[Recv<-]AT+CNACT?
+
+ 
+
++CNACT: 1,"100.71.118.22"
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:38:159[Send->]at+csslcfg=convert,2,x.cer
+
+ 
+
+2019-06-26 14:05:38:163[Recv<-]at+csslcfg=convert,2,x.cer
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:05:44:887[Send->]at+csslcfg=convert,1,test crt.crt,test key.key
+
+ 
+
+2019-06-26 14:05:44:890[Recv<-]at+csslcfg=convert,1,test crt.crt,test key.key
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:06:01:911[Send->]AT+CSSLCFG="sslversion",0,3
+
+ 
+
+2019-06-26 14:06:01:915[Recv<-]AT+CSSLCFG="sslversion",0,3
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:06:13:839[Send->]AT+SMSSL=1,x.cer,test crt.crt
+
+ 
+
+2019-06-26 14:06:13:843[Recv<-]AT+SMSSL=1,x.cer,test crt.crt
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:06:25:488[Send->]AT+SMCONF=url,test-url-goes-here.iot.us-east-1.amazonaws.com
+,8883
+
+ 
+
+2019-06-26 14:06:25:492[Recv<-]AT+SMCONF=url,test-url-goes-here.iot.us-east-1.amazonaws.com
+,8883
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:06:34:112[Send->]AT+SMCONF="clientid","basicPubSub"
+
+ 
+
+2019-06-26 14:06:34:116[Recv<-]AT+SMCONF="clientid","basicPubSub"
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:06:37:112[Send->]AT+SMCONF="KEEPTIME",60
+
+ 
+
+2019-06-26 14:06:37:116[Recv<-]AT+SMCONF="KEEPTIME",60
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:06:45:375[Send->]AT+SMCONN
+
+ 
+
+2019-06-26 14:06:45:379[Recv<-]AT+SMCONN
+
+ 
+
+2019-06-26 14:07:11:720[Recv<-]
+
+OK
+
+ 
+
+ 
+
+2019-06-26 14:07:52:056[Send->]AT+SMSUB="ryan",1
+
+ 
+
+2019-06-26 14:07:52:059[Recv<-]AT+SMSUB="ryan",1
+
+ 
+
+OK
+
+ 
+
+2019-06-26 14:08:06:424[Send->]AT+SMPUB="ryan","8",1,1
+
+ 
+
+2019-06-26 14:08:06:428[Recv<-]AT+SMPUB="ryan","8",1,1
+
+ 
+
+> test626
+
+2019-06-26 14:08:21:365[Send->]test626
+
+2019-06-26 14:08:21:398[Recv<-]test626
+
+2019-06-26 14:08:27:766[Recv<-]
+
++SMSTATE: 0
+
+ 
+
+OK
