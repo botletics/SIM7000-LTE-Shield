@@ -935,12 +935,35 @@ boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
 
 /********* Real Time Clock ********************************************/
 
-boolean Adafruit_FONA::readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec) {
-  uint16_t v;
-  if (! sendParseReply(F("AT+CCLK?"), F("+CCLK: "), &v, '/', 0) ) return false;
-  *year = v;
+boolean Adafruit_FONA::readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec, int8_t *tz) {
+  getReply(F("AT+CCLK?"), (uint16_t) 10000); //Get RTC timeout 10 sec
+  if (strncmp(replybuffer, "+CCLK: ", 7) != 0)
+    return false;
 
-  DEBUG_PRINTLN(*year);
+  char *p = replybuffer+8;   // skip +CCLK: "
+  // Parse date
+  int reply = atoi(p);  	 // get year
+  *year = (uint8_t) reply;   // save as year
+  p+=3; 				     // skip 3 char
+  reply = atoi(p);
+  *month = (uint8_t) reply;
+  p+=3;
+  reply = atoi(p);
+  *date = (uint8_t) reply;
+  p+=3;
+  reply = atoi(p);
+  *hr = (uint8_t) reply;
+  p+=3;
+  reply = atoi(p);
+  *min = (uint8_t) reply;
+  p+=3;
+  reply = atoi(p);
+  *sec = (uint8_t) reply;
+  p+=3;
+  reply = atoi(p);
+  *tz = reply;
+
+  readline(); // eat OK
 
   return true;
 }
