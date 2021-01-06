@@ -2538,7 +2538,7 @@ boolean Adafruit_FONA_LTE::MQTT_publish(const char* topic, const char* message, 
   char cmdStr[40];
   sprintf(cmdStr, "AT+SMPUB=\"%s\",%i,%i,%i", topic, contentLength, QoS, retain);
 
-  getReply(cmdStr, 20000);
+  getReply(cmdStr, 2000);
   if (strstr(replybuffer, ">") == NULL) return false; // Wait for "> " to send message
   if (! sendCheckReply(message, ok_reply, 5000)) return false; // Now send the message
 
