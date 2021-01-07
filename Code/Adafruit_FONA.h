@@ -40,12 +40,14 @@
 #define SIM7000E 9
 #define SIM7000G 10
 
-#define SIM7500A 11
-#define SIM7500E 12
+#define SIM7070G 11
 
-#define SIM7600A 13
-#define SIM7600C 14
-#define SIM7600E 15
+#define SIM7500A 12
+#define SIM7500E 13
+
+#define SIM7600A 14
+#define SIM7600C 15
+#define SIM7600E 16
 
 // Set the preferred SMS storage.
 //   Use "SM" for storage on the SIM.
@@ -82,6 +84,8 @@
 #define FONA_CALL_UNKNOWN 2
 #define FONA_CALL_RINGING 3
 #define FONA_CALL_INPROGRESS 4
+
+#define SSL_FONA 1
 
 class Adafruit_FONA : public FONAStreamType {
  public:
@@ -122,7 +126,7 @@ class Adafruit_FONA : public FONAStreamType {
   // IMEI
   uint8_t getIMEI(char *imei);
 
-  // set Audio output
+  // Audio output
   boolean setAudio(uint8_t a);
   boolean setVolume(uint8_t i);
   uint8_t getVolume(void);
@@ -167,6 +171,10 @@ class Adafruit_FONA : public FONAStreamType {
   boolean postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body = "");
   void getNetworkInfo(void);
 
+  // Network connection (AT+CNACT)
+  boolean openWirelessConnection(bool onoff);
+  boolean wirelessConnStatus(void);
+
   // GPS handling
   boolean enableGPS(boolean onoff);
   int8_t GPSstatus(void);
@@ -183,6 +191,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean TCPsend(char *packet, uint8_t len);
   uint16_t TCPavailable(void);
   uint16_t TCPread(uint8_t *buff, uint8_t len);
+  boolean addRootCA(const char *root_cert);
 
   // MQTT
   boolean MQTTconnect(const char *protocol, const char *clientID, const char *username = "", const char *password = "");
@@ -214,6 +223,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean HTTP_action(uint8_t method, uint16_t *status, uint16_t *datalen, int32_t timeout = 10000);
   boolean HTTP_readall(uint16_t *datalen);
   boolean HTTP_ssl(boolean onoff);
+  boolean HTTP_header(char *type, char *value, uint16_t maxlen);
 
   // HTTP high level interface (easier to use, less flexible).
   boolean HTTP_GET_start(char *url, uint16_t *status, uint16_t *datalen);
@@ -257,6 +267,7 @@ class Adafruit_FONA : public FONAStreamType {
 
   // HTTP helpers
   boolean HTTP_setup(char *url);
+  HTTP_addHeader(char *type, char *value, uint16_t maxlen);
 
   void flushInput();
   uint16_t readRaw(uint16_t b);
@@ -319,20 +330,18 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
 
  protected:
     boolean parseReply(FONAFlashStringPtr toreply,
-		       float *f, char divider, uint8_t index);
+           float *f, char divider, uint8_t index);
 
     boolean sendParseReply(FONAFlashStringPtr tosend,
-			   FONAFlashStringPtr toreply,
-			   float *f, char divider = ',', uint8_t index=0);
+         FONAFlashStringPtr toreply,
+         float *f, char divider = ',', uint8_t index=0);
 };
 
 class Adafruit_FONA_LTE : public Adafruit_FONA {
 
  public:
-  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; _type = SIM7500A;}
+  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; _type = SIM7070G; _type = SIM7500A;}
 
-  boolean openWirelessConnection(bool onoff);
-  boolean wirelessConnStatus(void);
   boolean setPreferredMode(uint8_t mode);
   boolean setPreferredLTEMode(uint8_t mode);
   boolean setOperatingBand(const char * mode, uint8_t band);

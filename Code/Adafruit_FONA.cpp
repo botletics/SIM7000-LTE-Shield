@@ -20,6 +20,12 @@
 
 #include "Adafruit_FONA.h"
 
+#ifdef SSL_FONA
+  char *server_CA_FONA;
+  uint16_t port_CA_FONA = 0;
+  int CID_CA_FONA = 0;
+  char *rootCA_FONA;
+#endif
 
 
 
@@ -123,6 +129,8 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = SIM7000E;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G")) != 0) {
     _type = SIM7000G;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7070G")) != 0) {
+    _type = SIM7070G;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A")) != 0) {
     _type = SIM7500A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500E")) != 0) {
@@ -351,27 +359,6 @@ boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, ui
   else {
     return sendCheckReply(F("AT+CNETLIGHT=0"), ok_reply);
   }
-}
-
-// Open or close wireless data connection
-boolean Adafruit_FONA_LTE::openWirelessConnection(bool onoff) {
-  if (!onoff) return sendCheckReply(F("AT+CNACT=0"), ok_reply); // Disconnect wireless
-  else {
-    getReplyQuoted(F("AT+CNACT=1,"), apn);
-    readline(); // Eat 'OK'
-
-    if (strcmp(replybuffer, "+APP PDP: ACTIVE") == 0) return true;
-    else return false;
-  }
-}
-
-// Query wireless connection status
-boolean Adafruit_FONA_LTE::wirelessConnStatus(void) {
-  getReply(F("AT+CNACT?"));
-  // Format of response:
-  // +CNACT: <status>,<ip_addr>
-  if (strstr(replybuffer, "+CNACT: 1") == NULL) return false;
-  return true;
 }
 
 /********* SIM ***********************************************************/
@@ -982,7 +969,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 
   // First check if its already on or off
 
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
     if (! sendParseReply(F("AT+CGNSPWR?"), F("+CGNSPWR: "), &state) )
       return false;
   } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
@@ -994,7 +981,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
   }
 
   if (onoff && !state) {
-    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
       if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))
 				return false;
     } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
@@ -1005,7 +992,7 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 				return false;
     }
   } else if (!onoff && state) {
-    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
       if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply))
 				return false;
 		} else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
@@ -1043,7 +1030,7 @@ boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
 */
 
 int8_t Adafruit_FONA::GPSstatus(void) {
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
     // 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
     // Instead just look for a fix and if found assume it's a 3D fix.
     getReply(F("AT+CGNSINF"));
@@ -1209,7 +1196,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
-  } else if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G ||
+  } else if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G ||
   					 _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
@@ -1432,7 +1419,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
   i %= 10;
   sendbuff[13] = i + '0';
 
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G) {
+  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
     if (i) {
     	sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
       sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
@@ -1525,6 +1512,13 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 
 	    readline(); // eat 'OK'
 	  }
+	}
+	else if (_type == SIM7070G) {
+		getNetworkInfo();
+
+		if (! openWirelessConnection(true)) return false;
+
+		wirelessConnStatus();
 	}
 	else {
 	  if (onoff) {
@@ -1751,94 +1745,160 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 
 }
 
+// Open or close wireless data connection
+boolean Adafruit_FONA::openWirelessConnection(bool onoff) {
+  if (!onoff) { // Disconnect wireless
+    if (_type == SIM7070G) sendCheckReply(F("AT+CNACT=0,0"), ok_reply);
+    else return sendCheckReply(F("AT+CNACT=0"), ok_reply);
+  }
+  else {
+    if (_type == SIM7070G) sendCheckReply(F("AT+CNACT=0,1"), ok_reply);
+    else getReplyQuoted(F("AT+CNACT=1,"), apn);
+    readline(); // Eat 'OK'
+
+    // if (strcmp(replybuffer, "+APP PDP: ACTIVE") == 0) return true;
+    if (strcmp(replybuffer, "ACTIVE") == 0) return true;
+    else return false;
+  }
+}
+
+// Query wireless connection status
+boolean Adafruit_FONA::wirelessConnStatus(void) {
+  getReply(F("AT+CNACT?"));
+  // Format of response:
+  // +CNACT: <status>,<ip_addr>
+  if (strstr(replybuffer, "+CNACT: 1") == NULL) return false;
+  return true;
+}
+
 boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const char *body, const char *token, uint32_t bodylen) {
   // NOTE: Need to open socket/enable GPRS before using this function
   // char auxStr[64];
 
-  // Make sure HTTP service is terminated so initialization will run
-  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
+  if (_type == SIM7070G) {
+  	// Set up server URL
+		char urlBuff[strlen(URL) + 20];
 
-  // Initialize HTTP service
-  if (! sendCheckReply(F("AT+HTTPINIT"), ok_reply, 10000))
-    return false;
+	  sprintf(urlBuff, "AT+SHCONF=\"URL\",\"%s\"", URL);
 
-  // Set HTTP parameters
-  if (! sendCheckReply(F("AT+HTTPPARA=\"CID\",1"), ok_reply, 10000))
-    return false;
+	  if (! sendCheckReply(urlBuff, ok_reply, 10000))
+	    return false;
 
-  // Specify URL
-  char urlBuff[strlen(URL) + 22];
+	  // Set max HTTP body length
+	  sendCheckReply(F("AT+SHCONF=\"BODYLEN\",1024"), ok_reply, 10000); // Max 1024 for SIM7070G
 
-  sprintf(urlBuff, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
+	  // Set max HTTP header length
+	  sendCheckReply(F("AT+SHCONF=\"HEADERLEN\",350"), ok_reply, 10000); // Max 350 for SIM7070G
 
-  if (! sendCheckReply(urlBuff, ok_reply, 10000))
-    return false;
+	  // HTTP build
+	  sendCheckReply(F("AT+SHCONN"), ok_reply, 10000);
 
-  // Perform request based on specified request Type
-  if (strlen(body) > 0) bodylen = strlen(body);
+	  // Get HTTP status
+	  getReply(F("AT+SHSTATE?"));
+	  if (strcmp(replybuffer, "+SHSTATE: 1") == NULL) return false;
+	  return true;
 
-  if (request_type == "GET") {
-  	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
-    	return false;
+	  // Clear HTTP header (HTTP header is appended)
+	  sendCheckReply(F("AT+SHCHEAD"), ok_reply, 10000);
+
+	  // MAKE SEPARATE FUNCTION FOR HTTP INITIALIZATION STUFF FOR SIM7070G???
+  	if (request_type == "GET") {
+  		// Set up headers
+  		HTTP_header("Connection", "keep-alive", 11); // header type, value, max length of header or value
+
+  	}
+  	else if (request_type == "POST" && bodylen > 0) {
+
+  	}
+
+  	sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
   }
-  else if (request_type == "POST" && bodylen > 0 ) { // POST with content body
-  	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
-    	return false;
+  else {
+	  // Make sure HTTP service is terminated so initialization will run
+	  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
 
-    if (strlen(token) > 0) {
-      char tokenStr[strlen(token) + 55];
+	  // Initialize HTTP service
+	  if (! sendCheckReply(F("AT+HTTPINIT"), ok_reply, 10000))
+	    return false;
 
-	  	sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
+	  // Set HTTP parameters
+	  if (! sendCheckReply(F("AT+HTTPPARA=\"CID\",1"), ok_reply, 10000))
+	    return false;
 
-	  	if (! sendCheckReply(tokenStr, ok_reply, 10000))
-	  		return false;
+	  // Specify URL
+	  char urlBuff[strlen(URL) + 22];
+
+	  sprintf(urlBuff, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
+
+	  if (! sendCheckReply(urlBuff, ok_reply, 10000))
+	    return false;
+
+	  // Perform request based on specified request Type
+	  if (strlen(body) > 0) bodylen = strlen(body);
+
+	  if (request_type == "GET") {
+	  	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
+	    	return false;
+	  }
+	  else if (request_type == "POST" && bodylen > 0) { // POST with content body
+	  	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
+	    	return false;
+
+	    if (strlen(token) > 0) {
+	      char tokenStr[strlen(token) + 55];
+
+		  	sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
+
+		  	if (! sendCheckReply(tokenStr, ok_reply, 10000))
+		  		return false;
+		  }
+
+	    char dataBuff[sizeof(bodylen) + 20];
+
+			sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
+			if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
+		    return false;
+
+	    delay(100); // Needed for fast baud rates (ex: 115200 baud with SAMD21 hardware serial)
+
+			if (! sendCheckReply(body, ok_reply, 10000))
+		    return false;
+
+	  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+	    	return false;
+	  }
+	  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
+	  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+	    	return false;
+	  }
+	  else if (request_type == "HEAD") {
+	  	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
+	    	return false;
 	  }
 
-    char dataBuff[sizeof(bodylen) + 20];
-
-		sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
-		if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
+	  // Parse response status and size
+	  uint16_t status, datalen;
+	  readline(10000);
+	  if (! parseReply(F("+HTTPACTION:"), &status, ',', 1))
+	    return false;
+	  if (! parseReply(F("+HTTPACTION:"), &datalen, ',', 2))
 	    return false;
 
-    delay(100); // Needed for fast baud rates (ex: 115200 baud with SAMD21 hardware serial)
+	  DEBUG_PRINT("HTTP status: "); DEBUG_PRINTLN(status);
+	  DEBUG_PRINT("Data length: "); DEBUG_PRINTLN(datalen);
 
-		if (! sendCheckReply(body, ok_reply, 10000))
-	    return false;
+	  if (status != 200) return false;
 
-  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-    	return false;
-  }
-  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
-  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-    	return false;
-  }
-  else if (request_type == "HEAD") {
-  	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
-    	return false;
-  }
+	  getReply(F("AT+HTTPREAD"));
 
-  // Parse response status and size
-  uint16_t status, datalen;
-  readline(10000);
-  if (! parseReply(F("+HTTPACTION:"), &status, ',', 1))
-    return false;
-  if (! parseReply(F("+HTTPACTION:"), &datalen, ',', 2))
-    return false;
+	  readline(10000);
+	  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
 
-  DEBUG_PRINT("HTTP status: "); DEBUG_PRINTLN(status);
-  DEBUG_PRINT("Data length: "); DEBUG_PRINTLN(datalen);
+	  // Terminate HTTP service
+	  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
 
-  if (status != 200) return false;
-
-  getReply(F("AT+HTTPREAD"));
-
-  readline(10000);
-  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
-
-  // Terminate HTTP service
-  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
-
-  return true;
+	  return true;
+	}
 }
 
 /********************************* HTTPS FUNCTION *********************************/
@@ -2552,40 +2612,117 @@ boolean Adafruit_FONA_LTE::MQTT_dataFormatHex(bool yesno) {
 }
 
 /********* SSL FUNCTIONS  ************************************/
+boolean Adafruit_FONA::addRootCA(const char *root_cert) {
+  char rootCA[10240];
+  strcpy(rootCA,root_cert);
+  rootCA_FONA = rootCA;
+  if (!strlen(rootCA_FONA)) return false;
+
+  return true;
+}
 
 
-
-/********* TCP FUNCTIONS  ************************************/
+/**************** TCP FUNCTIONS + SSL *************************/
 
 
 boolean Adafruit_FONA::TCPconnect(char *server, uint16_t port) {
-  flushInput();
+  if (SSL_FONA) {
+    flushInput();
+    
+    //  Report Mobile Equipment Error
+    if (! sendCheckReply(F("AT+CMEE=2"), ok_reply) ) return false;
+    
+    // Check config error
+    if (! sendCheckReply(F("AT+CMEE?"), F("+CMEE: 2"), 20000) ) return false;
+    
+    //Set TCP/UDP Identifier
+    if (! sendCheckReply(F("AT+CACID=1"), ok_reply) ) return false;
+    CID_CA_FONA = 1;
+    
+    //Configure SSL Parameters of a Context Identifier
+    if (! sendCheckReply(F("AT+CSSLCFG=\"sslversion\",1,3"), ok_reply) ) return false;
+    if (! sendCheckReply(F("AT+CSSLCFG=\"protocol\",1,1"), ok_reply) ) return false;
+    mySerial->println(F("AT+CSSLCFG=\"ctxindex\",1"));
+    readline();
+    if (! expectReply(ok_reply)) return false;
+    
+    if (! sendCheckReply(F("AT+CFSINIT"), ok_reply) ) return false;
+    
+    //Load CA
+    mySerial->print(F("AT+CFSWFILE=3,\"ca.crt\",0,\""));
+    mySerial->print(strlen(rootCA_FONA));
+    mySerial->print(F("\",\""));
+    mySerial->print(5000);
+    mySerial->println(F("\""));
+    
+    if (! expectReply(F("DOWNLOAD"))) return false;
+    
+    mySerial->print(rootCA_FONA);
+    readline(2000, true);
+    if (!((replybuffer[0] == 'O') && (replybuffer[1] == 'K'))) return false;
+    
+    
+    if (! sendCheckReply(F("AT+CFSTERM"), ok_reply) ) return false;
+    if (! sendCheckReply(F("AT+CFSINIT"), ok_reply) ) return false;
+    
+    char CF[20] = "+CFSGFIS: ";
+    itoa((int)strlen(rootCA_FONA), CF+10, 10);
+    
+    if (! sendCheckReply(F("AT+CFSGFIS=3,\"ca.crt\""), (char*)CF, 300)) return false; // Get cert file size
+    if (! sendCheckReply(F("AT+CFSTERM"), ok_reply) ) return false;
 
-  // close all old connections
-  if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000) ) return false;
+    if (! sendCheckReply(F("AT+CSSLCFG=\"convert\",2,\"ca.crt\""), ok_reply) ) return false;
+    
+    //Set SSL certificate and timeout parameters
+    if (! sendCheckReply(F("AT+CASSLCFG=1,\"cacert\",\"ca.crt\""), ok_reply) ) return false;
+    if (! sendCheckReply(F("AT+CASSLCFG=1,\"ssl\",1"), ok_reply) ) return false;
+    if (! sendCheckReply(F("AT+CASSLCFG=1,\"crindex\",1"), ok_reply) ) return false;
+    if (! sendCheckReply(F("AT+CASSLCFG=1,\"protocol\",0"), ok_reply) ) return false;
+    
+    if (! openWirelessConnection(true)) return false;
+    if (! wirelessConnStatus()) return false;
+    
+    char server_f[100];
+    strcpy(server_f,server);
+    server_CA_FONA = server_f;
+    port_CA_FONA = port;
+    
+    mySerial->print(F("AT+CAOPEN=1,\""));
+    mySerial->print(server);
+    mySerial->print(F("\",\""));
+    mySerial->print(port);
+    mySerial->println(F("\""));
+    if (! expectReply(F("+CAOPEN: 1,0"))) return false;
+  }
+  else {
+    flushInput();
 
-  // single connection at a time
-  if (! sendCheckReply(F("AT+CIPMUX=0"), ok_reply) ) return false;
+    // close all old connections
+    if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000) ) return false;
 
-  // manually read data
-  if (! sendCheckReply(F("AT+CIPRXGET=1"), ok_reply) ) return false;
+    // single connection at a time
+    if (! sendCheckReply(F("AT+CIPMUX=0"), ok_reply) ) return false;
 
-
-  DEBUG_PRINT(F("AT+CIPSTART=\"TCP\",\""));
-  DEBUG_PRINT(server);
-  DEBUG_PRINT(F("\",\""));
-  DEBUG_PRINT(port);
-  DEBUG_PRINTLN(F("\""));
+    // manually read data
+    if (! sendCheckReply(F("AT+CIPRXGET=1"), ok_reply) ) return false;
 
 
-  mySerial->print(F("AT+CIPSTART=\"TCP\",\""));
-  mySerial->print(server);
-  mySerial->print(F("\",\""));
-  mySerial->print(port);
-  mySerial->println(F("\""));
+    DEBUG_PRINT(F("AT+CIPSTART=\"TCP\",\""));
+    DEBUG_PRINT(server);
+    DEBUG_PRINT(F("\",\""));
+    DEBUG_PRINT(port);
+    DEBUG_PRINTLN(F("\""));
 
-  if (! expectReply(ok_reply)) return false;
-  if (! expectReply(F("CONNECT OK"))) return false;
+
+    mySerial->print(F("AT+CIPSTART=\"TCP\",\""));
+    mySerial->print(server);
+    mySerial->print(F("\",\""));
+    mySerial->print(port);
+    mySerial->println(F("\""));
+
+    if (! expectReply(ok_reply)) return false;
+    if (! expectReply(F("CONNECT OK"))) return false;
+  }
 
   // looks like it was a success (?)
   return true;
@@ -2596,9 +2733,24 @@ boolean Adafruit_FONA::TCPclose(void) {
 }
 
 boolean Adafruit_FONA::TCPconnected(void) {
-  if (! sendCheckReply(F("AT+CIPSTATUS"), ok_reply, 100) ) return false;
-  readline(100);
+  if (SSL_FONA) {  
+    char CA[100] = "+CAOPEN: ";
+    itoa(CID_CA_FONA, CA+9, 10);
+    strcat(CA,",\""); 
+    strcat(CA,server_CA_FONA);  
+    strcat(CA,"\",");
+    char port_CA_FONA_p[10];
+    itoa((int)port_CA_FONA,port_CA_FONA_p, 10);
+    strcat(CA,port_CA_FONA_p);
+    
+    if (! sendCheckReply(F("AT+CAOPEN?"), (char*)CA, 100) ) return false;
+    else return true;
+  }
+  else {
+    if (! sendCheckReply(F("AT+CIPSTATUS"), ok_reply, 100) ) return false;
+  }
 
+  readline(100);
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
   return (strcmp(replybuffer, "STATE: CONNECT OK") == 0);
@@ -2616,10 +2768,18 @@ boolean Adafruit_FONA::TCPsend(char *packet, uint8_t len) {
 #endif
   DEBUG_PRINTLN();
 
-
-  mySerial->print(F("AT+CIPSEND="));
-  mySerial->println(len);
-  readline();
+  if (SSL_FONA) {
+    flushInput();
+    mySerial->print(F("AT+CASEND=1,\""));
+    mySerial->print(len);
+    mySerial->println(F("\""));
+    readline();
+  } 
+  else {
+    mySerial->print(F("AT+CIPSEND="));
+    mySerial->println(len);
+    readline();
+  }
 
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
@@ -2630,8 +2790,8 @@ boolean Adafruit_FONA::TCPsend(char *packet, uint8_t len) {
 
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
-
-  return (strcmp(replybuffer, "SEND OK") == 0);
+  if (SSL_FONA) return (strcmp(replybuffer, "OK") == 0);
+  else return (strcmp(replybuffer, "SEND OK") == 0);
 }
 
 uint16_t Adafruit_FONA::TCPavailable(void) {
@@ -2776,6 +2936,15 @@ boolean Adafruit_FONA::HTTP_readall(uint16_t *datalen) {
 
 boolean Adafruit_FONA::HTTP_ssl(boolean onoff) {
   return sendCheckReply(F("AT+HTTPSSL="), onoff ? 1 : 0, ok_reply);
+}
+
+boolean Adafruit_FONA::HTTP_header(char *type, char *value, uint16_t maxlen) {
+	char auxStr[maxlen+1];
+
+	sprintf(auxStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
+
+	if (! sendCheckReply(auxStr, ok_reply, 10000))
+  return false;
 }
 
 /********* HTTP HIGH LEVEL FUNCTIONS ***************************/
