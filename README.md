@@ -35,13 +35,15 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
-- Add SSL commands to the library and create examples
+- Finish postdata() for SIM7070
+- Add SSL examples
 - FTP image transfering
 - FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
-- Integrate dedicated MQTT(S) commands for SIM7000
 
 ### Completed Tasks
+- Added SSL for TCP: opens port 8883 and allows MQTTS over SSL. Currently this feature is only for sending data. To use the function addRootCA(), set `#define FONA_SSL 1` in Adafruit_FONA.h
+- Added SIM7070G compatibility
 - Added SIM7600 compatibility
 - Tested SIM7000 dedicated MQTT commands and SIM7000_MQTT_Demo.ino with CloudMQTT
 - Added the [SIM7000_MQTT_Demo sketch](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino) which uses the dedicated MQTT commands
