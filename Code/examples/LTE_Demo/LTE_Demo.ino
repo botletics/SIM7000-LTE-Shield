@@ -239,7 +239,7 @@ void printMenu(void) {
   Serial.println(F("[n] Get network status"));
   Serial.println(F("[1] Get network connection info")); // See what connection type and band you're on!
 
-#ifndef SIMCOM_7000
+#if !defined(SIMCOM_7000) && !defined(SIMCOM_7070)
   // Audio
   Serial.println(F("[v] Set audio Volume"));
   Serial.println(F("[V] Get volume"));
@@ -465,7 +465,7 @@ void loop() {
         break;
       }
 
-#ifndef SIMCOM_7000
+#if !defined(SIMCOM_7000) && !defined(SIMCOM_7070)
     /*** Audio ***/
     case 'v': {
         // set volume
