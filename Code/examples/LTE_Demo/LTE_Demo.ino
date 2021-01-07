@@ -118,7 +118,7 @@ void setup() {
 
   // Turn on the module by pulsing PWRKEY low for a little bit
   // This amount of time depends on the specific module that's used
-  powerOn(); // See function definition at the very end of the sketch
+  fona.powerOn(FONA_PWRKEY); // Power on the module
 
   Serial.begin(9600);
   Serial.println(F("FONA basic test"));
@@ -1144,23 +1144,4 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout) {
   }
   buff[buffidx] = 0;  // null term
   return buffidx;
-}
-
-// Power on the module
-void powerOn() {
-  digitalWrite(FONA_PWRKEY, LOW);
-  // See spec sheets for your particular module
-  #if defined(SIMCOM_2G)
-    delay(1050);
-  #elif defined(SIMCOM_3G)
-    delay(180); // For SIM5320
-  #elif defined(SIMCOM_7000)
-    delay(100);
-  #elif defined(SIMCOM_7070)
-    delay(1200); // At least 1s
-  #elif defined(SIMCOM_7500) || defined(SIMCOM_7600)
-    delay(500);
-  #endif
-  
-  digitalWrite(FONA_PWRKEY, HIGH);
 }
