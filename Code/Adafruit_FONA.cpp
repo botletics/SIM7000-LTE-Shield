@@ -121,26 +121,32 @@ boolean Adafruit_FONA::begin(Stream &port) {
     _type = SIM5320A;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIMCOM_SIM5320E")) != 0) {
     _type = SIM5320E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A")) != 0) {
-    _type = SIM7000A;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C")) != 0) {
-    _type = SIM7000C;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E")) != 0) {
-    _type = SIM7000E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G")) != 0) {
-    _type = SIM7000G;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7070G")) != 0) {
-    _type = SIM7070G;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A")) != 0) {
-    _type = SIM7500A;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500E")) != 0) {
-    _type = SIM7500E;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600A")) != 0) {
-    _type = SIM7600A;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600C")) != 0) {
-    _type = SIM7600C;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600E")) != 0) {
-    _type = SIM7600E;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000A")) != 0) {
+  //   _type = SIM7000A;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000C")) != 0) {
+  //   _type = SIM7000C;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000E")) != 0) {
+  //   _type = SIM7000E;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000G")) != 0) {
+  //   _type = SIM7000G;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7000")) != 0) {
+    _type = SIM7000;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7070")) != 0) {
+    _type = SIM7070;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500A")) != 0) {
+    // _type = SIM7500A;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500E")) != 0) {
+  //   _type = SIM7500E;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7500")) != 0) {
+    _type = SIM7500;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600A")) != 0) {
+  //   _type = SIM7600A;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600C")) != 0) {
+  //   _type = SIM7600C;
+  // } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600E")) != 0) {
+  //   _type = SIM7600E;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM7600")) != 0) {
+    _type = SIM7600;
   }
 
 
@@ -182,7 +188,7 @@ boolean Adafruit_FONA_LTE::setBaudrate(uint16_t baud) {
 
 /* returns value in mV (uint16_t) */
 boolean Adafruit_FONA::getBattVoltage(uint16_t *v) {
-	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E) {
+	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500) {
 		float f;
 	  boolean b = sendParseReplyFloat(F("AT+CBC"), F("+CBC: "), &f, ',', 0);
 	  *v = f*1000;
@@ -202,7 +208,7 @@ boolean Adafruit_FONA_3G::getBattVoltage(uint16_t *v) {
 
 /* powers down the SIM module */
 boolean Adafruit_FONA::powerDown(void) {
-  if (_type == SIM7500A || _type == SIM7500E) {
+  if (_type == SIM7500) {
     if (! sendCheckReply(F("AT+CPOF"), ok_reply))
       return false;
   }
@@ -436,7 +442,7 @@ boolean Adafruit_FONA::setAudio(uint8_t a) {
   // For SIM5320, 1 is headset, 3 is speaker phone, 4 is PCM interface
   if ( (_type == SIM5320A || _type == SIM5320E) && (a != 1 && a != 3 && a != 4) ) return false;
   // For SIM7500, 1 is headset, 3 is speaker phone
-  else if ( (_type == SIM7500A || _type == SIM7500E) && (a != 1 && a != 3) ) return false;
+  else if ( _type == SIM7500 && (a != 1 && a != 3) ) return false;
   // For SIM800, 0 is main audio channel, 1 is aux, 2 is main audio channel (hands-free), 3 is aux channel (hands-free), 4 is PCM channel
   else if (a > 4) return false; // 0 is headset, 1 is external audio
 
@@ -560,8 +566,9 @@ boolean Adafruit_FONA::callPhone(char *number) {
   char sendbuff[35] = "ATD";
   strncpy(sendbuff+3, number, min(30, (int)strlen(number)));
 
+  uint8_t x = strlen(sendbuff);
+
   if (_type < SIM7000A || _type >= SIM7500A) {
-    uint8_t x = strlen(sendbuff);
     sendbuff[x] = ';';
     sendbuff[x+1] = 0;
     //DEBUG_PRINTLN(sendbuff);
@@ -973,10 +980,10 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 
   // First check if its already on or off
 
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
+  if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
     if (! sendParseReply(F("AT+CGNSPWR?"), F("+CGNSPWR: "), &state) )
       return false;
-  } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
   	if (! Adafruit_FONA::sendParseReply(F("AT+CGPS?"), F("+CGPS: "), &state) )
     	return false;
   } else {
@@ -985,10 +992,10 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
   }
 
   if (onoff && !state) {
-    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
+    if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
       if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))
 				return false;
-    } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+    } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
   		if (! sendCheckReply(F("AT+CGPS=1"), ok_reply))
       	return false;
     } else {
@@ -996,10 +1003,10 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
 				return false;
     }
   } else if (!onoff && state) {
-    if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
+    if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
       if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply))
 				return false;
-		} else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+		} else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
 			if (! sendCheckReply(F("AT+CGPS=0"), ok_reply))
 	      return false;
 		    // this takes a little time
@@ -1034,7 +1041,7 @@ boolean Adafruit_FONA_3G::enableGPS(boolean onoff) {
 */
 
 int8_t Adafruit_FONA::GPSstatus(void) {
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
+  if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
     // 808 V2 uses GNS commands and doesn't have an explicit 2D/3D fix status.
     // Instead just look for a fix and if found assume it's a 3D fix.
     getReply(F("AT+CGNSINF"));
@@ -1079,7 +1086,7 @@ int8_t Adafruit_FONA::GPSstatus(void) {
 uint8_t Adafruit_FONA::getGPS(uint8_t arg, char *buffer, uint8_t maxbuff) {
   int32_t x = arg;
 
-  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
     getReply(F("AT+CGPSINFO"));
   } else if (_type == SIM808_V1) {
     getReply(F("AT+CGPSINF="), x);
@@ -1122,7 +1129,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
   if (res_len == 0)
     return false;
 
-  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
     // Parse 3G respose
     // +CGPSINFO:4043.000000,N,07400.000000,W,151015,203802.1,-12.0,0.0,0
     // skip beginning
@@ -1200,8 +1207,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
-  } else if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G ||
-  					 _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  } else if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070 || _type == SIM7500 || _type == SIM7600) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
 
@@ -1423,7 +1429,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
   i %= 10;
   sendbuff[13] = i + '0';
 
-  if (_type == SIM808_V2 || _type == SIM7000A || _type == SIM7000C || _type == SIM7000E || _type == SIM7000G || _type == SIM7070G) {
+  if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
     if (i) {
     	sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
       sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
@@ -1441,7 +1447,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 
 
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
-	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
 		if (onoff) {
 	    // disconnect all sockets
 	    //sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 5000);
@@ -1490,7 +1496,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	    	if (! sendCheckReply(F("AT+NETOPEN=,,1"), F("Network opened"), 10000))
 	      	return false;
 	    }
-	    else if (_type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+	    else if (_type == SIM7500 || _type == SIM7600) {
 	    	if (! sendCheckReply(F("AT+NETOPEN"), ok_reply, 10000))
 	      	return false;
 	    }
@@ -1501,7 +1507,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	    	if (! sendCheckReply(F("AT+NETCLOSE"), F("Network closed"), 10000))
 	      	return false;
 	    }
-	    else if (_type == SIM7500A || _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+	    else if (_type == SIM7500 || _type == SIM7600) {
         getReply(F("AT+NETCLOSE"));
         getReply(F("AT+CHTTPSSTOP"));
         // getReply(F("AT+CHTTPSCLSE"));
@@ -1517,7 +1523,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	    readline(); // eat 'OK'
 	  }
 	}
-	else if (_type == SIM7070G) {
+	else if (_type == SIM7070) {
 		getNetworkInfo();
 
 		if (! openWirelessConnection(true)) return false;
@@ -1752,11 +1758,11 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 // Open or close wireless data connection
 boolean Adafruit_FONA::openWirelessConnection(bool onoff) {
   if (!onoff) { // Disconnect wireless
-    if (_type == SIM7070G) sendCheckReply(F("AT+CNACT=0,0"), ok_reply);
+    if (_type == SIM7070) sendCheckReply(F("AT+CNACT=0,0"), ok_reply);
     else return sendCheckReply(F("AT+CNACT=0"), ok_reply);
   }
   else {
-    if (_type == SIM7070G) sendCheckReply(F("AT+CNACT=0,1"), ok_reply);
+    if (_type == SIM7070) sendCheckReply(F("AT+CNACT=0,1"), ok_reply);
     else getReplyQuoted(F("AT+CNACT=1,"), apn);
     readline(); // Eat 'OK'
 
@@ -1779,7 +1785,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // NOTE: Need to open socket/enable GPRS before using this function
   // char auxStr[64];
 
-  if (_type == SIM7070G) {
+  if (_type == SIM7070) {
   	// Set up server URL
 		char urlBuff[strlen(URL) + 20];
 
@@ -1809,10 +1815,10 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   	if (request_type == "GET") {
   		// Set up headers
   		HTTP_header("Connection", "keep-alive", 11); // header type, value, max length of header or value
-
+      // Blah
   	}
   	else if (request_type == "POST" && bodylen > 0) {
-
+      // Blah
   	}
 
   	sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
@@ -1911,7 +1917,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
 
   // Start HTTPS stack
-  if (_type == SIM7500A | _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  if (_type == SIM7500 || _type == SIM7600) {
     getReply(F("AT+CHTTPSSTART")); // Don't check if true/false since it will return false if already started (not stopped before)
 
   	// if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
@@ -1945,7 +1951,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   // if (! sendCheckReply(auxStr, ok_reply, 10000))
   //   return false;
 
-  if (_type == SIM7500A | _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  if (_type == SIM7500 || _type == SIM7600) {
     // sendParseReply(auxStr, F("+CHTTPSOPSE: "), &reply);
     // if (reply != 0) return false;
 
@@ -1976,7 +1982,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   if (! sendCheckReply(auxStr, ">", 10000))
     return false;
 
-  if (_type == SIM7500A | _type == SIM7500E || _type == SIM7600A || _type == SIM7600C || _type == SIM7600E) {
+  if (_type == SIM7500 || _type == SIM7600) {
     // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
     // if (reply != 0) return false;
 

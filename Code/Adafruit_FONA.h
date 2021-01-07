@@ -35,19 +35,24 @@
 #define SIM5320A 4
 #define SIM5320E 5
 
-#define SIM7000A 7
-#define SIM7000C 8
-#define SIM7000E 9
-#define SIM7000G 10
+#define SIM7000  7
+#define SIM7070  12
+#define SIM7500  13
+#define SIM7600  16
 
-#define SIM7070G 11
+// Keep these variants here for legacy code
+#define SIM7000A 8
+#define SIM7000C 9
+#define SIM7000E 10
+#define SIM7000G 11
 
-#define SIM7500A 12
-#define SIM7500E 13
+#define SIM7500A 14
+#define SIM7500E 15
 
-#define SIM7600A 14
-#define SIM7600C 15
-#define SIM7600E 16
+#define SIM7600A 17
+#define SIM7600C 18
+#define SIM7600E 19
+
 
 // Set the preferred SMS storage.
 //   Use "SM" for storage on the SIM.
@@ -340,7 +345,7 @@ class Adafruit_FONA_3G : public Adafruit_FONA {
 class Adafruit_FONA_LTE : public Adafruit_FONA {
 
  public:
-  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000A; _type = SIM7070G; _type = SIM7500A;}
+  Adafruit_FONA_LTE () : Adafruit_FONA(FONA_NO_RST_PIN) { _type = SIM7000; _type = SIM7070; _type = SIM7500; }
 
   boolean setPreferredMode(uint8_t mode);
   boolean setPreferredLTEMode(uint8_t mode);
