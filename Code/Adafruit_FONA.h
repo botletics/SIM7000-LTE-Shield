@@ -85,7 +85,7 @@
 #define FONA_CALL_RINGING 3
 #define FONA_CALL_INPROGRESS 4
 
-#define SSL_FONA 1
+#define SSL_FONA 0
 
 class Adafruit_FONA : public FONAStreamType {
  public:
