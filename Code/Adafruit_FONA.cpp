@@ -559,12 +559,16 @@ boolean Adafruit_FONA::setPWM(uint16_t period, uint8_t duty) {
 boolean Adafruit_FONA::callPhone(char *number) {
   char sendbuff[35] = "ATD";
   strncpy(sendbuff+3, number, min(30, (int)strlen(number)));
-  uint8_t x = strlen(sendbuff);
-  sendbuff[x] = ';';
-  sendbuff[x+1] = 0;
-  //DEBUG_PRINTLN(sendbuff);
 
-  sendCheckReply(F("AT+CSDVC=3"), ok_reply); // Enable speaker output
+  if (_type < SIM7000A || _type >= SIM7500A) {
+    uint8_t x = strlen(sendbuff);
+    sendbuff[x] = ';';
+    sendbuff[x+1] = 0;
+    //DEBUG_PRINTLN(sendbuff);
+
+    sendCheckReply(F("AT+CSDVC=3"), ok_reply); // Enable speaker output
+  }
+  else sendbuff[x+1] = 0;
 
   return sendCheckReply(sendbuff, ok_reply);
 }
