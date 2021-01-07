@@ -42,7 +42,7 @@ The following list is a summary of the things I've done so far:
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
 
 ### Completed Tasks
-- Added SSL for TCP: opens port 8883 and allows MQTTS over SSL. Currently this feature is only for sending data. To use the function addRootCA(), set `#define FONA_SSL 1` in Adafruit_FONA.h
+- Added SSL for TCP: opens port 8883 and allows MQTTS over SSL. Currently this feature is only for sending data. To use the function addRootCA(), set `#define SSL_FONA 1` in Adafruit_FONA.h
 - Added SIM7070G compatibility
 - Added SIM7600 compatibility
 - Tested SIM7000 dedicated MQTT commands and SIM7000_MQTT_Demo.ino with CloudMQTT
