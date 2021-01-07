@@ -273,7 +273,6 @@ class Adafruit_FONA : public FONAStreamType {
 
   // HTTP helpers
   boolean HTTP_setup(char *url);
-  HTTP_addHeader(char *type, char *value, uint16_t maxlen);
 
   void flushInput();
   uint16_t readRaw(uint16_t b);
