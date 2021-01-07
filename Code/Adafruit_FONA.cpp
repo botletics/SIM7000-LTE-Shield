@@ -205,6 +205,25 @@ boolean Adafruit_FONA_3G::getBattVoltage(uint16_t *v) {
   return b;
 }
 
+/* powers on the module */
+void Adafruit_FONA::powerOn(uint8_t FONA_PWRKEY) {
+  pinMode(FONA_PWRKEY, OUTPUT);
+  digitalWrite(FONA_PWRKEY, LOW);
+
+  // See spec sheets for your particular module
+  if (_type <= SIM808_V2)
+    delay(1050);
+  else if (_type == SIM5320A || _type == SIM5320E)
+    delay(180); // For SIM5320
+  else if (_type == SIM7000)
+    delay(100);
+  else if (_type == SIM7070)
+    delay(1100); // At least 1s
+  else if (_type == SIM7500 || _type == SIM7600)
+    delay(500);
+  
+  digitalWrite(FONA_PWRKEY, HIGH);
+}
 
 /* powers down the SIM module */
 boolean Adafruit_FONA::powerDown(void) {

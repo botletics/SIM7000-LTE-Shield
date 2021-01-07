@@ -27,13 +27,13 @@
 
 
 #define SIM800L 1
-#define SIM800H 6
+#define SIM800H 2
 
-#define SIM808_V1 2
-#define SIM808_V2 3
+#define SIM808_V1 3
+#define SIM808_V2 4
 
-#define SIM5320A 4
-#define SIM5320E 5
+#define SIM5320A 5
+#define SIM5320E 6
 
 #define SIM7000  7
 #define SIM7070  12
@@ -109,6 +109,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean setBaudrate(uint16_t baud);
 
   // Power, battery, and ADC
+  void powerOn(uint8_t FONA_PWRKEY);
   boolean powerDown(void);
   boolean getADCVoltage(uint16_t *v);
   boolean getBattPercent(uint16_t *p);
