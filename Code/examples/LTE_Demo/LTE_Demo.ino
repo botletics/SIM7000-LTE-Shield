@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/6/2021
+    Last Updated: 1/7/2021
     License: GNU GPL v3.0
 */
 
@@ -37,10 +37,11 @@
 
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
-//#define SIMCOM_3G // SIM5320A/E
-#define SIMCOM_7000 // SIM7000A/C/E/G
-//#define SIMCOM_7070 // SIM7070
-//#define SIMCOM_7500 // SIM7500A/E
+//#define SIMCOM_3G // SIM5320
+#define SIMCOM_7000
+//#define SIMCOM_7070
+//#define SIMCOM_7500
+//#define SIMCOM_7600
 
 // For TinySine SIM5320 shield
 //#define FONA_PWRKEY 8
@@ -99,7 +100,7 @@ SoftwareSerial *fonaSerial = &fonaSS;
   
 // Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-#elif defined(SIMCOM_7000) || defined(SIMCOM_7070) || defined(SIMCOM_7500)
+#elif defined(SIMCOM_7000) || defined(SIMCOM_7070) || defined(SIMCOM_7500) || defined(SIMCOM_7600)
   Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #endif
 
@@ -123,11 +124,9 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
-  // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
-  // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
-  // Press reset button if the module is still turning on and the board doesn't find it.
+  // SIM7000 takes about 3s to turn on and SIM7500 takes about 15s
+  // Press Arduino reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
-  
   fonaSS.begin(115200); // Default SIM7000 shield baud rate
 
   Serial.println(F("Configuring to 9600 baud"));
@@ -139,7 +138,6 @@ void setup() {
     while (1); // Don't proceed if it couldn't find the device
   }
   
-
   // The commented block of code below is an alternative that will find the module at 115200
   // Then switch it to 4800 without having to wait for the module to turn on and manually
   // press the reset button in order to establish communication. However, once the baud is set
@@ -173,20 +171,14 @@ void setup() {
       Serial.println(F("SIM5320A (American)")); break;
     case SIM5320E:
       Serial.println(F("SIM5320E (European)")); break;
-    case SIM7000A:
-      Serial.println(F("SIM7000A (American)")); break;
-    case SIM7000C:
-      Serial.println(F("SIM7000C (Chinese)")); break;
-    case SIM7000E:
-      Serial.println(F("SIM7000E (European)")); break;
-    case SIM7000G:
-      Serial.println(F("SIM7000G (Global)")); break;
-    case SIM7070G:
-      Serial.println(F("SIM7070G (Global)")); break;
-    case SIM7500A:
-      Serial.println(F("SIM7500A (American)")); break;
-    case SIM7500E:
-      Serial.println(F("SIM7500E (European)")); break;
+    case SIM7000:
+      Serial.println(F("SIM7000")); break;
+    case SIM7070:
+      Serial.println(F("SIM7070")); break;
+    case SIM7500:
+      Serial.println(F("SIM7500")); break;
+    case SIM7600:
+      Serial.println(F("SIM7600")); break;
     default:
       Serial.println(F("???")); break;
   }
@@ -300,11 +292,10 @@ void printMenu(void) {
 
   // GPS
   if ((type == SIM5320A) || (type == SIM5320E) || (type == SIM808_V1) || (type == SIM808_V2) || 
-      (type == SIM7000A) || (type == SIM7000C) || (type == SIM7000E) || (type == SIM7000G) ||
-      (type == SIM7500A) || (type == SIM7500E)) {
-    Serial.println(F("[O] Turn GPS on (SIM808/5320/7000)"));
-    Serial.println(F("[o] Turn GPS off (SIM808/5320/7000)"));
-    Serial.println(F("[L] Query GPS location (SIM808/5320/7000)"));
+      (type == SIM7000) || (type == SIM7070) || (type == SIM7500) || (type == SIM7600)) {
+    Serial.println(F("[O] Turn GPS on (SIM808/5320/7XX0)"));
+    Serial.println(F("[o] Turn GPS off (SIM808/5320/7XX0)"));
+    Serial.println(F("[L] Query GPS location (SIM808/5320/7XX0)"));
     if (type == SIM808_V1) {
       Serial.println(F("[x] GPS fix status (FONA808 v1 only)"));
     }
@@ -354,7 +345,7 @@ void loop() {
           Serial.print(F("VBat = ")); Serial.print(vbat); Serial.println(F(" mV"));
         }
 
-        if ( (type != SIM7500A) && (type != SIM7500E) ) {
+        if (type != SIM7500) {
           if (! fona.getBattPercent(&vbat)) {
             Serial.println(F("Failed to read Batt"));
           } else {
@@ -482,7 +473,7 @@ void loop() {
         flushSerial();
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.print(F("Set Vol [0-8] "));
-        } else if ( (type == SIM7500A) || (type == SIM7500E) ) {
+        } else if (type == SIM7500) {
           Serial.print(F("Set Vol [0-5] "));
         } else {
           Serial.print(F("Set Vol % [0-100] "));
@@ -502,7 +493,7 @@ void loop() {
         Serial.print(v);
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.println(" / 8");
-        } else if ( (type == SIM7500A) || (type == SIM7500E) ) { // Don't write anything for SIM7500
+        } else if (type == SIM7500) { // Don't write anything for SIM7500
           Serial.println();
         } else {
           Serial.println("%");
@@ -824,7 +815,7 @@ void loop() {
         fona.getGPS(0, gpsdata, 120);
         if (type == SIM808_V1)
           Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
-        else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500A) || (type == SIM7500E) )
+        else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500) )
           Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
         else
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
