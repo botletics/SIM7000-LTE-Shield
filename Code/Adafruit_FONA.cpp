@@ -786,7 +786,7 @@ boolean Adafruit_FONA::sendSMS(const char *smsaddr, const char *smsmsg) {
 
   DEBUG_PRINTLN("^Z");
 
-  if ( (_type == SIM5320A) || (_type == SIM5320E) || (_type >= SIM7000A) ) {
+  if ( (_type == SIM5320A) || (_type == SIM5320E) || (_type >= SIM7000) ) {
     // Eat two sets of CRLF
     readline(200);
     //DEBUG_PRINT("Line 1: "); DEBUG_PRINTLN(strlen(replybuffer));
@@ -1207,7 +1207,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
-  } else if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070 || _type == SIM7500 || _type == SIM7600) {
+  } else if (_type == SIM808_V2 || _type >= SIM7000) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
 
@@ -1708,7 +1708,7 @@ void Adafruit_FONA::setNetworkSettings(FONAFlashStringPtr apn,
   this->apnusername = username;
   this->apnpassword = password;
 
-  if (_type >= SIM7000A) sendCheckReplyQuoted(F("AT+CGDCONT=1,\"IP\","), apn, ok_reply, 10000);
+  if (_type >= SIM7000) sendCheckReplyQuoted(F("AT+CGDCONT=1,\"IP\","), apn, ok_reply, 10000);
 }
 
 boolean Adafruit_FONA::getGSMLoc(uint16_t *errorcode, char *buff, uint16_t maxlen) {
