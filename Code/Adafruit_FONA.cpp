@@ -188,7 +188,7 @@ boolean Adafruit_FONA_LTE::setBaudrate(uint16_t baud) {
 
 /* returns value in mV (uint16_t) */
 boolean Adafruit_FONA::getBattVoltage(uint16_t *v) {
-	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500) {
+	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
 		float f;
 	  boolean b = sendParseReplyFloat(F("AT+CBC"), F("+CBC: "), &f, ',', 0);
 	  *v = f*1000;
@@ -208,7 +208,7 @@ boolean Adafruit_FONA_3G::getBattVoltage(uint16_t *v) {
 
 /* powers down the SIM module */
 boolean Adafruit_FONA::powerDown(void) {
-  if (_type == SIM7500) {
+  if (_type == SIM7500 || _type == SIM7600) {
     if (! sendCheckReply(F("AT+CPOF"), ok_reply))
       return false;
   }
@@ -442,7 +442,7 @@ boolean Adafruit_FONA::setAudio(uint8_t a) {
   // For SIM5320, 1 is headset, 3 is speaker phone, 4 is PCM interface
   if ( (_type == SIM5320A || _type == SIM5320E) && (a != 1 && a != 3 && a != 4) ) return false;
   // For SIM7500, 1 is headset, 3 is speaker phone
-  else if ( _type == SIM7500 && (a != 1 && a != 3) ) return false;
+  else if ( (_type == SIM7500 || _type == SIM7600) && (a != 1 && a != 3) ) return false;
   // For SIM800, 0 is main audio channel, 1 is aux, 2 is main audio channel (hands-free), 3 is aux channel (hands-free), 4 is PCM channel
   else if (a > 4) return false; // 0 is headset, 1 is external audio
 
