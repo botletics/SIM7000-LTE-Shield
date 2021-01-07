@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/29/2020
+ *  Last Updated: 1/7/2021
  *  License: GNU GPL v3.0
   */
 
@@ -44,18 +44,20 @@
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320
-#define SIMCOM_7000 // SIM7000
-//#define SIMCOM_7500 // SIM7500
+#define SIMCOM_7000
+//#define SIMCOM_7070
+//#define SIMCOM_7500
+//#define SIMCOM_7600
 
 // Uncomment *one* of the following protocols you want to use
 // to send data to the cloud! Leave the other commented out
-#define PROTOCOL_HTTP_GET         // Generic
-//#define PROTOCOL_HTTP_POST        // Generic
+//#define PROTOCOL_HTTP_GET         // Generic
+#define PROTOCOL_HTTP_POST        // Generic
 //#define PROTOCOL_MQTT_AIO         // Adafruit IO
 //#define PROTOCOL_MQTT_CLOUDMQTT   // CloudMQTT
 
 /************************* PIN DEFINITIONS *********************************/
-// For SIM7000 shield
+// For botletics SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -64,7 +66,7 @@
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
 
-// For SIM7500 shield
+// For botletics SIM7500 shield
 //#define FONA_PWRKEY 6
 //#define FONA_RST 7
 ////#define FONA_DTR 9 // Connect with solder jumper
@@ -103,8 +105,8 @@ SoftwareSerial *fonaSerial = &fonaSS;
   
 // Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-#elif defined(SIMCOM_7000) || defined(SIMCOM_7500)
-  Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
+#elif defined(SIMCOM_7000) || defined(SIMCOM_7070) || defined(SIMCOM_7500) || defined(SIMCOM_7600)
+Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #endif
 
 #ifdef PROTOCOL_MQTT_AIO
@@ -195,8 +197,7 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH); // Default state
 
-  pinMode(FONA_PWRKEY, OUTPUT);
-  powerOn(); // Power on the module
+  fona.powerOn(FONA_PWRKEY); // Power on the module
   moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
   // tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
@@ -258,7 +259,7 @@ void setup() {
   }
   Serial.println(F("Turned on GPS!"));
 
-  #if !defined(SIMCOM_3G) && !defined(SIMCOM_7500)
+  #if !defined(SIMCOM_3G) && !defined(SIMCOM_7500) && !defined(SIMCOM_7600)
     // Disable GPRS just to make sure it was actually off so that we can turn it on
     if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
     
@@ -340,8 +341,9 @@ void loop() {
   Serial.print(F("Second: ")); Serial.println(second);
   */
   Serial.println(F("---------------------"));
-
-#if defined(turnOffShield) && !defined(SIMCOM_3G) && !defined(SIMCOM_7500) // If the shield was already on, no need to re-enable
+  
+  // If the shield was already on, no need to re-enable
+#if defined(turnOffShield) && !defined(SIMCOM_3G) && !defined(SIMCOM_7500) && !defined(SIMCOM_7600)
   // Disable GPRS just to make sure it was actually off so that we can turn it on
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable GPRS!"));
   
@@ -377,7 +379,7 @@ void loop() {
   
   counter = 0; // This counts the number of failed attempts tries
   
-  #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
+  #if defined(SIMCOM_3G) || defined(SIMCOM_7500) || defined(SIMCOM_7600)
     // You can adjust the contents of the request if you don't need certain things like speed, altitude, etc.
     sprintf(URL, "GET /dweet/for/%s?lat=%s&long=%s&speed=%s&head=%s&alt=%s&temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\n\r\n",
             imei, latBuff, longBuff, speedBuff, headBuff, altBuff, tempBuff, battBuff);
@@ -404,7 +406,7 @@ void loop() {
 
   counter = 0; // This counts the number of failed attempts tries
   
-  #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
+  #if defined(SIMCOM_3G) || defined(SIMCOM_7500) || defined(SIMCOM_7600)
     sprintf(body, "{\"lat\":%s,\"long\":%s}\r\n", latBuff, longBuff); // Terminate with CR+NL
     sprintf(URL, "POST /dweet/for/%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: %i\r\n\r\n", imei, strlen(body));
 
@@ -557,7 +559,7 @@ void loop() {
   Serial.print(F("Waiting for ")); Serial.print(samplingRate); Serial.println(F(" seconds\r\n"));
   delay(samplingRate * 1000UL); // Delay
   
-  powerOn(); // Powers on the module if it was off previously
+  fona.powerOn(FONA_PWRKEY); // Powers on the module if it was off previously
 
   // Only run the initialization again if the module was powered off
   // since it resets back to 115200 baud instead of 4800.
@@ -568,25 +570,8 @@ void loop() {
 #endif
 }
 
-// Power on the module
-void powerOn() {
-  digitalWrite(FONA_PWRKEY, LOW);
-  // See spec sheets for your particular module
-  #if defined(SIMCOM_2G)
-    delay(1050);
-  #elif defined(SIMCOM_3G)
-    delay(180); // For SIM5320
-  #elif defined(SIMCOM_7000)
-    delay(100); // For SIM7000
-  #elif defined(SIMCOM_7500)
-    delay(500); // For SIM7500
-  #endif
-  
-  digitalWrite(FONA_PWRKEY, HIGH);
-}
-
 void moduleSetup() {
-  // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
+  // SIM7000 takes about 3s to turn on and SIM7500 takes about 15s
   // Press reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
   fonaSS.begin(115200); // Default SIM7000 shield baud rate
@@ -633,18 +618,14 @@ void moduleSetup() {
       Serial.println(F("SIM5320A (American)")); break;
     case SIM5320E:
       Serial.println(F("SIM5320E (European)")); break;
-    case SIM7000A:
-      Serial.println(F("SIM7000A (American)")); break;
-    case SIM7000C:
-      Serial.println(F("SIM7000C (Chinese)")); break;
-    case SIM7000E:
-      Serial.println(F("SIM7000E (European)")); break;
-    case SIM7000G:
-      Serial.println(F("SIM7000G (Global)")); break;
-    case SIM7500A:
-      Serial.println(F("SIM7500A (American)")); break;
-    case SIM7500E:
-      Serial.println(F("SIM7500E (European)")); break;
+    case SIM7000:
+      Serial.println(F("SIM7000")); break;
+    case SIM7070:
+      Serial.println(F("SIM7070")); break;
+    case SIM7500:
+      Serial.println(F("SIM7500")); break;
+    case SIM7600:
+      Serial.println(F("SIM7600")); break;
     default:
       Serial.println(F("???")); break;
   }
@@ -663,8 +644,6 @@ float readVcc() {
   else Serial.print(F("battery = ")); Serial.print(battLevel); Serial.println(F(" mV"));
 
   // Read LiPo battery percentage
-  // Note: This will NOT work properly on the LTE shield because the voltage
-  // is regulated to 3.6V so you will always read about the same value!
 //  if (!fona.getBattPercent(&battLevel)) Serial.println(F("Failed to read batt"));
 //  else Serial.print(F("BAT % = ")); Serial.print(battLevel); Serial.println(F("%"));
 
