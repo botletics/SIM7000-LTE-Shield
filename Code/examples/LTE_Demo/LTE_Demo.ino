@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 8/1/2019
+    Last Updated: 1/6/2021
     License: GNU GPL v3.0
 */
 
@@ -39,6 +39,7 @@
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320A/E
 #define SIMCOM_7000 // SIM7000A/C/E/G
+//#define SIMCOM_7070 // SIM7070
 //#define SIMCOM_7500 // SIM7500A/E
 
 // For TinySine SIM5320 shield
@@ -98,7 +99,7 @@ SoftwareSerial *fonaSerial = &fonaSS;
   
 // Use this one for LTE CAT-M/NB-IoT modules (like SIM7000)
 // Notice how we don't include the reset pin because it's reserved for emergencies on the LTE module!
-#elif defined(SIMCOM_7000) || defined(SIMCOM_7500)
+#elif defined(SIMCOM_7000) || defined(SIMCOM_7070) || defined(SIMCOM_7500)
   Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 #endif
 
@@ -122,6 +123,7 @@ void setup() {
   Serial.println(F("FONA basic test"));
   Serial.println(F("Initializing....(May take several seconds)"));
 
+  // Note: The SIM7000A baud rate seems to reset after being power cycled (SIMCom firmware thing)
   // SIM7000 takes about 3s to turn on but SIM7500 takes about 15s
   // Press reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
@@ -179,6 +181,8 @@ void setup() {
       Serial.println(F("SIM7000E (European)")); break;
     case SIM7000G:
       Serial.println(F("SIM7000G (Global)")); break;
+    case SIM7070G:
+      Serial.println(F("SIM7070G (Global)")); break;
     case SIM7500A:
       Serial.println(F("SIM7500A (American)")); break;
     case SIM7500E:
@@ -251,13 +255,13 @@ void printMenu(void) {
   Serial.println(F("[e] Set external audio (SIM800/808)"));
   Serial.println(F("[T] Play audio Tone"));
   Serial.println(F("[P] PWM/buzzer out (SIM800/808)"));
+#endif
 
   // Calling
   Serial.println(F("[c] Make phone Call"));
   Serial.println(F("[A] Get call status"));
   Serial.println(F("[h] Hang up phone"));
   Serial.println(F("[p] Pick up phone"));
-#endif
 
 #ifdef SIMCOM_2G
   // FM (SIM800 only!)
@@ -420,6 +424,56 @@ void loop() {
         fona.getNetworkInfo();        
         break;
       }
+    
+    /*** Calling ***/
+    case 'c': {
+        // call a phone!
+        char number[30];
+        flushSerial();
+        Serial.print(F("Call #"));
+        readline(number, 30);
+        Serial.println();
+        Serial.print(F("Calling ")); Serial.println(number);
+        if (!fona.callPhone(number)) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("Sent!"));
+        }
+
+        break;
+      }
+    case 'A': {
+        // get call status
+        int8_t callstat = fona.getCallStatus();
+        switch (callstat) {
+          case 0: Serial.println(F("Ready")); break;
+          case 1: Serial.println(F("Could not get status")); break;
+          case 3: Serial.println(F("Ringing (incoming)")); break;
+          case 4: Serial.println(F("Ringing/in progress (outgoing)")); break;
+          default: Serial.println(F("Unknown")); break;
+        }
+        break;
+      }
+      
+    case 'h': {
+        // hang up!
+        if (! fona.hangUp()) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("OK!"));
+        }
+        break;
+      }
+
+    case 'p': {
+        // pick up!
+        if (! fona.pickUp()) {
+          Serial.println(F("Failed"));
+        } else {
+          Serial.println(F("OK!"));
+        }
+        break;
+      }
 
 #ifndef SIMCOM_7000
     /*** Audio ***/
@@ -502,56 +556,6 @@ void loop() {
         uint16_t freq = readnumber();
         Serial.println();
         if (! fona.setPWM(freq)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-
-    /*** Calling ***/
-    case 'c': {
-        // call a phone!
-        char number[30];
-        flushSerial();
-        Serial.print(F("Call #"));
-        readline(number, 30);
-        Serial.println();
-        Serial.print(F("Calling ")); Serial.println(number);
-        if (!fona.callPhone(number)) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("Sent!"));
-        }
-
-        break;
-      }
-    case 'A': {
-        // get call status
-        int8_t callstat = fona.getCallStatus();
-        switch (callstat) {
-          case 0: Serial.println(F("Ready")); break;
-          case 1: Serial.println(F("Could not get status")); break;
-          case 3: Serial.println(F("Ringing (incoming)")); break;
-          case 4: Serial.println(F("Ringing/in progress (outgoing)")); break;
-          default: Serial.println(F("Unknown")); break;
-        }
-        break;
-      }
-      
-    case 'h': {
-        // hang up!
-        if (! fona.hangUp()) {
-          Serial.println(F("Failed"));
-        } else {
-          Serial.println(F("OK!"));
-        }
-        break;
-      }
-
-    case 'p': {
-        // pick up!
-        if (! fona.pickUp()) {
           Serial.println(F("Failed"));
         } else {
           Serial.println(F("OK!"));
@@ -1035,8 +1039,8 @@ void loop() {
 #if defined(SIMCOM_3G) || defined(SIMCOM_7500)
     case '3': {
         // Post data to website via 3G or 4G LTE
-        float temperature = analogRead(A0) * 1.23; // Change this to suit your needs
-
+        float temperature = analogRead(A0)*1.23; // Change this to suit your needs
+        
         // Voltage in mV, just for testing. Use the read battery function instead for real applications.
         uint16_t battLevel = 3700;
 
@@ -1045,30 +1049,20 @@ void loop() {
         char URL[150];
         char tempBuff[16];
         char battLevelBuff[16];
-
+      
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
         dtostrf(battLevel, 1, 0, battLevelBuff);
 
         // Construct the appropriate URL's and body, depending on request type
         // Use IMEI as device ID for this example
-
+        
         // GET request
         sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\n\r\n", imei, tempBuff, battLevelBuff);
-
+        
         if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
           Serial.println(F("Failed to complete HTTP/HTTPS request..."));
-
-        /*
-        // POST request
-        // You could also try a POST request to something like Ubidots!
-        // Make sure to change the device name and token to test it!
-        sprintf(URL, "POST /api/v1.6/devices/YOUR_DEVICE_NAME HTTP/1.1\r\nHost: things.ubidots.com\r\nX-Auth-Token: YOUR_TOKEN\r\nContent-Type: application/json\r\nContent-Length: 20\r\n\r\n{\"temperature\":100}\r\n");
-
-        if (!fona.postData("things.ubidots.com", 443, "HTTPS", URL)) // Server, port, connection type, URL
-          Serial.println(F("Failed to complete HTTP/HTTPS request..."));
-        */
-        
+      
         break;
       }
 #endif
