@@ -1,5 +1,5 @@
 /*  This is an example sketch to test the core functionalities of SIMCom-based cellular modules.
-    This code supports the SIM7000-series modules (LTE/NB-IoT shields) for low-power IoT devices!
+    This code supports the SIM7000-series modules (LTE CAT-M/NB-IoT shields) for low-power IoT devices!
 
     Note: this code is specifically meant for AVR microcontrollers (Arduino Uno, Mega, Leonardo, etc)
     However, if you are using an ESP8266 please make the minor modifications mentioned below in the
@@ -55,7 +55,7 @@
 //#define FONA_TX 4 // D2 on NodeMCU, microcontroller RX
 //#define FONA_RX 5 // D1 on NodeMCU, microcontroller TX
 
-// For SIM7000 shield
+// For botletics SIM7000 shield
 #define FONA_PWRKEY 6
 #define FONA_RST 7
 //#define FONA_DTR 8 // Connect with solder jumper
@@ -64,7 +64,7 @@
 #define FONA_RX 11 // Microcontroller TX
 //#define T_ALERT 12 // Connect with solder jumper
 
-// For SIM7500 shield
+// For botletics SIM7500 shield
 //#define FONA_PWRKEY 6
 //#define FONA_RST 7
 ////#define FONA_DTR 9 // Connect with solder jumper
@@ -273,26 +273,25 @@ void printMenu(void) {
   Serial.println(F("[u] Send USSD"));
   
   // Time
-  Serial.println(F("[y] Enable local time stamp (SIM800/808/7000)"));
-  Serial.println(F("[Y] Enable NTP time sync (SIM800/808/7000)")); // Need to use "G" command first!
+  Serial.println(F("[y] Enable local time stamp (SIM800/808/70X0)"));
+  Serial.println(F("[Y] Enable NTP time sync (SIM800/808/70X0)")); // Need to use "G" command first!
   Serial.println(F("[t] Get network time")); // Works just by being connected to network
 
   // Data Connection
   Serial.println(F("[G] Enable cellular data"));
   Serial.println(F("[g] Disable cellular data"));
   Serial.println(F("[l] Query GSMLOC (2G)"));
-#if !defined(SIMCOM_3G) && !defined(SIMCOM_7500) 
+#if !defined(SIMCOM_3G) && !defined(SIMCOM_7500) && !defined(SIMCOM_7600)
   Serial.println(F("[w] Read webpage"));
   Serial.println(F("[W] Post to website"));
 #endif
   // The following option below posts dummy data to dweet.io for demonstration purposes. See the
   // IoT_example sketch for an actual application of this function!
-  Serial.println(F("[2] Post to dweet.io via 2G / LTE CAT-M / NB-IoT")); // This can be SIM800/808/900/7000
-  Serial.println(F("[3] Post to dweet.io via 3G / 4G LTE")); // SIM5320/7500
+  Serial.println(F("[2] Post to dweet.io - 2G / LTE CAT-M / NB-IoT")); // SIM800/808/900/7000/7070
+  Serial.println(F("[3] Post to dweet.io - 3G / 4G LTE")); // SIM5320/7500/7600
 
   // GPS
-  if ((type == SIM5320A) || (type == SIM5320E) || (type == SIM808_V1) || (type == SIM808_V2) || 
-      (type == SIM7000) || (type == SIM7070) || (type == SIM7500) || (type == SIM7600)) {
+  if (type >= SIM808_V1) {
     Serial.println(F("[O] Turn GPS on (SIM808/5320/7XX0)"));
     Serial.println(F("[o] Turn GPS off (SIM808/5320/7XX0)"));
     Serial.println(F("[L] Query GPS location (SIM808/5320/7XX0)"));
@@ -345,7 +344,7 @@ void loop() {
           Serial.print(F("VBat = ")); Serial.print(vbat); Serial.println(F(" mV"));
         }
 
-        if (type != SIM7500) {
+        if (type != SIM7500 && type != SIM7600) {
           if (! fona.getBattPercent(&vbat)) {
             Serial.println(F("Failed to read Batt"));
           } else {
@@ -473,7 +472,7 @@ void loop() {
         flushSerial();
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.print(F("Set Vol [0-8] "));
-        } else if (type == SIM7500) {
+        } else if (type == SIM7500 || type == SIM7600) {
           Serial.print(F("Set Vol [0-5] "));
         } else {
           Serial.print(F("Set Vol % [0-100] "));
@@ -493,7 +492,7 @@ void loop() {
         Serial.print(v);
         if ( (type == SIM5320A) || (type == SIM5320E) ) {
           Serial.println(" / 8");
-        } else if (type == SIM7500) { // Don't write anything for SIM7500
+        } else if (type == SIM7500 || type == SIM7600) { // Don't write anything for SIM7500
           Serial.println();
         } else {
           Serial.println("%");
@@ -815,7 +814,7 @@ void loop() {
         fona.getGPS(0, gpsdata, 120);
         if (type == SIM808_V1)
           Serial.println(F("Reply in format: mode,longitude,latitude,altitude,utctime(yyyymmddHHMMSS),ttff,satellites,speed,course"));
-        else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500) )
+        else if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7500) || (type == SIM7600) )
           Serial.println(F("Reply in format: [<lat>],[<N/S>],[<lon>],[<E/W>],[<date>],[<UTC time>(yyyymmddHHMMSS)],[<alt>],[<speed>],[<course>]"));
         else
           Serial.println(F("Reply in format: mode,fixstatus,utctime(yyyymmddHHMMSS),latitude,longitude,altitude,speed,course,fixmode,reserved1,HDOP,PDOP,VDOP,reserved2,view_satellites,used_satellites,reserved3,C/N0max,HPA,VPA"));
@@ -878,7 +877,7 @@ void loop() {
       }
     case 'G': {
         // turn GPRS off first for SIM7500
-        #ifdef SIMCOM_7500
+        #if defined(SIMCOM_7500) || defined (SIMCOM_7600)
           fona.enableGPRS(false);
         #endif
         
@@ -902,7 +901,7 @@ void loop() {
         break;
       }
 
-#if !defined(SIMCOM_3G) && !defined(SIMCOM_7500)
+#if !defined(SIMCOM_3G) && !defined(SIMCOM_7500) && !defined(SIMCOM_7600)
     // The code below was written by Adafruit and only works on some modules
     case 'w': {
         // read website URL
@@ -987,11 +986,7 @@ void loop() {
         // Post data to website via 2G or LTE CAT-M/NB-IoT
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
-        // Voltage in mV, just for testing. Use the read battery function instead.
-        // Please note that for the LTE shield the voltage read will always be around 3.6V
-        // because the SIM7000 is powered by a 3.6V regulator. If you want to monitor the
-        // power source to the Arduino you will have to use something else.
-        uint16_t battLevel = 3600;
+        uint16_t battLevel = 3600; // Dummy voltage in mV for testing
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
@@ -1027,7 +1022,7 @@ void loop() {
       }
 #endif
 
-#if defined(SIMCOM_3G) || defined(SIMCOM_7500)
+#if defined(SIMCOM_3G) || defined(SIMCOM_7500) || defined(SIMCOM_7600)
     case '3': {
         // Post data to website via 3G or 4G LTE
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
@@ -1160,9 +1155,11 @@ void powerOn() {
   #elif defined(SIMCOM_3G)
     delay(180); // For SIM5320
   #elif defined(SIMCOM_7000)
-    delay(100); // For SIM7000
-  #elif defined(SIMCOM_7500)
-    delay(500); // For SIM7500
+    delay(100);
+  #elif defined(SIMCOM_7070)
+    delay(1200); // At least 1s
+  #elif defined(SIMCOM_7500) || defined(SIMCOM_7600)
+    delay(500);
   #endif
   
   digitalWrite(FONA_PWRKEY, HIGH);
