@@ -1545,9 +1545,8 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	else if (_type == SIM7070) {
 		getNetworkInfo();
 
-		if (! openWirelessConnection(true)) return false;
-
-		wirelessConnStatus();
+    if (! openWirelessConnection(true)) return false;
+    if (! wirelessConnStatus()) return false;
 	}
 	else {
 	  if (onoff) {
@@ -1806,282 +1805,294 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // NOTE: Need to open socket/enable GPRS before using this function
   // char auxStr[64];
 
-  if (_type == SIM7070) {
-  	// Set up server URL
-		char urlBuff[strlen(URL) + 20];
+  // Make sure HTTP service is terminated so initialization will run
+  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
 
-	  sprintf(urlBuff, "AT+SHCONF=\"URL\",\"%s\"", URL);
+  // Initialize HTTP service
+  if (! sendCheckReply(F("AT+HTTPINIT"), ok_reply, 10000))
+    return false;
 
-	  if (! sendCheckReply(urlBuff, ok_reply, 10000))
-	    return false;
+  // Set HTTP parameters
+  if (! sendCheckReply(F("AT+HTTPPARA=\"CID\",1"), ok_reply, 10000))
+    return false;
 
-	  // Set max HTTP body length
-	  sendCheckReply(F("AT+SHCONF=\"BODYLEN\",1024"), ok_reply, 10000); // Max 1024 for SIM7070G
+  // Specify URL
+  char urlBuff[strlen(URL) + 22];
 
-	  // Set max HTTP header length
-	  sendCheckReply(F("AT+SHCONF=\"HEADERLEN\",350"), ok_reply, 10000); // Max 350 for SIM7070G
+  sprintf(urlBuff, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
 
-	  // HTTP build
-	  sendCheckReply(F("AT+SHCONN"), ok_reply, 10000);
+  if (! sendCheckReply(urlBuff, ok_reply, 10000))
+    return false;
 
-	  // Get HTTP status
-	  getReply(F("AT+SHSTATE?"));
-	  if (strcmp(replybuffer, "+SHSTATE: 1") == NULL) return false;
-	  return true;
+  // Perform request based on specified request Type
+  if (strlen(body) > 0) bodylen = strlen(body);
 
-	  // Clear HTTP header (HTTP header is appended)
-	  sendCheckReply(F("AT+SHCHEAD"), ok_reply, 10000);
-
-	  // MAKE SEPARATE FUNCTION FOR HTTP INITIALIZATION STUFF FOR SIM7070G???
-  	if (request_type == "GET") {
-  		// Set up headers
-  		HTTP_header("Connection", "keep-alive", 11); // header type, value, max length of header or value
-      // Blah
-  	}
-  	else if (request_type == "POST" && bodylen > 0) {
-      // Blah
-  	}
-
-  	sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
+  if (request_type == "GET") {
+  	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
+    	return false;
   }
-  else {
-	  // Make sure HTTP service is terminated so initialization will run
-	  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
+  else if (request_type == "POST" && bodylen > 0) { // POST with content body
+  	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
+    	return false;
 
-	  // Initialize HTTP service
-	  if (! sendCheckReply(F("AT+HTTPINIT"), ok_reply, 10000))
-	    return false;
+    if (strlen(token) > 0) {
+      char tokenStr[strlen(token) + 55];
 
-	  // Set HTTP parameters
-	  if (! sendCheckReply(F("AT+HTTPPARA=\"CID\",1"), ok_reply, 10000))
-	    return false;
+	  	sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
 
-	  // Specify URL
-	  char urlBuff[strlen(URL) + 22];
-
-	  sprintf(urlBuff, "AT+HTTPPARA=\"URL\",\"%s\"", URL);
-
-	  if (! sendCheckReply(urlBuff, ok_reply, 10000))
-	    return false;
-
-	  // Perform request based on specified request Type
-	  if (strlen(body) > 0) bodylen = strlen(body);
-
-	  if (request_type == "GET") {
-	  	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
-	    	return false;
-	  }
-	  else if (request_type == "POST" && bodylen > 0) { // POST with content body
-	  	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
-	    	return false;
-
-	    if (strlen(token) > 0) {
-	      char tokenStr[strlen(token) + 55];
-
-		  	sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
-
-		  	if (! sendCheckReply(tokenStr, ok_reply, 10000))
-		  		return false;
-		  }
-
-	    char dataBuff[sizeof(bodylen) + 20];
-
-			sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
-			if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
-		    return false;
-
-	    delay(100); // Needed for fast baud rates (ex: 115200 baud with SAMD21 hardware serial)
-
-			if (! sendCheckReply(body, ok_reply, 10000))
-		    return false;
-
-	  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-	    	return false;
-	  }
-	  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
-	  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-	    	return false;
-	  }
-	  else if (request_type == "HEAD") {
-	  	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
-	    	return false;
+	  	if (! sendCheckReply(tokenStr, ok_reply, 10000))
+	  		return false;
 	  }
 
-	  // Parse response status and size
-	  uint16_t status, datalen;
-	  readline(10000);
-	  if (! parseReply(F("+HTTPACTION:"), &status, ',', 1))
-	    return false;
-	  if (! parseReply(F("+HTTPACTION:"), &datalen, ',', 2))
+    char dataBuff[sizeof(bodylen) + 20];
+
+		sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
+		if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
 	    return false;
 
-	  DEBUG_PRINT("HTTP status: "); DEBUG_PRINTLN(status);
-	  DEBUG_PRINT("Data length: "); DEBUG_PRINTLN(datalen);
+    delay(100); // Needed for fast baud rates (ex: 115200 baud with SAMD21 hardware serial)
 
-	  if (status != 200) return false;
+		if (! sendCheckReply(body, ok_reply, 10000))
+	    return false;
 
-	  getReply(F("AT+HTTPREAD"));
-
-	  readline(10000);
-	  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
-
-	  // Terminate HTTP service
-	  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
-
-	  return true;
-	}
-}
-
-/********************************* HTTPS FUNCTION *********************************/
-// boolean Adafruit_FONA_3G::postData3G(const char *server, uint16_t port, const char *connType, char *URL) {
-boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body) {
-  // Sample request URL: "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
-
-  // Start HTTPS stack
-  if (_type == SIM7500 || _type == SIM7600) {
-    getReply(F("AT+CHTTPSSTART")); // Don't check if true/false since it will return false if already started (not stopped before)
-
-  	// if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
-  	// 	return false;
+  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+    	return false;
   }
-  else {
-  	if (! sendCheckReply(F("AT+CHTTPSSTART"), ok_reply, 10000))
+  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
+  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+    	return false;
+  }
+  else if (request_type == "HEAD") {
+  	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
     	return false;
   }
 
-	DEBUG_PRINTLN(F("Waiting 1s to ensure connection..."));
-  delay(1000);
-  
-  // Construct the AT command based on function parameters
-  // char auxStr[strlen(URL)+strlen(server)+7];
-  char auxStr[200];
-  uint8_t connTypeNum = 1;
-  
-  if (strcmp(connType, "HTTP") == 0) {
-  	connTypeNum = 1;
-  }
-  if (strcmp(connType, "HTTPS") == 0) {
-  	connTypeNum = 2;
-  }
-
-  sprintf(auxStr, "AT+CHTTPSOPSE=\"%s\",%d,%d", server, port, connTypeNum);
-
-  // Connect to HTTPS server
-  // if (! sendCheckReply(F("AT+CHTTPSOPSE=\"www.dweet.io\",443,2"), ok_reply, 10000)) // Use port 443 and HTTPS
-  //   return false;
-  // if (! sendCheckReply(auxStr, ok_reply, 10000))
-  //   return false;
-
-  if (_type == SIM7500 || _type == SIM7600) {
-    // sendParseReply(auxStr, F("+CHTTPSOPSE: "), &reply);
-    // if (reply != 0) return false;
-
-    if (! sendCheckReply(auxStr, ok_reply, 10000))
-      return false;
-
-    readline(10000);
-    DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
-  }
-  else {
-    if (! sendCheckReply(auxStr, ok_reply, 10000))
-      return false;
-  }
-  
-  // readline(10000);
-
-  // if (strstr(replybuffer, "+HTTPSOPSE: 0") == 0) {
-  //   return false;
-  // }
-
-  DEBUG_PRINTLN(F("Waiting 1s to make sure it works..."));
-  delay(1000);
-
-  // Send data to server
-  sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL) + strlen(body)); // URL and body must include \r\n as needed
-
-  if (! sendCheckReply(auxStr, ">", 10000))
+  // Parse response status and size
+  uint16_t status, datalen;
+  readline(10000);
+  if (! parseReply(F("+HTTPACTION:"), &status, ',', 1))
+    return false;
+  if (! parseReply(F("+HTTPACTION:"), &datalen, ',', 2))
     return false;
 
-  if (_type == SIM7500 || _type == SIM7600) {
-    // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
-    // if (reply != 0) return false;
+  DEBUG_PRINT("HTTP status: "); DEBUG_PRINTLN(status);
+  DEBUG_PRINT("Data length: "); DEBUG_PRINTLN(datalen);
 
-    // Less efficient method
-    // char dataBuff[strlen(URL)+strlen(body)+1];
-    // if (strlen(body) > 0) {
-    //   strcpy(dataBuff, URL);
-    //   strcat(dataBuff, body);
-    // }
+  if (status != 200) return false;
 
-    if (strlen(body) == 0) {
-      if (! sendCheckReply(URL, ok_reply, 10000))
-        return false;
+  getReply(F("AT+HTTPREAD"));
+
+  readline(10000);
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
+
+  // Terminate HTTP service
+  sendCheckReply(F("AT+HTTPTERM"), ok_reply, 10000);
+
+  return true;
+}
+
+/********************************* HTTPS FUNCTION *********************************/
+boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body) {
+  // Sample request URL for SIM5320/7500/7600:
+  // "GET /dweet/for/{deviceID}?temp={temp}&batt={batt} HTTP/1.1\r\nHost: dweet.io\r\n\r\n"
+
+  // Sample server and request URL for SIM7070 GET request:
+  // server --> "http://dweet.io/dweet/for/{deviceID}"
+  // URL --> "/get?temp={temp}&batt={batt}"
+
+  // OR do a POST request:
+  // URL --> "/post"
+  // body --> 
+
+
+  if (_type == SIM7070) {
+    // Set up server URL
+    char urlBuff[strlen(URL) + 20];
+
+    sprintf(urlBuff, "AT+SHCONF=\"URL\",\"%s\"", URL);
+
+    if (! sendCheckReply(urlBuff, ok_reply, 10000))
+      return false;
+
+    // Set max HTTP body length
+    sendCheckReply(F("AT+SHCONF=\"BODYLEN\",1024"), ok_reply, 10000); // Max 1024 for SIM7070G
+
+    // Set max HTTP header length
+    sendCheckReply(F("AT+SHCONF=\"HEADERLEN\",350"), ok_reply, 10000); // Max 350 for SIM7070G
+
+    // HTTP build
+    sendCheckReply(F("AT+SHCONN"), ok_reply, 10000);
+
+    // Get HTTP status
+    getReply(F("AT+SHSTATE?"));
+    if (strcmp(replybuffer, "+SHSTATE: 1") == NULL) return false;
+    return true;
+
+    // Clear HTTP header (HTTP header is appended)
+    sendCheckReply(F("AT+SHCHEAD"), ok_reply, 10000);
+
+    if (strstr(URL, "GET") == 0) {
+      // Set up headers
+      HTTP_addHeader("Connection", "keep-alive", 11); // header type, value, max length of header or value
+      
+      // AT+SHREQ="/get?temp={temp}&batt={batt}",1
+    }
+    else if (strstr(URL, "POST") == 0 && strlen(body) > 0) {
+      HTTP_addPara("temp","22.3", 5);
+      HTTP_addPara("batt","3800", 5);
+
+      // AT+SHREQ="/post",3
+    }
+
+    sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
+  }
+  else {
+    // Start HTTPS stack
+    if (_type == SIM7500 || _type == SIM7600) {
+      getReply(F("AT+CHTTPSSTART")); // Don't check if true/false since it will return false if already started (not stopped before)
+
+      // if (! sendCheckReply(F("AT+CHTTPSSTART"), F("+CHTTPSSTART: 0"), 10000))
+      //  return false;
     }
     else {
-      mySerial->print(URL);
-      DEBUG_PRINT("\t---> ");
-      DEBUG_PRINTLN(URL);
+      if (! sendCheckReply(F("AT+CHTTPSSTART"), ok_reply, 10000))
+        return false;
+    }
 
-      if (! sendCheckReply(body, ok_reply, 10000))
+    DEBUG_PRINTLN(F("Waiting 1s to ensure connection..."));
+    delay(1000);
+    
+    // Construct the AT command based on function parameters
+    // char auxStr[strlen(URL)+strlen(server)+7];
+    char auxStr[200];
+    uint8_t connTypeNum = 1;
+    
+    if (strcmp(connType, "HTTP") == 0) {
+      connTypeNum = 1;
+    }
+    if (strcmp(connType, "HTTPS") == 0) {
+      connTypeNum = 2;
+    }
+
+    sprintf(auxStr, "AT+CHTTPSOPSE=\"%s\",%d,%d", server, port, connTypeNum);
+
+    // Connect to HTTPS server
+    // if (! sendCheckReply(F("AT+CHTTPSOPSE=\"www.dweet.io\",443,2"), ok_reply, 10000)) // Use port 443 and HTTPS
+    //   return false;
+    // if (! sendCheckReply(auxStr, ok_reply, 10000))
+    //   return false;
+
+    if (_type == SIM7500 || _type == SIM7600) {
+      // sendParseReply(auxStr, F("+CHTTPSOPSE: "), &reply);
+      // if (reply != 0) return false;
+
+      if (! sendCheckReply(auxStr, ok_reply, 10000))
+        return false;
+
+      readline(10000);
+      DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+      if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
+    }
+    else {
+      if (! sendCheckReply(auxStr, ok_reply, 10000))
         return false;
     }
     
-    // if (! sendCheckReply(dataBuff, ok_reply, 10000))
+    // readline(10000);
+
+    // if (strstr(replybuffer, "+HTTPSOPSE: 0") == 0) {
     //   return false;
+    // }
+
+    DEBUG_PRINTLN(F("Waiting 1s to make sure it works..."));
+    delay(1000);
+
+    // Send data to server
+    sprintf(auxStr, "AT+CHTTPSSEND=%i", strlen(URL) + strlen(body)); // URL and body must include \r\n as needed
+
+    if (! sendCheckReply(auxStr, ">", 10000))
+      return false;
+
+    if (_type == SIM7500 || _type == SIM7600) {
+      // sendParseReply(URL, F("+CHTTPSSEND: "), &reply);
+      // if (reply != 0) return false;
+
+      // Less efficient method
+      // char dataBuff[strlen(URL)+strlen(body)+1];
+      // if (strlen(body) > 0) {
+      //   strcpy(dataBuff, URL);
+      //   strcat(dataBuff, body);
+      // }
+
+      if (strlen(body) == 0) {
+        if (! sendCheckReply(URL, ok_reply, 10000))
+          return false;
+      }
+      else {
+        mySerial->print(URL);
+        DEBUG_PRINT("\t---> ");
+        DEBUG_PRINTLN(URL);
+
+        if (! sendCheckReply(body, ok_reply, 10000))
+          return false;
+      }
+      
+      // if (! sendCheckReply(dataBuff, ok_reply, 10000))
+      //   return false;
+
+      readline(10000);
+      DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+      if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
+
+    }
+    else {
+      if (! sendCheckReply(URL, ok_reply, 10000))
+        return false;
+    }
+
+    delay(1000);
+    
+    if (_type == SIM5320A || _type == SIM5320E) {
+      if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
+        return false;
+
+      readline(10000);
+      DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+      if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
+
+      delay(1000); // Needs to be here otherwise won't get server reply properly
+    }
+
+    // Check server response length
+    uint16_t replyLen;
+    sendParseReply(F("AT+CHTTPSRECV?"), F("+CHTTPSRECV: LEN,"), &replyLen);
+
+    // Get server response content
+    sprintf(auxStr, "AT+CHTTPSRECV=%i", replyLen);
+    getReply(auxStr, 2000);
+
+    if (replyLen > 0) {
+      readRaw(replyLen);
+      flushInput();
+      DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+    }
+    
+    // Close HTTP/HTTPS session
+    if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+      return false;
 
     readline(10000);
     DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
 
-  }
-  else {
-    if (! sendCheckReply(URL, ok_reply, 10000))
-      return false;
-  }
-
-  delay(1000);
-  
-  if (_type == SIM5320A || _type == SIM5320E) {
-    if (! sendCheckReply(F("AT+CHTTPSSEND"), ok_reply, 10000))
+    // Stop HTTP/HTTPS stack
+    if (! sendCheckReply(F("AT+CHTTPSSTOP"), F("+CHTTPSSTOP: 0"), 10000))
       return false;
 
-    readline(10000);
+    readline(); // Eat OK
     DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
 
-    delay(1000); // Needs to be here otherwise won't get server reply properly
+    return (replyLen > 0);
   }
-
-  // Check server response length
-  uint16_t replyLen;
-  sendParseReply(F("AT+CHTTPSRECV?"), F("+CHTTPSRECV: LEN,"), &replyLen);
-
-  // Get server response content
-  sprintf(auxStr, "AT+CHTTPSRECV=%i", replyLen);
-  getReply(auxStr, 2000);
-
-  if (replyLen > 0) {
-    readRaw(replyLen);
-    flushInput();
-    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-  }
-  
-  // Close HTTP/HTTPS session
-  if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
-    return false;
-
-  readline(10000);
-  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-
-  // Stop HTTP/HTTPS stack
-  if (! sendCheckReply(F("AT+CHTTPSSTOP"), F("+CHTTPSSTOP: 0"), 10000))
-    return false;
-
-  readline(); // Eat OK
-  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-
-  return (replyLen > 0);
 }
 
 /********* FTP FUNCTIONS  ************************************/
@@ -2710,8 +2721,8 @@ boolean Adafruit_FONA::TCPconnect(char *server, uint16_t port) {
     if (! sendCheckReply(F("AT+CASSLCFG=1,\"crindex\",1"), ok_reply) ) return false;
     if (! sendCheckReply(F("AT+CASSLCFG=1,\"protocol\",0"), ok_reply) ) return false;
     
-    if (! openWirelessConnection(true)) return false;
-    if (! wirelessConnStatus()) return false;
+    // if (! openWirelessConnection(true)) return false;
+    // if (! wirelessConnStatus()) return false;
     
     char server_f[100];
     strcpy(server_f,server);
@@ -2970,12 +2981,21 @@ boolean Adafruit_FONA::HTTP_ssl(boolean onoff) {
   return sendCheckReply(F("AT+HTTPSSL="), onoff ? 1 : 0, ok_reply);
 }
 
-boolean Adafruit_FONA::HTTP_header(char *type, char *value, uint16_t maxlen) {
-	char auxStr[maxlen+1];
+boolean Adafruit_FONA::HTTP_addHeader(char *type, char *value, uint16_t maxlen) {
+	char cmdStr[maxlen+30];
 
-	sprintf(auxStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
+	sprintf(cmdStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
 
-	if (! sendCheckReply(auxStr, ok_reply, 10000))
+	if (! sendCheckReply(cmdStr, ok_reply, 10000))
+  return false;
+}
+
+boolean Adafruit_FONA::HTTP_addPara(char *key, char *value, uint16_t maxlen) {
+  char cmdStr[2*maxlen+16];
+
+  sprintf(cmdStr, "AT+SHPARA=\"%s\",\"%s\"", key, value);
+
+  if (! sendCheckReply(cmdStr, ok_reply, 10000))
   return false;
 }
 

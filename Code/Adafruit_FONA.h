@@ -229,7 +229,8 @@ class Adafruit_FONA : public FONAStreamType {
   boolean HTTP_action(uint8_t method, uint16_t *status, uint16_t *datalen, int32_t timeout = 10000);
   boolean HTTP_readall(uint16_t *datalen);
   boolean HTTP_ssl(boolean onoff);
-  boolean HTTP_header(char *type, char *value, uint16_t maxlen);
+  boolean HTTP_addHeader(char *type, char *value, uint16_t maxlen);
+  boolean HTTP_addPara(char *key, char *value, uint16_t maxlen);
 
   // HTTP high level interface (easier to use, less flexible).
   boolean HTTP_GET_start(char *url, uint16_t *status, uint16_t *datalen);
