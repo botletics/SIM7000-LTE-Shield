@@ -1782,12 +1782,14 @@ boolean Adafruit_FONA::openWirelessConnection(bool onoff) {
   }
   else {
     if (_type == SIM7070) sendCheckReply(F("AT+CNACT=0,1"), ok_reply);
-    else getReplyQuoted(F("AT+CNACT=1,"), apn);
-    readline(); // Eat 'OK'
+    else {
+      getReplyQuoted(F("AT+CNACT=1,"), apn);
+      readline(); // Eat 'OK'
 
-    // if (strcmp(replybuffer, "+APP PDP: ACTIVE") == 0) return true;
-    if (strcmp(replybuffer, "ACTIVE") == 0) return true;
-    else return false;
+      // if (strcmp(replybuffer, "+APP PDP: ACTIVE") == 0) return true;
+      if (strcmp(replybuffer, "ACTIVE") == 0) return true;
+      else return false;
+    }
   }
 }
 
@@ -2697,7 +2699,7 @@ boolean Adafruit_FONA::TCPconnect(char *server, uint16_t port) {
     char CF[20] = "+CFSGFIS: ";
     itoa((int)strlen(rootCA_FONA), CF+10, 10);
     
-    if (! sendCheckReply(F("AT+CFSGFIS=3,\"ca.crt\""), (char*)CF, 300)) return false; // Get cert file size
+    // if (! sendCheckReply(F("AT+CFSGFIS=3,\"ca.crt\""), (char*)CF, 300)) return false; // Get cert file size
     if (! sendCheckReply(F("AT+CFSTERM"), ok_reply) ) return false;
 
     if (! sendCheckReply(F("AT+CSSLCFG=\"convert\",2,\"ca.crt\""), ok_reply) ) return false;
@@ -2771,9 +2773,10 @@ boolean Adafruit_FONA::TCPconnected(void) {
     char port_CA_FONA_p[10];
     itoa((int)port_CA_FONA,port_CA_FONA_p, 10);
     strcat(CA,port_CA_FONA_p);
-    
-    if (! sendCheckReply(F("AT+CAOPEN?"), (char*)CA, 100) ) return false;
-    else return true;
+
+    getReply(F("AT+CAOPEN?"));
+
+    if (strstr(replybuffer, CA) == NULL) return false;
   }
   else {
     if (! sendCheckReply(F("AT+CIPSTATUS"), ok_reply, 100) ) return false;
