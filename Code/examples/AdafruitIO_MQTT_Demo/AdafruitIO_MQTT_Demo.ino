@@ -339,18 +339,29 @@ void loop() {
 
 void moduleSetup() {
   // SIM7000 takes about 3s to turn on and SIM7500 takes about 15s
-  // Press reset button if the module is still turning on and the board doesn't find it.
+  // Press Arduino reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
+
+  // Software serial:
   fonaSS.begin(115200); // Default SIM7000 shield baud rate
-  
+
   Serial.println(F("Configuring to 9600 baud"));
   fonaSS.println("AT+IPR=9600"); // Set baud rate
   delay(100); // Short pause to let the command run
   fonaSS.begin(9600);
   if (! fona.begin(fonaSS)) {
     Serial.println(F("Couldn't find FONA"));
-    while(1); // Don't proceed if it couldn't find the device
+    while (1); // Don't proceed if it couldn't find the device
   }
+
+  // Hardware serial:
+  /*
+  fonaSerial->begin(115200); // Default SIM7000 baud rate
+
+  if (! fona.begin(*fonaSerial)) {
+    DEBUG_PRINTLN(F("Couldn't find SIM7000"));
+  }
+  */
 
   // The commented block of code below is an alternative that will find the module at 115200
   // Then switch it to 9600 without having to wait for the module to turn on and manually
