@@ -127,6 +127,8 @@ void setup() {
   // SIM7000 takes about 3s to turn on and SIM7500 takes about 15s
   // Press Arduino reset button if the module is still turning on and the board doesn't find it.
   // When the module is on it should communicate right after pressing reset
+
+  // Software serial:
   fonaSS.begin(115200); // Default SIM7000 shield baud rate
 
   Serial.println(F("Configuring to 9600 baud"));
@@ -137,6 +139,15 @@ void setup() {
     Serial.println(F("Couldn't find FONA"));
     while (1); // Don't proceed if it couldn't find the device
   }
+
+  // Hardware serial:
+  /*
+  fonaSerial->begin(115200); // Default SIM7000 baud rate
+
+  if (! fona.begin(*fonaSerial)) {
+    DEBUG_PRINTLN(F("Couldn't find SIM7000"));
+  }
+  */
   
   // The commented block of code below is an alternative that will find the module at 115200
   // Then switch it to 4800 without having to wait for the module to turn on and manually
@@ -1027,6 +1038,7 @@ void loop() {
             // Example JSON body: "{\"temp\":\"22.3\",\"batt\":\"3800\"}"
 
             sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%s\"}", tempBuff, battLevelBuff); // construct JSON body
+            fona.HTTP_addHeader("Content-Type", "application/json", 16);
             fona.HTTP_POST(body, strlen(body));
             */
 
