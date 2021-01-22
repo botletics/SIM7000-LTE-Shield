@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/7/2021
+    Last Updated: 1/22/2021
     License: GNU GPL v3.0
 */
 
@@ -1013,10 +1013,12 @@ void loop() {
 
         #ifdef SIMCOM_7070
             // Add headers as needed
+            /*
             fona.HTTP_addHeader("User-Agent", "SIM7070", 7);
             fona.HTTP_addHeader("Cache-control", "no-cache", 8);
             fona.HTTP_addHeader("Connection", "keep-alive", 10);
-            fona.HTTP_addHeader("Accept", "/*/", 3);
+            fona.HTTP_addHeader("Accept", "*\"*", 3);
+            */
             
             sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
             // sprintf(URL, "https://dweet.io/dweet/for/%s", imei); // #define SSL_FONA 1 in Adafruit_FONA.h
