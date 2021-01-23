@@ -796,14 +796,14 @@ boolean Adafruit_FONA::sendSMS(const char *smsaddr, const char *smsmsg) {
 
   if (! sendCheckReply(sendcmd, F("> "))) return false;
 
-  DEBUG_PRINT(F("> ")); DEBUG_PRINTLN(smsmsg);
+  DEBUG_PRINT(F("\t---> ")); DEBUG_PRINTLN(smsmsg);
 
   // no need for extra NEWLINE characters mySerial->println(smsmsg);
   // no need for extra NEWLINE characters mySerial->println();
   mySerial->print(smsmsg);
   mySerial->write(0x1A);
 
-  DEBUG_PRINTLN("^Z");
+  // DEBUG_PRINTLN("^Z");
 
   if ( (_type == SIM5320A) || (_type == SIM5320E) || (_type >= SIM7000) ) {
     // Eat two sets of CRLF
@@ -812,7 +812,7 @@ boolean Adafruit_FONA::sendSMS(const char *smsaddr, const char *smsmsg) {
     readline(200);
     //DEBUG_PRINT("Line 2: "); DEBUG_PRINTLN(strlen(replybuffer));
   }
-  readline(10000); // read the +CMGS reply, wait up to 10 seconds!!!
+  readline(20000); // read the +CMGS reply, wait up to 20s
   //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
   if (strstr(replybuffer, "+CMGS") == 0) {
     return false;
@@ -1624,6 +1624,9 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 		    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
 		      return false;
 		  // } // UNCOMMENT FOR LTE ONLY!
+
+      // if (! openWirelessConnection(true)) return false;
+      // if (! wirelessConnStatus()) return false;
 
 	  } else {
 	    // disconnect all sockets
