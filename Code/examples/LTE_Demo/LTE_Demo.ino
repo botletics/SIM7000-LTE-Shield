@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/22/2021
+    Last Updated: 1/27/2021
     License: GNU GPL v3.0
 */
 
@@ -1002,7 +1002,7 @@ void loop() {
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
-        char URL[150];
+        char URL[1];
         char body[100];
         char tempBuff[16];
         char battLevelBuff[16];
@@ -1020,28 +1020,28 @@ void loop() {
             fona.HTTP_addHeader("Accept", "*\"*", 3);
             */
             
-            sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
-            // sprintf(URL, "https://dweet.io/dweet/for/%s", imei); // #define SSL_FONA 1 in Adafruit_FONA.h
-
-            if (! fona.HTTP_connect(URL)) {
+            // Connect to server
+            // If https:// is used, #define SSL_FONA 1 in Adafruit_FONA.h
+            if (! fona.HTTP_connect("http://dweet.io")) {
               Serial.println(F("Failed to connect to server..."));
               break;
             }
 
             // GET request
-            memset(0, URL, sizeof(URL)); // Clear char array
-
-            sprintf(URL, "/get?temp=%s&batt=%s", tempBuff, battLevelBuff); // GET request URL
-
+            // Format URI with GET request query string
+            sprintf(URL, "/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff);
             fona.HTTP_GET(URL);
 
             // POST request
             /*
-            // Example JSON body: "{\"temp\":\"22.3\",\"batt\":\"3800\"}"
+            sprintf(URL, "/dweet/for/%s", imei); // Format URI
 
+            // Format JSON body for POST request
+            // Example JSON body: "{\"temp\":\"22.3\",\"batt\":\"3800\"}"
             sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%s\"}", tempBuff, battLevelBuff); // construct JSON body
+
             fona.HTTP_addHeader("Content-Type", "application/json", 16);
-            fona.HTTP_POST(body, strlen(body));
+            fona.HTTP_POST(URL, body, strlen(body));
             */
 
         #else
