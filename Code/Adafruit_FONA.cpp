@@ -1800,11 +1800,11 @@ boolean Adafruit_FONA::wirelessConnStatus(void) {
   getReply(F("AT+CNACT?"));
   // Format of response:
   // +CNACT: <status>,<ip_addr>  (ex.SIM7000)
-  // +CNACT: <pdpidx>,<status>,<ip_addr>  (ex.SIM7070)
-  if(_type==SIM7070){	
+  // +CNACT: <pdpidx>,<status>,<ip_addr>  (ex.SIM7070)  
+  if(_type == SIM7070) {
     if (strstr(replybuffer, "+CNACT: 0,1") == NULL) return false;
-  }else{
-    if (strstr(replybuffer, "+CNACT: 1") == NULL) return false;	
+  } else {
+    if (strstr(replybuffer, "+CNACT: 1") == NULL) return false; 
   }
   return true;
 }
