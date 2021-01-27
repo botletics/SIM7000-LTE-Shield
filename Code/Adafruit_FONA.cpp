@@ -2072,6 +2072,7 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   // Get HTTP status
   getReply(F("AT+SHSTATE?"));
   if (strcmp(replybuffer, "+SHSTATE: 1") == NULL) return false;
+  readline(); // Eat 'OK'
 
   // Clear HTTP header (HTTP header is appended)
   if (! sendCheckReply(F("AT+SHCHEAD"), ok_reply, 10000)) return false;
@@ -2079,13 +2080,13 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   return true;
 }
 
-boolean Adafruit_FONA_LTE::HTTP_GET(const char *URL) {
+boolean Adafruit_FONA_LTE::HTTP_GET(const char *URI) {
   // Use fona.HTTP_addHeader() as needed before using this function
   // Then use fona.HTTP_connect() to connect to the server first
 
-  char cmdBuff[strlen(URL) + 13];
+  char cmdBuff[strlen(URI) + 13];
 
-  sprintf(cmdBuff, "AT+SHREQ=\"%s\",1", URL);
+  sprintf(cmdBuff, "AT+SHREQ=\"%s\",1", URI);
 
   getReply(cmdBuff, 10000);
   readline(); // Eat 'OK'
@@ -2114,20 +2115,26 @@ boolean Adafruit_FONA_LTE::HTTP_GET(const char *URL) {
   return true;
 }
 
-boolean Adafruit_FONA_LTE::HTTP_POST(const char *body, uint8_t bodylen) {
+boolean Adafruit_FONA_LTE::HTTP_POST(const char *URI, const char *body, uint8_t bodylen) {
   // Use fona.HTTP_addHeader() as needed before using this function
   // Then use fona.HTTP_connect() to connect to the server first
-  char cmdBuff[bodylen + 15];
+  char cmdBuff[100]; // Make sure this is large enough for URI
 
-  sprintf(cmdBuff, "AT+SHBOD=%s,10000", bodylen);
-  getReply(cmdBuff, 10000);
+  if (_type == SIM7070) {
+    sprintf(cmdBuff, "AT+SHBOD=%i,10000", bodylen);
+    getReply(cmdBuff, 10000);
+    if (strstr(replybuffer, ">") == NULL) return false; // Wait for ">" to send message
+    if (! sendCheckReply(body, ok_reply, 5000)) return false; // Now send the JSON body
+  }
+  else { // For ex, SIM7000
+    sprintf(cmdBuff, "AT+SHBOD=\"%s\",%i", body, bodylen);
+    if (! sendCheckReply(cmdBuff, ok_reply, 10000)) return false;
+  }
   
-  if (strstr(replybuffer, ">") == NULL) return false; // Wait for ">" to send message
-  if (! sendCheckReply(body, ok_reply, 5000)) return false; // Now send the JSON body
+  memset(cmdBuff, 0, sizeof(cmdBuff)); // Clear URI char array
+  sprintf(cmdBuff, "AT+SHREQ=\"%s\",3", URI);
 
-
-  if (! sendCheckReply(F("AT+SHREQ=\"/post\",3"), ok_reply, 10000)) return false;
-
+  if (! sendCheckReply(cmdBuff, ok_reply, 10000)) return false;
   readline(); // Eat 'OK'
 
   // Parse response status and size
@@ -3041,7 +3048,7 @@ boolean Adafruit_FONA::HTTP_ssl(boolean onoff) {
 }
 
 boolean Adafruit_FONA_LTE::HTTP_addHeader(const char *type, const char *value, uint16_t maxlen) {
-	char cmdStr[maxlen+30];
+	char cmdStr[2*maxlen+17];
 
 	sprintf(cmdStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
 
