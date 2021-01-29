@@ -812,7 +812,7 @@ boolean Adafruit_FONA::sendSMS(const char *smsaddr, const char *smsmsg) {
     readline(200);
     //DEBUG_PRINT("Line 2: "); DEBUG_PRINTLN(strlen(replybuffer));
   }
-  readline(20000); // read the +CMGS reply, wait up to 20s
+  readline(30000); // read the +CMGS reply, wait up to 30s
   //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
   if (strstr(replybuffer, "+CMGS") == 0) {
     return false;
