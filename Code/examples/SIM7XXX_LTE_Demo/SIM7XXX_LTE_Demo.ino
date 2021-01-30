@@ -784,7 +784,7 @@ void loop() {
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
-        char URL[1];
+        char URL[150];
         char body[100];
         char tempBuff[16];
       
