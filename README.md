@@ -35,13 +35,13 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
-- Finish postdata() for SIM7070
 - Add SSL examples
 - FTP image transfering
 - FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
 
 ### Completed Tasks
+- Tested SIM7070G general features: texting, reading texts, HTTP GET requests with HTTP_GET() function in Adafruit_FONA_LTE class
 - Added SSL for TCP: opens port 8883 and allows MQTTS over SSL. Currently this feature is only for sending data. To use the function addRootCA(), set `#define SSL_FONA 1` in Adafruit_FONA.h
 - Added SIM7070G compatibility
 - Added SIM7600 compatibility
