@@ -102,9 +102,11 @@ boolean Adafruit_FONA::begin(Stream &port) {
   flushInput();
 
 
-  DEBUG_PRINT(F("\t---> ")); DEBUG_PRINTLN("ATI");
+  // DEBUG_PRINT(F("\t---> ")); DEBUG_PRINTLN("ATI");
+  DEBUG_PRINT(F("\t---> ")); DEBUG_PRINTLN("AT+GMR"); // This definitely should have the module name, but ATI may not
 
-  mySerial->println("ATI");
+  // mySerial->println("ATI");
+  mySerial->println("AT+GMR");
   readline(500, true);
 
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
@@ -587,14 +589,11 @@ boolean Adafruit_FONA::callPhone(char *number) {
 
   uint8_t x = strlen(sendbuff);
 
-  if (_type < SIM7000A || _type >= SIM7500A) {
-    sendbuff[x] = ';';
-    sendbuff[x+1] = 0;
-    //DEBUG_PRINTLN(sendbuff);
+  sendbuff[x] = ';';
+  sendbuff[x+1] = 0;
+  //DEBUG_PRINTLN(sendbuff);
 
-    sendCheckReply(F("AT+CSDVC=3"), ok_reply); // Enable speaker output
-  }
-  else sendbuff[x+1] = 0;
+  if (_type == SIM7500) sendCheckReply(F("AT+CSDVC=3"), ok_reply); // Enable speaker output
 
   return sendCheckReply(sendbuff, ok_reply);
 }
@@ -720,6 +719,7 @@ boolean Adafruit_FONA::readSMS(uint8_t i, char *smsbuff,
   uint16_t thesmslen = 0;
 
 
+  DEBUG_PRINT(F("\t---> "));
   DEBUG_PRINT(F("AT+CMGR="));
   DEBUG_PRINTLN(i);
 
@@ -767,6 +767,7 @@ boolean Adafruit_FONA::getSMSSender(uint8_t i, char *sender, int senderlen) {
   if (! sendCheckReply(F("AT+CSDH=1"), ok_reply)) return false;
 
 
+  DEBUG_PRINT(F("\t---> "));
   DEBUG_PRINT(F("AT+CMGR="));
   DEBUG_PRINTLN(i);
 
@@ -1543,10 +1544,10 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	  }
 	}
 	else if (_type == SIM7070) {
-		getNetworkInfo();
+		// getNetworkInfo();
 
-    if (! openWirelessConnection(true)) return false;
-    if (! wirelessConnStatus()) return false;
+    if (! openWirelessConnection(onoff)) return false;
+    // if (! wirelessConnStatus()) return false;
 	}
 	else {
 	  if (onoff) {
@@ -1779,20 +1780,35 @@ boolean Adafruit_FONA::getGSMLoc(float *lat, float *lon) {
 // Open or close wireless data connection
 boolean Adafruit_FONA::openWirelessConnection(bool onoff) {
   if (!onoff) { // Disconnect wireless
-    if (_type == SIM7070) sendCheckReply(F("AT+CNACT=0,0"), ok_reply);
-    else return sendCheckReply(F("AT+CNACT=0"), ok_reply);
+    if (_type == SIM7070) {
+      if (! sendCheckReply(F("AT+CNACT=0,0"), ok_reply)) return false;
+    }
+    else {
+      if (! sendCheckReply(F("AT+CNACT=0"), ok_reply)) return false;
+    }
+
+    readline();
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+
+    if (_type == SIM7070 && strstr(replybuffer, ",DEACTIVE") == NULL) return false; // +APP PDP: <pdpidx>,DEACTIVE
+    else if (_type == SIM7000 && strstr(replybuffer, "PDP: DEACTIVE") == NULL) return false; // +APP PDP: DEACTIVE
   }
   else {
-    if (_type == SIM7070) sendCheckReply(F("AT+CNACT=0,1"), ok_reply);
-    else {
-      getReplyQuoted(F("AT+CNACT=1,"), apn);
-      readline(); // Eat 'OK'
-
-      // if (strcmp(replybuffer, "+APP PDP: ACTIVE") == 0) return true;
-      if (strcmp(replybuffer, "ACTIVE") == 0) return true;
-      else return false;
+    if (_type == SIM7070) {
+      if (! sendCheckReply(F("AT+CNACT=0,1"), ok_reply)) return false;
     }
+    else {
+      if (! sendCheckReplyQuoted(F("AT+CNACT=1,"), apn, ok_reply)) return false;
+    }
+    
+    readline();
+    DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+
+    if (_type == SIM7070 && strstr(replybuffer, ",ACTIVE") == NULL) return false; // +APP PDP: <pdpidx>,ACTIVE
+    else if (_type == SIM7000 && strstr(replybuffer, "PDP: ACTIVE") == NULL) return false; // +APP PDP: ACTIVE
   }
+
+  return true;
 }
 
 // Query wireless connection status
@@ -2053,7 +2069,9 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
 boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   // Set up server URL
-  char urlBuff[strlen(server) + 20];
+  char urlBuff[100];
+
+  sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
 
   sprintf(urlBuff, "AT+SHCONF=\"URL\",\"%s\"", server);
 
@@ -2071,6 +2089,7 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
 
   // Get HTTP status
   getReply(F("AT+SHSTATE?"));
+  readline();
   if (strcmp(replybuffer, "+SHSTATE: 1") == NULL) return false;
   readline(); // Eat 'OK'
 
@@ -2083,21 +2102,21 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
 boolean Adafruit_FONA_LTE::HTTP_GET(const char *URI) {
   // Use fona.HTTP_addHeader() as needed before using this function
   // Then use fona.HTTP_connect() to connect to the server first
-
-  char cmdBuff[strlen(URI) + 13];
+  char cmdBuff[150];
 
   sprintf(cmdBuff, "AT+SHREQ=\"%s\",1", URI);
 
-  getReply(cmdBuff, 10000);
-  readline(); // Eat 'OK'
+  sendCheckReply(cmdBuff, ok_reply, 10000);
 
   // Parse response status and size
   // Example reply --> "+SHREQ: "GET",200,387"
   uint16_t status, datalen;
   readline(10000);
-  if (! parseReply(F("+SHREQ: GET"), &status, ',', 1))
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+
+  if (! parseReply(F("+SHREQ: \"GET\""), &status, ',', 1))
     return false;
-  if (! parseReply(F("+SHREQ: GET"), &datalen, ',', 2))
+  if (! parseReply(F("+SHREQ: \"GET\""), &datalen, ',', 2))
     return false;
 
   DEBUG_PRINT("HTTP status: "); DEBUG_PRINTLN(status);
@@ -2106,9 +2125,11 @@ boolean Adafruit_FONA_LTE::HTTP_GET(const char *URI) {
   if (status != 200) return false;
 
   // Read server response
-  getReply(F("AT+SHREAD=0,"), datalen);
+  getReply(F("AT+SHREAD=0,"), datalen, 10000);
+  readline();
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // +SHREAD: <datalen>
   readline(10000);
-  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server response
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
 
   sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
 
@@ -2118,13 +2139,16 @@ boolean Adafruit_FONA_LTE::HTTP_GET(const char *URI) {
 boolean Adafruit_FONA_LTE::HTTP_POST(const char *URI, const char *body, uint8_t bodylen) {
   // Use fona.HTTP_addHeader() as needed before using this function
   // Then use fona.HTTP_connect() to connect to the server first
-  char cmdBuff[100]; // Make sure this is large enough for URI
+  char cmdBuff[150]; // Make sure this is large enough for URI
 
+  // Example 2 in HTTP(S) app note for SIM7070 POST request
   if (_type == SIM7070) {
     sprintf(cmdBuff, "AT+SHBOD=%i,10000", bodylen);
     getReply(cmdBuff, 10000);
     if (strstr(replybuffer, ">") == NULL) return false; // Wait for ">" to send message
-    if (! sendCheckReply(body, ok_reply, 5000)) return false; // Now send the JSON body
+    sendCheckReply(body, ok_reply, 2000);
+
+    // if (! strcmp(replybuffer, "OK") != 0) return false; // Now send the JSON body
   }
   else { // For ex, SIM7000
     sprintf(cmdBuff, "AT+SHBOD=\"%s\",%i", body, bodylen);
@@ -2135,15 +2159,16 @@ boolean Adafruit_FONA_LTE::HTTP_POST(const char *URI, const char *body, uint8_t 
   sprintf(cmdBuff, "AT+SHREQ=\"%s\",3", URI);
 
   if (! sendCheckReply(cmdBuff, ok_reply, 10000)) return false;
-  readline(); // Eat 'OK'
 
   // Parse response status and size
   // Example reply --> "+SHREQ: "POST",200,452"
   uint16_t status, datalen;
   readline(10000);
-  if (! parseReply(F("+SHREQ: POST"), &status, ',', 1))
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
+
+  if (! parseReply(F("+SHREQ: \"POST\""), &status, ',', 1))
     return false;
-  if (! parseReply(F("+SHREQ: POST"), &datalen, ',', 2))
+  if (! parseReply(F("+SHREQ: \"POST\""), &datalen, ',', 2))
     return false;
 
   DEBUG_PRINT("HTTP status: "); DEBUG_PRINTLN(status);
@@ -2152,9 +2177,11 @@ boolean Adafruit_FONA_LTE::HTTP_POST(const char *URI, const char *body, uint8_t 
   if (status != 200) return false;
 
   // Read server response
-  getReply(F("AT+SHREAD=0,"), datalen);
+  getReply(F("AT+SHREAD=0,"), datalen, 10000);
+  readline();
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // +SHREAD: <datalen>
   readline(10000);
-  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server response
+  DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer); // Print out server reply
 
   sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
 
