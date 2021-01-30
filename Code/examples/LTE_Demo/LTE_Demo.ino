@@ -998,18 +998,17 @@ void loop() {
         
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
-        uint16_t battLevel = 3800; // Dummy voltage in mV for testing
+        uint16_t battLevel;
+        if (! fona.getBattVoltage(&battLevel)) battLevel = 3800; // Use dummy voltage if can't read
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
-        char URL[1];
+        char URL[150];
         char body[100];
         char tempBuff[16];
-        char battLevelBuff[16];
       
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
-        dtostrf(battLevel, 1, 0, battLevelBuff);
 
         #ifdef SIMCOM_7070
             // Add headers as needed
@@ -1027,7 +1026,7 @@ void loop() {
 
             // GET request
             // Format URI with GET request query string
-            sprintf(URL, "/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff);
+            sprintf(URL, "/dweet/for/%s?temp=%s&batt=%i", imei, tempBuff, battLevel);
             fona.HTTP_GET(URL);
 
             // POST request
@@ -1036,7 +1035,7 @@ void loop() {
 
             // Format JSON body for POST request
             // Example JSON body: "{\"temp\":\"22.3\",\"batt\":\"3800\"}"
-            sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%s\"}", tempBuff, battLevelBuff); // construct JSON body
+            sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%i\"}", tempBuff, battLevel); // construct JSON body
 
             fona.HTTP_addHeader("Content-Type", "application/json", 16);
             fona.HTTP_POST(URL, body, strlen(body));
@@ -1047,8 +1046,8 @@ void loop() {
             // Use IMEI as device ID for this example
             
             // GET request
-            sprintf(URL, "dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // No need to specify http:// or https://
-    //        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // But this works too
+            sprintf(URL, "dweet.io/dweet/for/%s?temp=%s&batt=%i", imei, tempBuff, battLevel); // No need to specify http:// or https://
+    //        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%i", imei, tempBuff, battLevel); // But this works too
 
             if (!fona.postData("GET", URL))
               Serial.println(F("Failed to complete HTTP GET..."));
@@ -1056,14 +1055,15 @@ void loop() {
             // POST request
             /*
             sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
-            sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
+            sprintf(body, "{\"temp\":%s,\"batt\":%i}", tempBuff, battLevel);
             
             if (!fona.postData("POST", URL, body)) // Can also add authorization token parameter!
               Serial.println(F("Failed to complete HTTP POST..."));
             */
           
-            break;
         #endif
+
+        break;
       }
 #endif
 
@@ -1072,24 +1072,22 @@ void loop() {
         // Post data to website via 3G or 4G LTE
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
-        // Voltage in mV, just for testing. Use the read battery function instead for real applications.
-        uint16_t battLevel = 3700;
+        uint16_t battLevel;
+        if (! fona.getBattVoltage(&battLevel)) battLevel = 3800; // Use dummy voltage if can't read
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
         char URL[150];
         char tempBuff[16];
-        char battLevelBuff[16];
       
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
-        dtostrf(battLevel, 1, 0, battLevelBuff);
 
         // Construct the appropriate URL's and body, depending on request type
         // Use IMEI as device ID for this example
         
         // GET request
-        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\n\r\n", imei, tempBuff, battLevelBuff);
+        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%i HTTP/1.1\r\nHost: dweet.io\r\n\r\n", imei, tempBuff, battLevel);
         
         if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
           Serial.println(F("Failed to complete HTTP/HTTPS request..."));
