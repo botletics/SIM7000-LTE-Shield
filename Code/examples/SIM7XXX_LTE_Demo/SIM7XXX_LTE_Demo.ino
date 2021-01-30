@@ -5,7 +5,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/7/2021
+ *  Last Updated: 1/30/2021
  *  License: GNU GPL v3.0
   */
 
@@ -37,10 +37,10 @@
 // #define SIMCOM_7500
 //#define SIMCOM_7600
 
-#if defined(SIMCOM_7000)
-  // For botletics SIM7000 shield
+#if defined(SIMCOM_7000) || defined(SIMCOM_7070)
+  // For botletics SIM7000/7070 shield
   #define FONA_PWRKEY 6
-  #define FONA_RST 7
+  #define FONA_RST 7 // No RST pin for SIM7070
   //#define FONA_DTR 8 // Connect with solder jumper
   //#define FONA_RI 9 // Need to enable via AT commands
   #define FONA_TX 10 // Microcontroller RX
@@ -772,70 +772,103 @@ void loop() {
         fona.getNetworkInfo();        
         break;
       }
-#if defined(SIMCOM_7000) || defined(SIMCOM_7070)
+
+#if defined(SIMCOM_2G) || defined(SIMCOM_7000) || defined(SIMCOM_7070)
     case '2': {
         // Post data to website via 2G or LTE CAT-M/NB-IoT
+        
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
-        uint16_t battLevel = 3600; // Dummy voltage in mV for testing
+        uint16_t battLevel;
+        if (! fona.getBattVoltage(&battLevel)) battLevel = 3800; // Use dummy voltage if can't read
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
-        char URL[150];
-        char tempBuff[12];
-        char battLevelBuff[12];
+        char URL[1];
+        char body[100];
+        char tempBuff[16];
       
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
-        dtostrf(battLevel, 1, 0, battLevelBuff);
 
-        // Construct the appropriate URL's and body, depending on request type
-        // Use IMEI as device ID for this example
-        
-        // GET request
-        sprintf(URL, "dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // No need to specify http:// or https://
-//        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%s", imei, tempBuff, battLevelBuff); // But this works too
+        #ifdef SIMCOM_7070
+            // Add headers as needed
+            // fona.HTTP_addHeader("User-Agent", "SIM7070", 7);
+            // fona.HTTP_addHeader("Cache-control", "no-cache", 8);
+            // fona.HTTP_addHeader("Connection", "keep-alive", 10);
+            // fona.HTTP_addHeader("Accept", "*/*, 3);
+            
+            // Connect to server
+            // If https:// is used, #define SSL_FONA 1 in Adafruit_FONA.h
+            if (! fona.HTTP_connect("http://dweet.io")) {
+              Serial.println(F("Failed to connect to server..."));
+              break;
+            }
 
-        if (!fona.postData("GET", URL))
-          Serial.println(F("Failed to complete HTTP GET..."));
-        
-        // POST request
-        /*
-        char body[100];
-        
-        sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
-        sprintf(body, "{\"temp\":%s,\"batt\":%s}", tempBuff, battLevelBuff);
-        
-        if (!fona.postData("POST", URL, body)) // Can also add authorization token parameter!
-          Serial.println(F("Failed to complete HTTP POST..."));
-        */
-      
+            // GET request
+            // Format URI with GET request query string
+            sprintf(URL, "/dweet/for/%s?temp=%s&batt=%i", imei, tempBuff, battLevel);
+            fona.HTTP_GET(URL);
+
+            // POST request
+            /*
+            sprintf(URL, "/dweet/for/%s", imei); // Format URI
+
+            // Format JSON body for POST request
+            // Example JSON body: "{\"temp\":\"22.3\",\"batt\":\"3800\"}"
+            sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%i\"}", tempBuff, battLevel); // construct JSON body
+
+            fona.HTTP_addHeader("Content-Type", "application/json", 16);
+            fona.HTTP_POST(URL, body, strlen(body));
+            */
+
+        #else
+            // Construct the appropriate URL's and body, depending on request type
+            // Use IMEI as device ID for this example
+            
+            // GET request
+            sprintf(URL, "dweet.io/dweet/for/%s?temp=%s&batt=%i", imei, tempBuff, battLevel); // No need to specify http:// or https://
+    //        sprintf(URL, "http://dweet.io/dweet/for/%s?temp=%s&batt=%i", imei, tempBuff, battLevel); // But this works too
+
+            if (!fona.postData("GET", URL))
+              Serial.println(F("Failed to complete HTTP GET..."));
+            
+            // POST request
+            /*
+            sprintf(URL, "http://dweet.io/dweet/for/%s", imei);
+            sprintf(body, "{\"temp\":%s,\"batt\":%i}", tempBuff, battLevel);
+            
+            if (!fona.postData("POST", URL, body)) // Can also add authorization token parameter!
+              Serial.println(F("Failed to complete HTTP POST..."));
+            */
+          
+        #endif
+
         break;
       }
+#endif
       
-#elif defined(SIMCOM_7500) || defined(SIMCOM_7600)
+#if defined(SIMCOM_7500) || defined(SIMCOM_7600)
     case '3': {
         // Post data to website via 3G or 4G LTE
         float temperature = analogRead(A0)*1.23; // Change this to suit your needs
         
-        // Voltage in mV, just for testing. Use the read battery function instead for real applications.
-        uint16_t battLevel = 3700;
+        uint16_t battLevel;
+        if (! fona.getBattVoltage(&battLevel)) battLevel = 3800; // Use dummy voltage if can't read
 
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
         char URL[150];
         char tempBuff[12];
-        char battLevelBuff[12];
       
         // Format the floating point numbers as needed
         dtostrf(temperature, 1, 2, tempBuff); // float_val, min_width, digits_after_decimal, char_buffer
-        dtostrf(battLevel, 1, 0, battLevelBuff);
 
         // Construct the appropriate URL's and body, depending on request type
         // Use IMEI as device ID for this example
         
         // GET request
-        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%s HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n", imei, tempBuff, battLevelBuff);
+        sprintf(URL, "GET /dweet/for/%s?temp=%s&batt=%i HTTP/1.1\r\nHost: dweet.io\r\nContent-Length: 0\r\n\r\n", imei, tempBuff, battLevel);
 
         if (!fona.postData("www.dweet.io", 443, "HTTPS", URL)) // Server, port, connection type, URL
           Serial.println(F("Failed to complete HTTP/HTTPS request..."));
