@@ -192,11 +192,6 @@ void loop() {
   }
 
   // Measure battery level
-  // Note: on the LTE shield this won't be accurate because the SIM7000
-  // is supplied by a regulated 3.6V, not directly from the battery. You
-  // can use the Arduino and a voltage divider to measure the battery voltage
-  // and use that instead, but for now we will use the function below
-  // only for testing.
   battLevel = readVcc(); // Get voltage in mV
 
   // Measure temperature
