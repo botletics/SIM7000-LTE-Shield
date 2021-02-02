@@ -1964,7 +1964,8 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
     readline(10000);
     DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
+    // if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
+    if (strstr(replybuffer, "+CHTTPSOPSE: 0") == NULL) return false;
   }
   else {
     if (! sendCheckReply(auxStr, ok_reply, 10000))
@@ -2015,8 +2016,8 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
     readline(10000);
     DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
-
+    // if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
+    if (strstr(replybuffer, "+CHTTPSSEND: 0") == NULL) return false;
   }
   else {
     if (! sendCheckReply(URL, ok_reply, 10000))
@@ -2031,7 +2032,8 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
 
     readline(10000);
     DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
-    if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
+    // if (strcmp(replybuffer, "+CHTTPSSEND: 0") != 0) return false;
+    if (strstr(replybuffer, "+CHTTPSSEND: 0") == NULL) return false;
 
     delay(1000); // Needs to be here otherwise won't get server reply properly
   }
