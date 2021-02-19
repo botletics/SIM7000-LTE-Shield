@@ -217,9 +217,7 @@ void Adafruit_FONA::powerOn(uint8_t FONA_PWRKEY) {
     delay(1050);
   else if (_type == SIM5320A || _type == SIM5320E)
     delay(180); // For SIM5320
-  else if (_type == SIM7000)
-    delay(100);
-  else if (_type == SIM7070)
+  else if (_type == SIM7000 || _type == SIM7070)
     delay(1100); // At least 1s
   else if (_type == SIM7500 || _type == SIM7600)
     delay(500);
@@ -1936,7 +1934,6 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   delay(1000);
   
   // Construct the AT command based on function parameters
-  // char auxStr[strlen(URL)+strlen(server)+7];
   char auxStr[200];
   uint8_t connTypeNum = 1;
   
@@ -1948,12 +1945,6 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   }
 
   sprintf(auxStr, "AT+CHTTPSOPSE=\"%s\",%d,%d", server, port, connTypeNum);
-
-  // Connect to HTTPS server
-  // if (! sendCheckReply(F("AT+CHTTPSOPSE=\"www.dweet.io\",443,2"), ok_reply, 10000)) // Use port 443 and HTTPS
-  //   return false;
-  // if (! sendCheckReply(auxStr, ok_reply, 10000))
-  //   return false;
 
   if (_type == SIM7500 || _type == SIM7600) {
     // sendParseReply(auxStr, F("+CHTTPSOPSE: "), &reply);
@@ -1971,12 +1962,6 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     if (! sendCheckReply(auxStr, ok_reply, 10000))
       return false;
   }
-  
-  // readline(10000);
-
-  // if (strstr(replybuffer, "+HTTPSOPSE: 0") == 0) {
-  //   return false;
-  // }
 
   DEBUG_PRINTLN(F("Waiting 1s to make sure it works..."));
   delay(1000);
@@ -2053,8 +2038,9 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   }
   
   // Close HTTP/HTTPS session
-  if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
-    return false;
+  sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000)
+  // if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+  //   return false;
 
   readline(10000);
   DEBUG_PRINT("\t<--- "); DEBUG_PRINTLN(replybuffer);
