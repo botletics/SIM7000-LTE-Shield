@@ -2038,7 +2038,7 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
   }
   
   // Close HTTP/HTTPS session
-  sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000)
+  sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000);
   // if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
   //   return false;
 
