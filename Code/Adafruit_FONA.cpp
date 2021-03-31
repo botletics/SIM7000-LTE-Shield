@@ -436,7 +436,7 @@ uint8_t Adafruit_FONA::getIMEI(char *imei) {
 uint8_t Adafruit_FONA::getNetworkStatus(void) {
   uint16_t status;
 
-  if (_type >= SIM7000A) {
+  if (_type >= SIM7000) {
     if (! sendParseReply(F("AT+CGREG?"), F("+CGREG: "), &status, ',', 1)) return 0;
   }
   else {
@@ -1135,7 +1135,7 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
   char gpsbuffer[120];
 
   // we need at least a 2D fix
-  if (_type < SIM7000A) { // SIM7500 doesn't support AT+CGPSSTATUS? command
+  if (_type < SIM7000) { // SIM7500 doesn't support AT+CGPSSTATUS? command
   	if (GPSstatus() < 2)
 	    return false;
   }
@@ -1549,7 +1549,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	}
 	else {
 	  if (onoff) {
-	  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+	  	// if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
 		    // disconnect all sockets
 		    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
 
@@ -1569,7 +1569,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	      if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
 	        return false;
 
-        // if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+        // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
   	      // send AT+CSTT,"apn","user","pass"
   	      flushInput();
 
@@ -1618,7 +1618,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	    if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
 	      return false;
 
-	  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+	  	// if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
 		    // bring up wireless connection
 		    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
 		      return false;
@@ -1636,7 +1636,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
 	    if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
 	      return false;
 
-	  	// if (_type < SIM7000A) { // UNCOMMENT FOR LTE ONLY!
+	  	// if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
 		    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
 		      return false;
 		// } // UNCOMMENT FOR LTE ONLY!
