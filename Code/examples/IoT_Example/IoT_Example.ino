@@ -25,7 +25,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/7/2021
+ *  Last Updated: 3/31/2021
  *  License: GNU GPL v3.0
   */
 
@@ -558,12 +558,11 @@ void loop() {
   // The following lines are for if you want to periodically post data (like GPS tracker)
   Serial.print(F("Waiting for ")); Serial.print(samplingRate); Serial.println(F(" seconds\r\n"));
   delay(samplingRate * 1000UL); // Delay
-  
-  fona.powerOn(FONA_PWRKEY); // Powers on the module if it was off previously
 
   // Only run the initialization again if the module was powered off
   // since it resets back to 115200 baud instead of 4800.
   #ifdef turnOffShield
+    fona.powerOn(FONA_PWRKEY); // Powers on the module if it was off previously
     moduleSetup();
   #endif
     
