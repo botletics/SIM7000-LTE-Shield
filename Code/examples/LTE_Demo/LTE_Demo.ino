@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/30/2021
+    Last Updated: 4/8/2021
     License: GNU GPL v3.0
 */
 
@@ -681,7 +681,7 @@ void loop() {
         uint16_t smslen;
         int8_t smsn;
 
-        if ( (type == SIM5320A) || (type == SIM5320E) ) {
+        if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7000) ) {
           smsn = 0; // zero indexed
           smsnum--;
         } else {
