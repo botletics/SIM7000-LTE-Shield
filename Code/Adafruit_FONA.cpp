@@ -115,6 +115,8 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
   if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R14")) != 0) {
     _type = SIM808_V2;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("1418B03SIM808M32_BT_EAT")) != 0) {
+    _type = SIM808_V2; //For Boards with Bluetooth and Extended AT commands for it
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R13")) != 0) {
     _type = SIM808_V1;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM800 R13")) != 0) {
