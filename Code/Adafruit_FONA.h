@@ -176,6 +176,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "", uint32_t bodylen = 0);
   boolean postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body = "");
   void getNetworkInfo(void);
+  bool getNetworkInfoLong(void);
 
   // Network connection (AT+CNACT)
   boolean openWirelessConnection(bool onoff);
@@ -190,6 +191,9 @@ class Adafruit_FONA : public FONAStreamType {
                               uint16_t *year = NULL, uint8_t *month = NULL, uint8_t *day = NULL, uint8_t *hour = NULL, uint8_t *min = NULL, float *sec = NULL);
   boolean enableGPSNMEA(uint8_t nmea);
 
+  // UDP raw connections
+  boolean UDPconnect(char *server, uint16_t port);
+
   // TCP raw connections
   boolean TCPconnect(char *server, uint16_t port);
   boolean TCPclose(void);
@@ -197,6 +201,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean TCPsend(char *packet, uint8_t len);
   uint16_t TCPavailable(void);
   uint16_t TCPread(uint8_t *buff, uint8_t len);
+  boolean TCPdns(char *hostname, char *buff, uint8_t len);
   boolean addRootCA(const char *root_cert);
 
   // MQTT
