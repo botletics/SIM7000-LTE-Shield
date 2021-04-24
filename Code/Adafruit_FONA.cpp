@@ -1715,6 +1715,13 @@ void Adafruit_FONA::getNetworkInfo(void) {
 	getReply(F("AT+COPS?"));
 }
 
+bool Adafruit_FONA::getNetworkInfoLong(void) {
+  if (!sendCheckReply(F("AT+COPS=?"), ok_reply, 2000))
+     return false;
+
+  return true;
+}
+
 int8_t Adafruit_FONA::GPRSstate(void) {
   uint16_t state;
 
@@ -2746,6 +2753,40 @@ boolean Adafruit_FONA::addRootCA(const char *root_cert) {
   return true;
 }
 
+/********* UDP FUNCTIONS  ************************************/
+
+boolean Adafruit_FONA::UDPconnect(char *server, uint16_t port) {
+  flushInput();
+
+  // close all old connections
+  if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 8000) ) return false;
+
+  // single connection at a time
+  if (! sendCheckReply(F("AT+CIPMUX=0"), ok_reply) ) return false;
+
+  // manually read data
+  if (! sendCheckReply(F("AT+CIPRXGET=1"), ok_reply) ) return false;
+
+
+  DEBUG_PRINT(F("AT+CIPSTART=\"UDP\",\""));
+  DEBUG_PRINT(server);
+  DEBUG_PRINT(F("\",\""));
+  DEBUG_PRINT(port);
+  DEBUG_PRINTLN(F("\""));
+
+
+  mySerial->print(F("AT+CIPSTART=\"TCP\",\""));
+  mySerial->print(server);
+  mySerial->print(F("\",\""));
+  mySerial->print(port);
+  mySerial->println(F("\""));
+
+  if (! expectReply(ok_reply)) return false;
+  if (! expectReply(F("CONNECT OK"))) return false;
+
+  // looks like it was a success (?)
+  return true;
+}
 
 /**************** TCP FUNCTIONS + SSL *************************/
 
@@ -2956,6 +2997,23 @@ uint16_t Adafruit_FONA::TCPread(uint8_t *buff, uint8_t len) {
   return avail;
 }
 
+boolean Adafruit_FONA::TCPdns(char *hostname, char *buff, uint8_t len) {
+  uint16_t avail;
+
+  mySerial->print(F("AT+CDNSGIP="));
+  mySerial->println(hostname);
+
+  if (! expectReply(ok_reply))
+     return false;
+
+  readline();
+
+  if (! parseReplyQuoted(F("+CDNSGIP: 1,"), buff, len, ',', 1)) {
+     return false;
+  }
+
+  return true;
+}
 
 
 /********* HTTP LOW LEVEL FUNCTIONS  ************************************/
