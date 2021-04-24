@@ -51,7 +51,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
   mySerial = &port;
 
   if (_rstpin != 99) { // Pulse the reset pin only if it's not an LTE module
-  	DEBUG_PRINTLN(F("Resetting the module..."));
+    DEBUG_PRINTLN(F("Resetting the module..."));
     pinMode(_rstpin, OUTPUT);
     digitalWrite(_rstpin, HIGH);
     delay(10);
@@ -115,6 +115,8 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
   if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R14")) != 0) {
     _type = SIM808_V2;
+  } else if (prog_char_strstr(replybuffer, (prog_char *)F("1418B03SIM808M32_BT_EAT")) != 0) {
+    _type = SIM808_V2; //For Boards with Bluetooth and Extended AT commands for it
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R13")) != 0) {
     _type = SIM808_V1;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM800 R13")) != 0) {
@@ -190,13 +192,13 @@ boolean Adafruit_FONA_LTE::setBaudrate(uint16_t baud) {
 
 /* returns value in mV (uint16_t) */
 boolean Adafruit_FONA::getBattVoltage(uint16_t *v) {
-	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
-		float f;
-	  boolean b = sendParseReplyFloat(F("AT+CBC"), F("+CBC: "), &f, ',', 0);
-	  *v = f*1000;
-	  return b;
-	} else
-  	return sendParseReply(F("AT+CBC"), F("+CBC: "), v, ',', 2);
+  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
+    float f;
+    boolean b = sendParseReplyFloat(F("AT+CBC"), F("+CBC: "), &f, ',', 0);
+    *v = f*1000;
+    return b;
+  } else
+    return sendParseReply(F("AT+CBC"), F("+CBC: "), v, ',', 2);
 }
 
 /* returns value in mV (uint16_t) */
@@ -706,7 +708,7 @@ int8_t Adafruit_FONA::getNumSMS(void) {
 // Reading SMS's is a bit involved so we don't use helpers that may cause delays or debug
 // printouts!
 boolean Adafruit_FONA::readSMS(uint8_t i, char *smsbuff,
-			       uint16_t maxlen, uint16_t *readlen) {
+             uint16_t maxlen, uint16_t *readlen) {
   // text mode
   if (! sendCheckReply(F("AT+CMGF=1"), ok_reply)) return false;
 
@@ -958,9 +960,9 @@ boolean Adafruit_FONA::readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uin
 
   char *p = replybuffer+8;   // skip +CCLK: "
   // Parse date
-  int reply = atoi(p);  	 // get year
+  int reply = atoi(p);     // get year
   *year = (uint8_t) reply;   // save as year
-  p+=3; 				     // skip 3 char
+  p+=3;              // skip 3 char
   reply = atoi(p);
   *month = (uint8_t) reply;
   p+=3;
@@ -1002,8 +1004,8 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
     if (! sendParseReply(F("AT+CGNSPWR?"), F("+CGNSPWR: "), &state) )
       return false;
   } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
-  	if (! Adafruit_FONA::sendParseReply(F("AT+CGPS?"), F("+CGPS: "), &state) )
-    	return false;
+    if (! Adafruit_FONA::sendParseReply(F("AT+CGPS?"), F("+CGPS: "), &state) )
+      return false;
   } else {
     if (! sendParseReply(F("AT+CGPSPWR?"), F("+CGPSPWR: "), &state))
       return false;
@@ -1012,26 +1014,26 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
   if (onoff && !state) {
     if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
       if (! sendCheckReply(F("AT+CGNSPWR=1"), ok_reply))
-				return false;
+        return false;
     } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
-  		if (! sendCheckReply(F("AT+CGPS=1"), ok_reply))
-      	return false;
+      if (! sendCheckReply(F("AT+CGPS=1"), ok_reply))
+        return false;
     } else {
       if (! sendCheckReply(F("AT+CGPSPWR=1"), ok_reply))
-				return false;
+        return false;
     }
   } else if (!onoff && state) {
     if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
       if (! sendCheckReply(F("AT+CGNSPWR=0"), ok_reply))
-				return false;
-		} else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
-			if (! sendCheckReply(F("AT+CGPS=0"), ok_reply))
-	      return false;
-		    // this takes a little time
-		    readline(2000); // eat '+CGPS: 0'
+        return false;
+    } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
+      if (! sendCheckReply(F("AT+CGPS=0"), ok_reply))
+        return false;
+        // this takes a little time
+        readline(2000); // eat '+CGPS: 0'
     } else {
       if (! sendCheckReply(F("AT+CGPSPWR=0"), ok_reply))
-				return false;
+        return false;
     }
   }
   return true;
@@ -1136,10 +1138,10 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
   // we need at least a 2D fix
   if (_type < SIM7000) { // SIM7500 doesn't support AT+CGPSSTATUS? command
-  	if (GPSstatus() < 2)
-	    return false;
+    if (GPSstatus() < 2)
+      return false;
   }
-	
+  
   // grab the mode 2^5 gps csv from the sim808
   uint8_t res_len = getGPS(32, gpsbuffer, 120);
 
@@ -1449,7 +1451,7 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 
   if (_type == SIM808_V2 || _type == SIM7000 || _type == SIM7070) {
     if (i) {
-    	sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
+      sendCheckReply(F("AT+CGNSCFG=1"), ok_reply);
       sendCheckReply(F("AT+CGNSTST=1"), ok_reply);
       return true;
     }
@@ -1465,184 +1467,184 @@ boolean Adafruit_FONA::enableGPSNMEA(uint8_t i) {
 
 
 boolean Adafruit_FONA::enableGPRS(boolean onoff) {
-	if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
-		if (onoff) {
-	    // disconnect all sockets
-	    //sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 5000);
+  if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
+    if (onoff) {
+      // disconnect all sockets
+      //sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 5000);
 
-	    if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
-	      return false;
+      if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
+        return false;
 
 
-	    // set bearer profile access point name
-	    if (apn) {
-	      // Send command AT+CGSOCKCONT=1,"IP","<apn value>" where <apn value> is the configured APN name.
-	      if (! sendCheckReplyQuoted(F("AT+CGSOCKCONT=1,\"IP\","), apn, ok_reply, 10000))
-	        return false;
+      // set bearer profile access point name
+      if (apn) {
+        // Send command AT+CGSOCKCONT=1,"IP","<apn value>" where <apn value> is the configured APN name.
+        if (! sendCheckReplyQuoted(F("AT+CGSOCKCONT=1,\"IP\","), apn, ok_reply, 10000))
+          return false;
 
-	      // set username/password
-	      if (apnusername) {
-					char authstring[100] = "AT+CGAUTH=1,1,\"";
+        // set username/password
+        if (apnusername) {
+          char authstring[100] = "AT+CGAUTH=1,1,\"";
           // char authstring[100] = "AT+CSOCKAUTH=1,1,\""; // For 3G
-					char *strp = authstring + strlen(authstring);
-					prog_char_strcpy(strp, (prog_char *)apnusername);
-					strp+=prog_char_strlen((prog_char *)apnusername);
-					strp[0] = '\"';
-					strp++;
-					strp[0] = 0;
+          char *strp = authstring + strlen(authstring);
+          prog_char_strcpy(strp, (prog_char *)apnusername);
+          strp+=prog_char_strlen((prog_char *)apnusername);
+          strp[0] = '\"';
+          strp++;
+          strp[0] = 0;
 
-					if (apnpassword) {
-					  strp[0] = ','; strp++;
-					  strp[0] = '\"'; strp++;
-					  prog_char_strcpy(strp, (prog_char *)apnpassword);
-					  strp+=prog_char_strlen((prog_char *)apnpassword);
-					  strp[0] = '\"';
-					  strp++;
-					  strp[0] = 0;
-					}
+          if (apnpassword) {
+            strp[0] = ','; strp++;
+            strp[0] = '\"'; strp++;
+            prog_char_strcpy(strp, (prog_char *)apnpassword);
+            strp+=prog_char_strlen((prog_char *)apnpassword);
+            strp[0] = '\"';
+            strp++;
+            strp[0] = 0;
+          }
 
-					if (! sendCheckReply(authstring, ok_reply, 10000))
-					  return false;
-	      }
-	    }
+          if (! sendCheckReply(authstring, ok_reply, 10000))
+            return false;
+        }
+      }
 
-	    // connect in transparent mode
-	    if (! sendCheckReply(F("AT+CIPMODE=1"), ok_reply, 10000))
-	      return false;
-	    // open network
-	    if (_type == SIM5320A || _type == SIM5320E) {
-	    	if (! sendCheckReply(F("AT+NETOPEN=,,1"), F("Network opened"), 10000))
-	      	return false;
-	    }
-	    else if (_type == SIM7500 || _type == SIM7600) {
-	    	if (! sendCheckReply(F("AT+NETOPEN"), ok_reply, 10000))
-	      	return false;
-	    }
-	   	readline(); // eat 'OK'
-	  } else {
-	    // close GPRS context
-	    if (_type == SIM5320A || _type == SIM5320E) {
-	    	if (! sendCheckReply(F("AT+NETCLOSE"), F("Network closed"), 10000))
-	      	return false;
-	    }
-	    else if (_type == SIM7500 || _type == SIM7600) {
+      // connect in transparent mode
+      if (! sendCheckReply(F("AT+CIPMODE=1"), ok_reply, 10000))
+        return false;
+      // open network
+      if (_type == SIM5320A || _type == SIM5320E) {
+        if (! sendCheckReply(F("AT+NETOPEN=,,1"), F("Network opened"), 10000))
+          return false;
+      }
+      else if (_type == SIM7500 || _type == SIM7600) {
+        if (! sendCheckReply(F("AT+NETOPEN"), ok_reply, 10000))
+          return false;
+      }
+      readline(); // eat 'OK'
+    } else {
+      // close GPRS context
+      if (_type == SIM5320A || _type == SIM5320E) {
+        if (! sendCheckReply(F("AT+NETCLOSE"), F("Network closed"), 10000))
+          return false;
+      }
+      else if (_type == SIM7500 || _type == SIM7600) {
         getReply(F("AT+NETCLOSE"));
         getReply(F("AT+CHTTPSSTOP"));
         // getReply(F("AT+CHTTPSCLSE"));
 
-	    	// if (! sendCheckReply(F("AT+NETCLOSE"), ok_reply, 10000))
-	     //  	return false;
-	    //   	if (! sendCheckReply(F("AT+CHTTPSSTOP"), F("+CHTTPSSTOP: 0"), 10000))
-  			// 	return false;
-  			// if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
-  			// 	return false;
-	    }
+        // if (! sendCheckReply(F("AT+NETCLOSE"), ok_reply, 10000))
+       //   return false;
+      //    if (! sendCheckReply(F("AT+CHTTPSSTOP"), F("+CHTTPSSTOP: 0"), 10000))
+        //  return false;
+        // if (! sendCheckReply(F("AT+CHTTPSCLSE"), ok_reply, 10000))
+        //  return false;
+      }
 
-	    readline(); // eat 'OK'
-	  }
-	}
-	else if (_type == SIM7070) {
-		// getNetworkInfo();
+      readline(); // eat 'OK'
+    }
+  }
+  else if (_type == SIM7070) {
+    // getNetworkInfo();
 
     if (! openWirelessConnection(onoff)) return false;
     // if (! wirelessConnStatus()) return false;
-	}
-	else {
-	  if (onoff) {
-	  	// if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
-		    // disconnect all sockets
-		    sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
+  }
+  else {
+    if (onoff) {
+      // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
+        // disconnect all sockets
+        sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000);
 
-		    if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
-		      return false;
+        if (! sendCheckReply(F("AT+CGATT=1"), ok_reply, 10000))
+          return false;
 
-			// set bearer profile! connection type GPRS
-			if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
-		    return false;
-	    // } // UNCOMMENT FOR LTE ONLY!
+      // set bearer profile! connection type GPRS
+      if (! sendCheckReply(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""), ok_reply, 10000))
+        return false;
+      // } // UNCOMMENT FOR LTE ONLY!
 
-		 	delay(200); // This seems to help the next line run the first time
-	    
-	    // set bearer profile access point name
-	    if (apn) {
-	      // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
-	      if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
-	        return false;
+      delay(200); // This seems to help the next line run the first time
+      
+      // set bearer profile access point name
+      if (apn) {
+        // Send command AT+SAPBR=3,1,"APN","<apn value>" where <apn value> is the configured APN value.
+        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"APN\","), apn, ok_reply, 10000))
+          return false;
 
         // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
-  	      // send AT+CSTT,"apn","user","pass"
-  	      flushInput();
+          // send AT+CSTT,"apn","user","pass"
+          flushInput();
 
-  	      mySerial->print(F("AT+CSTT=\""));
-  	      mySerial->print(apn);
-  	      if (apnusername) {
-  					mySerial->print("\",\"");
-  					mySerial->print(apnusername);
-  	      }
-  	      if (apnpassword) {
-  					mySerial->print("\",\"");
-  					mySerial->print(apnpassword);
-  	      }
-  	      mySerial->println("\"");
+          mySerial->print(F("AT+CSTT=\""));
+          mySerial->print(apn);
+          if (apnusername) {
+            mySerial->print("\",\"");
+            mySerial->print(apnusername);
+          }
+          if (apnpassword) {
+            mySerial->print("\",\"");
+            mySerial->print(apnpassword);
+          }
+          mySerial->println("\"");
 
-  	      DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
-  	      DEBUG_PRINT(apn);
-  	      
-  	      if (apnusername) {
-  					DEBUG_PRINT("\",\"");
-  					DEBUG_PRINT(apnusername); 
-  	      }
-  	      if (apnpassword) {
-  					DEBUG_PRINT("\",\"");
-  					DEBUG_PRINT(apnpassword); 
-  	      }
-  	      DEBUG_PRINTLN("\"");
-  	      
-  	      if (! expectReply(ok_reply)) return false;
+          DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
+          DEBUG_PRINT(apn);
+          
+          if (apnusername) {
+            DEBUG_PRINT("\",\"");
+            DEBUG_PRINT(apnusername); 
+          }
+          if (apnpassword) {
+            DEBUG_PRINT("\",\"");
+            DEBUG_PRINT(apnpassword); 
+          }
+          DEBUG_PRINTLN("\"");
+          
+          if (! expectReply(ok_reply)) return false;
         // } // UNCOMMENT FOR LTE ONLY!
-	    
-	      // set username/password
-	      if (apnusername) {
-	        // Send command AT+SAPBR=3,1,"USER","<user>" where <user> is the configured APN username.
-	        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"USER\","), apnusername, ok_reply, 10000))
-	          return false;
-	      }
-	      if (apnpassword) {
-	        // Send command AT+SAPBR=3,1,"PWD","<password>" where <password> is the configured APN password.
-	        if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"PWD\","), apnpassword, ok_reply, 10000))
-	          return false;
-	      }
-	    }
+      
+        // set username/password
+        if (apnusername) {
+          // Send command AT+SAPBR=3,1,"USER","<user>" where <user> is the configured APN username.
+          if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"USER\","), apnusername, ok_reply, 10000))
+            return false;
+        }
+        if (apnpassword) {
+          // Send command AT+SAPBR=3,1,"PWD","<password>" where <password> is the configured APN password.
+          if (! sendCheckReplyQuoted(F("AT+SAPBR=3,1,\"PWD\","), apnpassword, ok_reply, 10000))
+            return false;
+        }
+      }
 
-	    // open bearer
-	    if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
-	      return false;
+      // open bearer
+      if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
+        return false;
 
-	  	// if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
-		    // bring up wireless connection
-		    if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
-		      return false;
-		  // } // UNCOMMENT FOR LTE ONLY!
+      // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
+        // bring up wireless connection
+        if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+          return false;
+      // } // UNCOMMENT FOR LTE ONLY!
 
       // if (! openWirelessConnection(true)) return false;
       // if (! wirelessConnStatus()) return false;
 
-	  } else {
-	    // disconnect all sockets
-	    if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000))
-	      return false;
+    } else {
+      // disconnect all sockets
+      if (! sendCheckReply(F("AT+CIPSHUT"), F("SHUT OK"), 20000))
+        return false;
 
-	    // close bearer
-	    if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
-	      return false;
+      // close bearer
+      if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
+        return false;
 
-	  	// if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
-		    if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
-		      return false;
-		// } // UNCOMMENT FOR LTE ONLY!
+      // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
+        if (! sendCheckReply(F("AT+CGATT=0"), ok_reply, 10000))
+          return false;
+    // } // UNCOMMENT FOR LTE ONLY!
 
-	  }
-	}
+    }
+  }
   return true;
 }
 
@@ -1665,26 +1667,26 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 
       // set username/password
       if (apnusername) {
-				char authstring[100] = "AT+CGAUTH=1,1,\"";
-				char *strp = authstring + strlen(authstring);
-				prog_char_strcpy(strp, (prog_char *)apnusername);
-				strp+=prog_char_strlen((prog_char *)apnusername);
-				strp[0] = '\"';
-				strp++;
-				strp[0] = 0;
+        char authstring[100] = "AT+CGAUTH=1,1,\"";
+        char *strp = authstring + strlen(authstring);
+        prog_char_strcpy(strp, (prog_char *)apnusername);
+        strp+=prog_char_strlen((prog_char *)apnusername);
+        strp[0] = '\"';
+        strp++;
+        strp[0] = 0;
 
-				if (apnpassword) {
-				  strp[0] = ','; strp++;
-				  strp[0] = '\"'; strp++;
-				  prog_char_strcpy(strp, (prog_char *)apnpassword);
-				  strp+=prog_char_strlen((prog_char *)apnpassword);
-				  strp[0] = '\"';
-				  strp++;
-				  strp[0] = 0;
-				}
+        if (apnpassword) {
+          strp[0] = ','; strp++;
+          strp[0] = '\"'; strp++;
+          prog_char_strcpy(strp, (prog_char *)apnpassword);
+          strp+=prog_char_strlen((prog_char *)apnpassword);
+          strp[0] = '\"';
+          strp++;
+          strp[0] = 0;
+        }
 
-				if (! sendCheckReply(authstring, ok_reply, 10000))
-				  return false;
+        if (! sendCheckReply(authstring, ok_reply, 10000))
+          return false;
       }
     }
 
@@ -1709,8 +1711,8 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 */
 
 void Adafruit_FONA::getNetworkInfo(void) {
-	getReply(F("AT+CPSI?"));
-	getReply(F("AT+COPS?"));
+  getReply(F("AT+CPSI?"));
+  getReply(F("AT+COPS?"));
 }
 
 int8_t Adafruit_FONA::GPRSstate(void) {
@@ -1850,43 +1852,43 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   if (strlen(body) > 0) bodylen = strlen(body);
 
   if (request_type == "GET") {
-  	if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
-    	return false;
+    if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
+      return false;
   }
   else if (request_type == "POST" && bodylen > 0) { // POST with content body
-  	if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
-    	return false;
+    if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
+      return false;
 
     if (strlen(token) > 0) {
       char tokenStr[strlen(token) + 55];
 
-	  	sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
+      sprintf(tokenStr, "AT+HTTPPARA=\"USERDATA\",\"Authorization: Bearer %s\"", token);
 
-	  	if (! sendCheckReply(tokenStr, ok_reply, 10000))
-	  		return false;
-	  }
+      if (! sendCheckReply(tokenStr, ok_reply, 10000))
+        return false;
+    }
 
     char dataBuff[sizeof(bodylen) + 20];
 
-		sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
-		if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
-	    return false;
+    sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
+    if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
+      return false;
 
     delay(100); // Needed for fast baud rates (ex: 115200 baud with SAMD21 hardware serial)
 
-		if (! sendCheckReply(body, ok_reply, 10000))
-	    return false;
+    if (! sendCheckReply(body, ok_reply, 10000))
+      return false;
 
-  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-    	return false;
+    if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+      return false;
   }
   else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
-  	if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
-    	return false;
+    if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
+      return false;
   }
   else if (request_type == "HEAD") {
-  	if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
-    	return false;
+    if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
+      return false;
   }
 
   // Parse response status and size
@@ -2320,7 +2322,7 @@ boolean Adafruit_FONA::FTP_MDTM(const char* fileName, const char* filePath, uint
 }
 
 const char * Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, uint16_t numBytes) {
-	char auxStr[100];
+  char auxStr[100];
   const char *err = "error";
 
   sprintf(auxStr, "AT+FTPGETNAME=\"%s\"", fileName);
@@ -2356,7 +2358,7 @@ const char * Adafruit_FONA::FTP_GET(const char* fileName, const char* filePath, 
 
   // if (! expectReply(F("+FTPGET: 1,0"))) return err;
 
-	return replybuffer;
+  return replybuffer;
 }
 
 boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char* content, size_t numBytes) {
@@ -2472,70 +2474,70 @@ void Adafruit_FONA::mqtt_connect_message(const char *protocol, byte *mqtt_messag
   byte username_length = strlen(username);
   byte password_length = strlen(password);
 
-	mqtt_message[0] = 16;                      // MQTT message type CONNECT
+  mqtt_message[0] = 16;                      // MQTT message type CONNECT
 
-	byte rem_length = 6 + protocol_length;
-	// Each parameter will add 2 bytes + parameter length
-	if (ID_length > 0) {
-		rem_length += 2 + ID_length;
-	}
-	if (username_length > 0) {
-		rem_length += 2 + username_length;
-	}
-	if (password_length > 0) {
-		rem_length += 2 + password_length;
-	}
+  byte rem_length = 6 + protocol_length;
+  // Each parameter will add 2 bytes + parameter length
+  if (ID_length > 0) {
+    rem_length += 2 + ID_length;
+  }
+  if (username_length > 0) {
+    rem_length += 2 + username_length;
+  }
+  if (password_length > 0) {
+    rem_length += 2 + password_length;
+  }
 
-	mqtt_message[1] = rem_length;              // Remaining length of message
-	mqtt_message[2] = 0;                       // Protocol name length MSB
-	mqtt_message[3] = protocol_length;         // Protocol name length LSB
+  mqtt_message[1] = rem_length;              // Remaining length of message
+  mqtt_message[2] = 0;                       // Protocol name length MSB
+  mqtt_message[3] = protocol_length;         // Protocol name length LSB
 
-	// Use the given protocol name (for example, "MQTT" or "MQIsdp")
-	for (int i=0; i<protocol_length; i++) {
-		mqtt_message[4 + i] = byte(protocol[i]);
-	}
+  // Use the given protocol name (for example, "MQTT" or "MQIsdp")
+  for (int i=0; i<protocol_length; i++) {
+    mqtt_message[4 + i] = byte(protocol[i]);
+  }
 
-	mqtt_message[4 + protocol_length] = 3;                      // MQTT protocol version
+  mqtt_message[4 + protocol_length] = 3;                      // MQTT protocol version
 
-	if (username_length > 0 && password_length > 0) { // has everything
-		mqtt_message[5 + protocol_length] = 194;                  // Connection flag with username and password (11000010)
-	}
-	else if (password_length == 0) { // Only has username
-		mqtt_message[5 + protocol_length] = 130;									// Connection flag with username only (10000010)
-	}
-	else if (username_length == 0) {	// Only has password
-		mqtt_message[5 + protocol_length] = 66;										// Connection flag with password only (01000010)
-	}
-	
-	mqtt_message[6 + protocol_length] = 0;                      // Keep-alive time MSB
-	mqtt_message[7 + protocol_length] = 15;                     // Keep-alive time LSB
-	mqtt_message[8 + protocol_length] = 0;                      // Client ID length MSB
-	mqtt_message[9 + protocol_length] = ID_length;       			  // Client ID length LSB
+  if (username_length > 0 && password_length > 0) { // has everything
+    mqtt_message[5 + protocol_length] = 194;                  // Connection flag with username and password (11000010)
+  }
+  else if (password_length == 0) { // Only has username
+    mqtt_message[5 + protocol_length] = 130;                  // Connection flag with username only (10000010)
+  }
+  else if (username_length == 0) {  // Only has password
+    mqtt_message[5 + protocol_length] = 66;                   // Connection flag with password only (01000010)
+  }
+  
+  mqtt_message[6 + protocol_length] = 0;                      // Keep-alive time MSB
+  mqtt_message[7 + protocol_length] = 15;                     // Keep-alive time LSB
+  mqtt_message[8 + protocol_length] = 0;                      // Client ID length MSB
+  mqtt_message[9 + protocol_length] = ID_length;              // Client ID length LSB
 
   // Client ID
-	for(i = 0; i < ID_length; i++) {
+  for(i = 0; i < ID_length; i++) {
     mqtt_message[10 + protocol_length + i] = clientID[i];
-	}
+  }
 
-	// Username
-	if (username_length > 0) {
-		mqtt_message[10 + protocol_length + ID_length] = 0;                     // username length MSB
-		mqtt_message[11 + protocol_length + ID_length] = username_length;       // username length LSB
+  // Username
+  if (username_length > 0) {
+    mqtt_message[10 + protocol_length + ID_length] = 0;                     // username length MSB
+    mqtt_message[11 + protocol_length + ID_length] = username_length;       // username length LSB
 
-		for(i = 0; i < username_length; i++) {
+    for(i = 0; i < username_length; i++) {
       mqtt_message[12 + protocol_length + ID_length + i] = username[i];
-  	}
-	}
+    }
+  }
   
-	// Password
-	if (password_length > 0) {
-		mqtt_message[12 + protocol_length + ID_length + username_length] = 0;                     // password length MSB
-		mqtt_message[13 + protocol_length + ID_length + username_length] = password_length;       // password length LSB
+  // Password
+  if (password_length > 0) {
+    mqtt_message[12 + protocol_length + ID_length + username_length] = 0;                     // password length MSB
+    mqtt_message[13 + protocol_length + ID_length + username_length] = password_length;       // password length LSB
 
-		for(i = 0; i < password_length; i++) {
+    for(i = 0; i < password_length; i++) {
       mqtt_message[14 + protocol_length + ID_length + username_length + i] = password[i];
-  	}
-	}
+    }
+  }
 }
 
 void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, const char *topic, const char *message) {
@@ -2543,10 +2545,10 @@ void Adafruit_FONA::mqtt_publish_message(byte *mqtt_message, const char *topic, 
   byte topic_length = strlen(topic);
   byte message_length = strlen(message);
 
-	mqtt_message[0] = 48;                                  // MQTT Message Type PUBLISH
-	mqtt_message[1] = 2 + topic_length + message_length;   // Remaining length
-	mqtt_message[2] = 0;                                   // Topic length MSB
-	mqtt_message[3] = topic_length;                        // Topic length LSB
+  mqtt_message[0] = 48;                                  // MQTT Message Type PUBLISH
+  mqtt_message[1] = 2 + topic_length + message_length;   // Remaining length
+  mqtt_message[2] = 0;                                   // Topic length MSB
+  mqtt_message[3] = topic_length;                        // Topic length LSB
 
   // Topic
   for(i = 0; i < topic_length; i++) {
@@ -2563,12 +2565,12 @@ void Adafruit_FONA::mqtt_subscribe_message(byte *mqtt_message, const char *topic
   uint8_t i = 0;
   byte topic_length = strlen(topic);
 
-	mqtt_message[0] = 130;                // MQTT Message Type SUBSCRIBE
-	mqtt_message[1] = 5 + topic_length;   // Remaining length
-	mqtt_message[2] = 0;                  // Packet ID MSB   
-	mqtt_message[3] = 1;                  // Packet ID LSB
-	mqtt_message[4] = 0;                  // Topic length MSB      
-	mqtt_message[5] = topic_length;       // Topic length LSB          
+  mqtt_message[0] = 130;                // MQTT Message Type SUBSCRIBE
+  mqtt_message[1] = 5 + topic_length;   // Remaining length
+  mqtt_message[2] = 0;                  // Packet ID MSB   
+  mqtt_message[3] = 1;                  // Packet ID LSB
+  mqtt_message[4] = 0;                  // Topic length MSB      
+  mqtt_message[5] = topic_length;       // Topic length LSB          
 
   // Topic
   for(i = 0; i < topic_length; i++) {
@@ -2579,41 +2581,41 @@ void Adafruit_FONA::mqtt_subscribe_message(byte *mqtt_message, const char *topic
 }
 
 void Adafruit_FONA::mqtt_disconnect_message(byte *mqtt_message) {
-	mqtt_message[0] = 0xE0; // msgtype = connect
-	mqtt_message[1] = 0x00; // length of message (?)
+  mqtt_message[0] = 0xE0; // msgtype = connect
+  mqtt_message[1] = 0x00; // length of message (?)
 }
 
 boolean Adafruit_FONA::mqtt_sendPacket(byte *packet, byte len) {
-	// Send packet and get response
-	DEBUG_PRINT(F("\t---> "));
+  // Send packet and get response
+  DEBUG_PRINT(F("\t---> "));
 
-	for (int j = 0; j < len; j++) {
-		// if (packet[j] == NULL) break; // We've reached the end of the actual content
-	  mySerial->write(packet[j]); // Needs to be "write" not "print"
-	  DEBUG_PRINT(packet[j]); // Message contents
-	  DEBUG_PRINT(" "); // Space out the bytes
+  for (int j = 0; j < len; j++) {
+    // if (packet[j] == NULL) break; // We've reached the end of the actual content
+    mySerial->write(packet[j]); // Needs to be "write" not "print"
+    DEBUG_PRINT(packet[j]); // Message contents
+    DEBUG_PRINT(" "); // Space out the bytes
   }
   mySerial->write(byte(26)); // End of packet
   DEBUG_PRINT(byte(26));
 
   readline(3000); // Wait up to 3 seconds to send the data
-	DEBUG_PRINTLN("");
+  DEBUG_PRINTLN("");
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
-	return (strcmp(replybuffer, "SEND OK") == 0);
+  return (strcmp(replybuffer, "SEND OK") == 0);
 }
 
 ////////////////////////////////////////////////////////////
 
 boolean Adafruit_FONA::MQTTconnect(const char *protocol, const char *clientID, const char *username, const char *password) {
-	flushInput();
-	mySerial->println(F("AT+CIPSEND"));
-	readline();
+  flushInput();
+  mySerial->println(F("AT+CIPSEND"));
+  readline();
   DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
   if (replybuffer[0] != '>') return false;
 
   byte mqtt_message[127];
-	mqtt_connect_message(protocol, mqtt_message, clientID, username, password);
+  mqtt_connect_message(protocol, mqtt_message, clientID, username, password);
 
 
   if (! mqtt_sendPacket(mqtt_message, 14+strlen(protocol)+strlen(clientID)+strlen(username)+strlen(password))) return false;
@@ -2622,9 +2624,9 @@ boolean Adafruit_FONA::MQTTconnect(const char *protocol, const char *clientID, c
 }
 
 boolean Adafruit_FONA::MQTTpublish(const char* topic, const char* message) {
-	flushInput();
-	mySerial->println(F("AT+CIPSEND"));
-	readline();
+  flushInput();
+  mySerial->println(F("AT+CIPSEND"));
+  readline();
   DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
   if (replybuffer[0] != '>') return false;
 
@@ -2637,9 +2639,9 @@ boolean Adafruit_FONA::MQTTpublish(const char* topic, const char* message) {
 }
 
 boolean Adafruit_FONA::MQTTsubscribe(const char* topic, byte QoS) {
-	flushInput();
-	mySerial->println(F("AT+CIPSEND"));
-	readline();
+  flushInput();
+  mySerial->println(F("AT+CIPSEND"));
+  readline();
   DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
   if (replybuffer[0] != '>') return false;
 
@@ -2660,7 +2662,7 @@ boolean Adafruit_FONA::MQTTreceive(const char* topic, const char* buf, int maxle
 }
 
 boolean Adafruit_FONA::MQTTdisconnect(void) {
-	
+  
 }
 
 /********* SIM7000 MQTT FUNCTIONS  ************************************/
@@ -3063,11 +3065,11 @@ boolean Adafruit_FONA::HTTP_ssl(boolean onoff) {
 }
 
 boolean Adafruit_FONA_LTE::HTTP_addHeader(const char *type, const char *value, uint16_t maxlen) {
-	char cmdStr[2*maxlen+17];
+  char cmdStr[2*maxlen+17];
 
-	sprintf(cmdStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
+  sprintf(cmdStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
 
-	if (! sendCheckReply(cmdStr, ok_reply, 10000))
+  if (! sendCheckReply(cmdStr, ok_reply, 10000))
   return false;
 }
 
@@ -3102,7 +3104,7 @@ boolean Adafruit_FONA::HTTP_GET_start(char *url, uint16_t *status, uint16_t *dat
 
 /*
 boolean Adafruit_FONA_3G::HTTP_GET_start(char *ipaddr, char *path, uint16_t port
-				      uint16_t *status, uint16_t *datalen){
+              uint16_t *status, uint16_t *datalen){
   char send[100] = "AT+CHTTPACT=\"";
   char *sendp = send + strlen(send);
   memset(sendp, 0, 100 - strlen(send));
@@ -3420,7 +3422,7 @@ uint8_t Adafruit_FONA::getReplyQuoted(FONAFlashStringPtr prefix, FONAFlashString
 
 boolean Adafruit_FONA::sendCheckReply(const char *send, const char *reply, uint16_t timeout) {
   if (! getReply(send, timeout) )
-	  return false;
+    return false;
 /*
   for (uint8_t i=0; i<strlen(replybuffer); i++) {
   DEBUG_PRINT(replybuffer[i], HEX); DEBUG_PRINT(" ");
@@ -3435,15 +3437,15 @@ boolean Adafruit_FONA::sendCheckReply(const char *send, const char *reply, uint1
 }
 
 boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr send, FONAFlashStringPtr reply, uint16_t timeout) {
-	if (! getReply(send, timeout) )
-		return false;
+  if (! getReply(send, timeout) )
+    return false;
 
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
 boolean Adafruit_FONA::sendCheckReply(const char* send, FONAFlashStringPtr reply, uint16_t timeout) {
   if (! getReply(send, timeout) )
-	  return false;
+    return false;
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
@@ -3556,8 +3558,8 @@ boolean Adafruit_FONA::parseReplyQuoted(FONAFlashStringPtr toreply,
 }
 
 boolean Adafruit_FONA::sendParseReply(FONAFlashStringPtr tosend,
-				      FONAFlashStringPtr toreply,
-				      uint16_t *v, char divider, uint8_t index) {
+              FONAFlashStringPtr toreply,
+              uint16_t *v, char divider, uint8_t index) {
   getReply(tosend);
 
   if (! parseReply(toreply, v, divider, index)) return false;
@@ -3589,8 +3591,8 @@ boolean Adafruit_FONA::parseReplyFloat(FONAFlashStringPtr toreply,
 // needed for CBC and others
 
 boolean Adafruit_FONA::sendParseReplyFloat(FONAFlashStringPtr tosend,
-				      FONAFlashStringPtr toreply,
-				      float *f, char divider, uint8_t index) {
+              FONAFlashStringPtr toreply,
+              float *f, char divider, uint8_t index) {
   getReply(tosend);
 
   if (! parseReplyFloat(toreply, f, divider, index)) return false;
@@ -3604,8 +3606,8 @@ boolean Adafruit_FONA::sendParseReplyFloat(FONAFlashStringPtr tosend,
 // needed for CBC and others
 
 boolean Adafruit_FONA_3G::sendParseReply(FONAFlashStringPtr tosend,
-				      FONAFlashStringPtr toreply,
-				      float *f, char divider, uint8_t index) {
+              FONAFlashStringPtr toreply,
+              float *f, char divider, uint8_t index) {
   getReply(tosend);
 
   if (! parseReply(toreply, f, divider, index)) return false;
