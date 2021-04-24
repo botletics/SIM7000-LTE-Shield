@@ -115,8 +115,6 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
   if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R14")) != 0) {
     _type = SIM808_V2;
-  } else if (prog_char_strstr(replybuffer, (prog_char *)F("1418B03SIM808M32_BT_EAT")) != 0) {
-    _type = SIM808_V2; //For Boards with Bluetooth and Extended AT commands for it
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM808 R13")) != 0) {
     _type = SIM808_V1;
   } else if (prog_char_strstr(replybuffer, (prog_char *)F("SIM800 R13")) != 0) {
@@ -2700,7 +2698,7 @@ boolean Adafruit_FONA_LTE::MQTT_connectionStatus(void) {
 // Subscribe to specified MQTT topic
 // QoS can be from 0-2
 boolean Adafruit_FONA_LTE::MQTT_subscribe(const char* topic, byte QoS) {
-  char cmdStr[32];
+  char cmdStr[64];
   sprintf(cmdStr, "AT+SMSUB=\"%s\",%i", topic, QoS);
 
   if (! sendCheckReply(cmdStr, ok_reply)) return false;
@@ -2709,7 +2707,7 @@ boolean Adafruit_FONA_LTE::MQTT_subscribe(const char* topic, byte QoS) {
 
 // Unsubscribe from specified MQTT topic
 boolean Adafruit_FONA_LTE::MQTT_unsubscribe(const char* topic) {
-  char cmdStr[32];
+  char cmdStr[64];
   sprintf(cmdStr, "AT+SMUNSUB=\"%s\"", topic);
   if (! sendCheckReply(cmdStr, ok_reply)) return false;
   return true;
