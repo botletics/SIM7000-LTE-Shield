@@ -1965,7 +1965,8 @@ boolean Adafruit_FONA::postData(const char *server, uint16_t port, const char *c
     readline(10000);
     DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
     // if (strcmp(replybuffer, "+CHTTPSOPSE: 0") != 0) return false;
-    if (strstr(replybuffer, "+CHTTPSOPSE: 0") == NULL) return false;
+    // SIM7500E v1.1 firmware apparently doesn't have the space:
+    if ((strstr(replybuffer, "+CHTTPSOPSE: 0") == NULL) || (strstr(replybuffer, "+CHTTPSOPSE:0") == NULL)) return false;
   }
   else {
     if (! sendCheckReply(auxStr, ok_reply, 10000))
