@@ -373,7 +373,7 @@ boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, ui
     if (! sendCheckReply(F("AT+CNETLIGHT=1"), ok_reply)) return false;
 
     if (mode > 0) {
-      char auxStr[24];
+      char auxStr[25];
 
       sprintf(auxStr, "AT+SLEDS=%i,%i,%i", mode, timer_on, timer_off);
 
@@ -1029,8 +1029,8 @@ boolean Adafruit_FONA::enableGPS(boolean onoff) {
     } else if (_type == SIM5320A || _type == SIM5320E || _type == SIM7500 || _type == SIM7600) {
       if (! sendCheckReply(F("AT+CGPS=0"), ok_reply))
         return false;
-        // this takes a little time
-        readline(2000); // eat '+CGPS: 0'
+      // this takes a little time
+      readline(2000); // eat '+CGPS: 0'
     } else {
       if (! sendCheckReply(F("AT+CGPSPWR=0"), ok_reply))
         return false;
@@ -1227,6 +1227,8 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
     *lon = degrees;
 
+    (void) tok;
+
   } else if (_type == SIM808_V2 || _type >= SIM7000) {
     // Parse 808 V2 response.  See table 2-3 from here for format:
     // http://www.adafruit.com/datasheets/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
@@ -1322,6 +1324,8 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
 
       *heading = atof(coursep);
     }
+
+    (void) tok;
   }
   else {
     // Parse 808 V1 response.
@@ -1434,6 +1438,8 @@ boolean Adafruit_FONA::getGPS(float *lat, float *lon, float *speed_kph, float *h
     if (! altp) return false;
 
     *altitude = atof(altp);
+
+    (void) tok;
   }
 
   return true;
@@ -1858,11 +1864,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // Perform request based on specified request Type
   if (strlen(body) > 0) bodylen = strlen(body);
 
-  if (request_type == "GET") {
+  if (String(request_type) == "GET") {
     if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
       return false;
   }
-  else if (request_type == "POST" && bodylen > 0) { // POST with content body
+  else if (String(request_type) == "POST" && bodylen > 0) { // POST with content body
     if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
       return false;
 
@@ -1877,7 +1883,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
     char dataBuff[sizeof(bodylen) + 20];
 
-    sprintf(dataBuff, "AT+HTTPDATA=%d,10000", bodylen);
+    sprintf(dataBuff, "AT+HTTPDATA=%lu,10000", bodylen);
     if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
       return false;
 
@@ -1889,11 +1895,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
     if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
       return false;
   }
-  else if (request_type == "POST" && bodylen == 0) { // POST with query parameters
+  else if (String(request_type) == "POST" && bodylen == 0) { // POST with query parameters
     if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
       return false;
   }
-  else if (request_type == "HEAD") {
+  else if (String(request_type) == "HEAD") {
     if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
       return false;
   }
@@ -2088,7 +2094,7 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   // Get HTTP status
   getReply(F("AT+SHSTATE?"));
   readline();
-  if (strcmp(replybuffer, "+SHSTATE: 1") == NULL) return false;
+  if (strstr(replybuffer, "+SHSTATE: 1") == NULL) return false;
   readline(); // Eat 'OK'
 
   // Clear HTTP header (HTTP header is appended)
@@ -2662,15 +2668,15 @@ boolean Adafruit_FONA::MQTTsubscribe(const char* topic, byte QoS) {
 }
 
 boolean Adafruit_FONA::MQTTunsubscribe(const char* topic) {
-
+  return false;
 }
 
 boolean Adafruit_FONA::MQTTreceive(const char* topic, const char* buf, int maxlen) {
-
+  return false;
 }
 
 boolean Adafruit_FONA::MQTTdisconnect(void) {
-  
+  return false;
 }
 
 /********* SIM7000 MQTT FUNCTIONS  ************************************/
@@ -2741,7 +2747,7 @@ boolean Adafruit_FONA_LTE::MQTT_publish(const char* topic, const char* message, 
 // Change MQTT data format to hex
 // Enter "true" if you want hex, "false" if you don't
 boolean Adafruit_FONA_LTE::MQTT_dataFormatHex(bool yesno) {
-  if (yesno) sendCheckReply(F("AT+SMPUBHEX="), yesno, ok_reply);
+  return sendCheckReply(F("AT+SMPUBHEX="), yesno, ok_reply);
 }
 
 /********* SSL FUNCTIONS  ************************************/
@@ -2999,8 +3005,6 @@ uint16_t Adafruit_FONA::TCPread(uint8_t *buff, uint8_t len) {
 }
 
 boolean Adafruit_FONA::TCPdns(char *hostname, char *buff, uint8_t len) {
-  uint16_t avail;
-
   mySerial->print(F("AT+CDNSGIP="));
   mySerial->println(hostname);
 
@@ -3129,7 +3133,8 @@ boolean Adafruit_FONA_LTE::HTTP_addHeader(const char *type, const char *value, u
   sprintf(cmdStr, "AT+SHAHEAD=\"%s\",\"%s\"", type, value);
 
   if (! sendCheckReply(cmdStr, ok_reply, 10000))
-  return false;
+    return false;
+  return true;
 }
 
 boolean Adafruit_FONA_LTE::HTTP_addPara(const char *key, const char *value, uint16_t maxlen) {
@@ -3138,7 +3143,8 @@ boolean Adafruit_FONA_LTE::HTTP_addPara(const char *key, const char *value, uint
   sprintf(cmdStr, "AT+SHPARA=\"%s\",\"%s\"", key, value);
 
   if (! sendCheckReply(cmdStr, ok_reply, 10000))
-  return false;
+    return false;
+  return true;
 }
 
 /********* HTTP HIGH LEVEL FUNCTIONS ***************************/
