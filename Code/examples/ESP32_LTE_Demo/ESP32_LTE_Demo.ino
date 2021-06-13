@@ -790,10 +790,12 @@ void loop() {
         break;
         */
 
-        float latitude, longitude, speed_kph, heading, altitude, second;
+        float latitude, longitude, speed_kph, heading, altitude; 
+        // Comment out the stuff below if you don't care about UTC time
+        /*        float second;
         uint16_t year;
         uint8_t month, day, hour, minute;
-
+        */
         // Use the top line if you want to parse UTC time data as well, the line below it if you don't care
 //        if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude, &year, &month, &day, &hour, &minute, &second)) {
         if (fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude)) { // Use this line instead if you don't want UTC time
@@ -957,7 +959,10 @@ void loop() {
         // Create char buffers for the floating point numbers for sprintf
         // Make sure these buffers are long enough for your request URL
         char URL[150];
+        /* Uncomment below if you are going to use the http post method below */
+        /*
         char body[100];
+        */
         char tempBuff[16];
         char battLevelBuff[16];
       
