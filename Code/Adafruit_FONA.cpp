@@ -1883,7 +1883,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
     char dataBuff[sizeof(bodylen) + 20];
 
-    sprintf(dataBuff, "AT+HTTPDATA=%lu,10000", bodylen);
+    sprintf(dataBuff, "AT+HTTPDATA=%lu,10000", (long unsigned int)bodylen);
     if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
       return false;
 
