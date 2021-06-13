@@ -2391,7 +2391,7 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char*
   // Use extended PUT method if there's more than 1024 bytes to send
   if (numBytes >= 1024) {
     // Repeatedly PUT data until all data is sent
-    uint16_t remBytes = numBytes;
+    uint32_t remBytes = numBytes;
     uint16_t offset = 0; // Data offset
     char sendArray[strlen(content)+1];
     strcpy(sendArray, content);
