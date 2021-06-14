@@ -1883,7 +1883,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
     char dataBuff[sizeof(bodylen) + 20];
 
-    sprintf(dataBuff, "AT+HTTPDATA=%lu,10000", bodylen);
+    sprintf(dataBuff, "AT+HTTPDATA=%lu,10000", (long unsigned int)bodylen);
     if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
       return false;
 
@@ -2391,7 +2391,7 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char*
   // Use extended PUT method if there's more than 1024 bytes to send
   if (numBytes >= 1024) {
     // Repeatedly PUT data until all data is sent
-    uint16_t remBytes = numBytes;
+    uint32_t remBytes = numBytes;
     uint16_t offset = 0; // Data offset
     char sendArray[strlen(content)+1];
     strcpy(sendArray, content);
