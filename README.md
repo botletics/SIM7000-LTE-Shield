@@ -47,7 +47,7 @@ The following list is a summary of the things I've done so far:
 - Added SIM7600 compatibility
 - Tested SIM7000 dedicated MQTT commands and SIM7000_MQTT_Demo.ino with CloudMQTT
 - Added the [SIM7000_MQTT_Demo sketch](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/Code/examples/SIM7000_MQTT_Demo/SIM7000_MQTT_Demo.ino) which uses the dedicated MQTT commands
-- Added MQTT functions for SIM7000 (see [SIM7000 MQTT app note](https://github.com/botletics/SIM7000-LTE-Shield/blob/master/SIM7000%20Documentation/Technical%20Documents/SIM7000%20Series_MQTT_Application%20Note.pdf))
+- Added MQTT functions for SIM7000 (see SIM7000 MQTT app note)
 - Documented all available library functions [on this page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
 - Fixed some minor inconsistencies in some Adafruit functions, mainly functions that were declared as int32_t but never actually outputting a negative number, or spelling mistakes in comments, among other things.
 - Added setPreferredMode(), setPreferredLTEMode(), and setOperatingBand() functions
