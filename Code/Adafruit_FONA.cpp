@@ -1719,6 +1719,7 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 void Adafruit_FONA::getNetworkInfo(void) {
   getReply(F("AT+CPSI?"));
   getReply(F("AT+COPS?"));
+  readline(); // Eat 'OK'
 }
 
 bool Adafruit_FONA::getNetworkInfoLong(void) {
