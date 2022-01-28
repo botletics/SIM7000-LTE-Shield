@@ -1623,12 +1623,12 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       }
 
       // open bearer
-      if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
+      if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 85000))
         return false;
 
       // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
         // bring up wireless connection
-        if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+        if (! sendCheckReply(F("AT+CIICR"), ok_reply, 85000))
           return false;
       // } // UNCOMMENT FOR LTE ONLY!
 
@@ -1641,7 +1641,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
         return false;
 
       // close bearer
-      if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
+      if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 65000))
         return false;
 
       // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
