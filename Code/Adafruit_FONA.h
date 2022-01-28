@@ -124,7 +124,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean setNetLED(bool onoff, uint8_t mode = 0, uint16_t timer_on = 64, uint16_t timer_off = 3000); // AT+CNETLIGHT and AT+SLEDS commands
 
   // SIM query
-  uint8_t unlockSIM(char *pin);
+  uint8_t unlockSIM(const char *pin);
   uint8_t getSIMCCID(char *ccid);
   uint8_t getNetworkStatus(void);
   uint8_t getRSSI(void);
