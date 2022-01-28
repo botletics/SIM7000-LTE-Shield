@@ -1716,6 +1716,49 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 }
 */
 
+// Returns type of the network the module is connected to
+// 0 no service
+// 1 GSM
+// 3 EGPRS
+// 7 LTE M1
+// 9 LTE NB
+// You can pass a string of sufficient length to receive a text copy as well
+// NOTE: Only tested on SIM7000E
+int8_t Adafruit_FONA::getNetworkType(char *typeStringBuffer, size_t bufferLength)
+{
+  uint16_t type;
+
+  if (! sendParseReply(F("AT+CNSMOD?"), F("+CNSMOD:"), &type, ',', 1))
+    return -1;
+  
+  if (typeStringBuffer != NULL)
+  {
+    switch (type)
+    {
+      case 0:
+        strncpy(typeStringBuffer, "no service", bufferLength);
+        break;
+      case 1:
+        strncpy(typeStringBuffer, "GSM", bufferLength);
+        break;
+      case 3:
+        strncpy(typeStringBuffer, "EGPRS", bufferLength);
+        break;
+      case 7:
+        strncpy(typeStringBuffer, "LTE M1", bufferLength);
+        break;
+      case 9:
+        strncpy(typeStringBuffer, "LTE NB", bufferLength);
+        break;
+      default:
+        strncpy(typeStringBuffer, "unknown", bufferLength);
+        break;
+    }
+  }
+
+  return (int8_t)type;
+} 
+
 void Adafruit_FONA::getNetworkInfo(void) {
   getReply(F("AT+CPSI?"));
   getReply(F("AT+COPS?"));
