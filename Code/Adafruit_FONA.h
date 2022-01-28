@@ -106,7 +106,7 @@ class Adafruit_FONA : public FONAStreamType {
   void flush();
 
   // FONA 3G requirements
-  boolean setBaudrate(uint16_t baud);
+  boolean setBaudrate(uint32_t baud);
 
   // Power, battery, and ADC
   void powerOn(uint8_t FONA_PWRKEY);
@@ -354,7 +354,7 @@ class Adafruit_FONA_LTE : public Adafruit_FONA {
   boolean setPreferredMode(uint8_t mode);
   boolean setPreferredLTEMode(uint8_t mode);
   boolean setOperatingBand(const char * mode, uint8_t band);
-  boolean setBaudrate(uint16_t baud);
+  boolean setBaudrate(uint32_t baud);
   boolean hangUp(void);
 
   // MQTT

@@ -179,11 +179,11 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
 
 /********* Serial port ********************************************/
-boolean Adafruit_FONA::setBaudrate(uint16_t baud) {
+boolean Adafruit_FONA::setBaudrate(uint32_t baud) {
   return sendCheckReply(F("AT+IPREX="), baud, ok_reply);
 }
 
-boolean Adafruit_FONA_LTE::setBaudrate(uint16_t baud) {
+boolean Adafruit_FONA_LTE::setBaudrate(uint32_t baud) {
   return sendCheckReply(F("AT+IPR="), baud, ok_reply);
 }
 
