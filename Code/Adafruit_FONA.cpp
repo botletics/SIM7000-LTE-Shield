@@ -3363,7 +3363,9 @@ uint8_t Adafruit_FONA::readline(uint16_t timeout, boolean multiline) {
       }
       replybuffer[replyidx] = c;
       //DEBUG_PRINT(c, HEX); DEBUG_PRINT("#"); DEBUG_PRINTLN(c);
-      replyidx++;
+
+      if (++replyidx >= 254)
+        break;
     }
 
     if (timeout == 0) {
