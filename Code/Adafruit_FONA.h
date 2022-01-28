@@ -160,6 +160,7 @@ class Adafruit_FONA : public FONAStreamType {
 
   // Time
   // boolean enableNetworkTimeSync(boolean onoff);
+  uint8_t getNTPstatus();
   boolean enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpserver=0);
   boolean getTime(char *buff, uint16_t maxlen);
   
