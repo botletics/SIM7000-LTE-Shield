@@ -390,7 +390,7 @@ boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, ui
 
 /********* SIM ***********************************************************/
 
-uint8_t Adafruit_FONA::unlockSIM(char *pin)
+uint8_t Adafruit_FONA::unlockSIM(const char *pin)
 {
   char sendbuff[14] = "AT+CPIN=";
   sendbuff[8] = pin[0];
@@ -1865,11 +1865,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // Perform request based on specified request Type
   if (strlen(body) > 0) bodylen = strlen(body);
 
-  if (String(request_type) == "GET") {
+  if (strcmp(request_type, "GET") == 0) {
     if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
       return false;
   }
-  else if (String(request_type) == "POST" && bodylen > 0) { // POST with content body
+  else if (strcmp(request_type, "POST") == 0 && bodylen > 0 ) { // POST with content body
     if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
       return false;
 
@@ -1896,11 +1896,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
     if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
       return false;
   }
-  else if (String(request_type) == "POST" && bodylen == 0) { // POST with query parameters
+  else if (strcmp(request_type, "POST") == 0 && bodylen == 0) { // POST with query parameters
     if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
       return false;
   }
-  else if (String(request_type) == "HEAD") {
+  else if (strcmp(request_type, "HEAD") == 0) {
     if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
       return false;
   }
