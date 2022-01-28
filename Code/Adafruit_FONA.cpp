@@ -1759,6 +1759,27 @@ int8_t Adafruit_FONA::getNetworkType(char *typeStringBuffer, size_t bufferLength
   return (int8_t)type;
 } 
 
+// Query IP address and copy it into the passed buffer.
+// Buffer needs to be at least 16 chars long.
+// Returns true on success.
+boolean Adafruit_FONA::getIPv4(char *ipStringBuffer, size_t bufferLength)
+{
+  if (ipStringBuffer == NULL || bufferLength < 16)
+    return false;
+
+  getReply(F("AT+SAPBR=2,1"));
+
+  strtok(replybuffer, "\"");
+  char *temp = strtok(NULL, "\"");
+
+  if (temp == NULL)
+    return false;
+
+  strncpy(ipStringBuffer, temp, bufferLength);
+
+  return true;
+}
+
 void Adafruit_FONA::getNetworkInfo(void) {
   getReply(F("AT+CPSI?"));
   getReply(F("AT+COPS?"));
