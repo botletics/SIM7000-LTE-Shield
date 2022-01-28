@@ -176,6 +176,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean postData(const char *request_type, const char *URL, const char *body = "", const char *token = "", uint32_t bodylen = 0);
   boolean postData(const char *server, uint16_t port, const char *connType, const char *URL, const char *body = "");
   int8_t getNetworkType(char *typeStringBuffer, size_t bufferLength);
+  int8_t getBearerStatus(void);
   boolean getIPv4(char *ipStringBuffer, size_t bufferLength);
   void getNetworkInfo(void);
   bool getNetworkInfoLong(void);

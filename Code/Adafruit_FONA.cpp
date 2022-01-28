@@ -1759,6 +1759,22 @@ int8_t Adafruit_FONA::getNetworkType(char *typeStringBuffer, size_t bufferLength
   return (int8_t)type;
 } 
 
+// Returns bearer status
+// -1 Command returned with an error
+// 0 Bearer is connecting
+// 1 Bearer is connected
+// 2 Bearer is closing
+// 3 Bearer is closed
+int8_t Adafruit_FONA::getBearerStatus(void)
+{
+  uint16_t state;
+
+  if (! sendParseReply(F("AT+SAPBR=2,1"), F("+SAPBR: "), &state, ',', 1))
+    return -1;
+
+  return (int8_t)state;
+}
+
 // Query IP address and copy it into the passed buffer.
 // Buffer needs to be at least 16 chars long.
 // Returns true on success.
