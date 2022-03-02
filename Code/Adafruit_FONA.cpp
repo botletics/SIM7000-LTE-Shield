@@ -2715,7 +2715,7 @@ boolean Adafruit_FONA_LTE::MQTT_connectionStatus(void) {
 // Subscribe to specified MQTT topic
 // QoS can be from 0-2
 boolean Adafruit_FONA_LTE::MQTT_subscribe(const char* topic, byte QoS) {
-  char cmdStr[64];
+  char cmdStr[127];
   sprintf(cmdStr, "AT+SMSUB=\"%s\",%i", topic, QoS);
 
   if (! sendCheckReply(cmdStr, ok_reply)) return false;
