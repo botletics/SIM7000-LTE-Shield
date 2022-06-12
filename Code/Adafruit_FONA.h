@@ -90,6 +90,16 @@
 #define FONA_CALL_RINGING 3
 #define FONA_CALL_INPROGRESS 4
 
+#define FONA_SIM_ERROR -2
+#define FONA_SIM_UNKNOWN -1
+#define FONA_SIM_READY 0
+#define FONA_SIM_PIN 1
+#define FONA_SIM_PUK 2
+#define FONA_SIM_PH_PIN 3
+#define FONA_SIM_PH_PUK 4
+#define FONA_SIM_PIN2 5
+#define FONA_SIM_PUK2 6
+
 #define SSL_FONA 0
 
 class Adafruit_FONA : public FONAStreamType {
@@ -124,6 +134,7 @@ class Adafruit_FONA : public FONAStreamType {
   boolean setNetLED(bool onoff, uint8_t mode = 0, uint16_t timer_on = 64, uint16_t timer_off = 3000); // AT+CNETLIGHT and AT+SLEDS commands
 
   // SIM query
+  int8_t getPINStatus();
   uint8_t unlockSIM(char *pin);
   uint8_t getSIMCCID(char *ccid);
   uint8_t getNetworkStatus(void);

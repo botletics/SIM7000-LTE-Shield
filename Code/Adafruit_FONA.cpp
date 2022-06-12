@@ -390,6 +390,43 @@ boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, ui
 
 /********* SIM ***********************************************************/
 
+// Return status of PIN requirement
+// -2 - Command returned with an error
+// -1 - Unknown status
+// 0 - MT is not pending for any password
+// 1 - MT is waiting SIM PIN to be given
+// 2 - MT is waiting for SIM PUK to be given
+// 3 - ME is waiting for phone to SIM card (antitheft)
+// 4 - ME is waiting for SIM PUK (antitheft)
+// 5 - PIN2, e.g. for editing the FDN book possible only if preceding Command was acknowledged with +CME ERROR:17
+// 6 - PUK2. Possible only if preceding Command was acknowledged with error +CME ERROR: 18.
+int8_t Adafruit_FONA::getPINStatus()
+{
+  getReply(F("AT+CPIN?"));
+
+  if (strncmp(replybuffer, "+CPIN: ", 7) != 0)
+    return FONA_SIM_ERROR;
+
+  char *returnVal = replybuffer + 7;
+
+  if (strcmp(returnVal, "READY") == 0)
+    return FONA_SIM_READY;
+  else if (strcmp(returnVal, "SIM PIN") == 0)
+    return FONA_SIM_PIN;
+  else if (strcmp(returnVal, "SIM PUK") == 0)
+    return FONA_SIM_PUK;
+  else if (strcmp(returnVal, "PH_SIM PIN") == 0)
+    return FONA_SIM_PH_PIN;
+  else if (strcmp(returnVal, "PH_SIM PUK") == 0)
+    return FONA_SIM_PH_PUK;
+  else if (strcmp(returnVal, "SIM PIN2") == 0)
+    return FONA_SIM_PIN2;
+  else if (strcmp(returnVal, "SIM PUK2") == 0)
+    return FONA_SIM_PUK2;
+
+  return FONA_SIM_UNKNOWN;
+}
+
 uint8_t Adafruit_FONA::unlockSIM(char *pin)
 {
   char sendbuff[14] = "AT+CPIN=";
