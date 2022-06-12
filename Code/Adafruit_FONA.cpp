@@ -179,11 +179,11 @@ boolean Adafruit_FONA::begin(Stream &port) {
 
 
 /********* Serial port ********************************************/
-boolean Adafruit_FONA::setBaudrate(uint16_t baud) {
+boolean Adafruit_FONA::setBaudrate(uint32_t baud) {
   return sendCheckReply(F("AT+IPREX="), baud, ok_reply);
 }
 
-boolean Adafruit_FONA_LTE::setBaudrate(uint16_t baud) {
+boolean Adafruit_FONA_LTE::setBaudrate(uint32_t baud) {
   return sendCheckReply(F("AT+IPR="), baud, ok_reply);
 }
 
@@ -427,7 +427,7 @@ int8_t Adafruit_FONA::getPINStatus()
   return FONA_SIM_UNKNOWN;
 }
 
-uint8_t Adafruit_FONA::unlockSIM(char *pin)
+uint8_t Adafruit_FONA::unlockSIM(const char *pin)
 {
   char sendbuff[14] = "AT+CPIN=";
   sendbuff[8] = pin[0];
@@ -2003,11 +2003,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
   // Perform request based on specified request Type
   if (strlen(body) > 0) bodylen = strlen(body);
 
-  if (String(request_type) == "GET") {
+  if (strcmp(request_type, "GET") == 0) {
     if (! sendCheckReply(F("AT+HTTPACTION=0"), ok_reply, 10000))
       return false;
   }
-  else if (String(request_type) == "POST" && bodylen > 0) { // POST with content body
+  else if (strcmp(request_type, "POST") == 0 && bodylen > 0 ) { // POST with content body
     if (! sendCheckReply(F("AT+HTTPPARA=\"CONTENT\",\"application/json\""), ok_reply, 10000))
       return false;
 
@@ -2022,7 +2022,7 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
 
     char dataBuff[sizeof(bodylen) + 20];
 
-    sprintf(dataBuff, "AT+HTTPDATA=%lu,10000", (long unsigned int)bodylen);
+    sprintf(dataBuff, "AT+HTTPDATA=%lu,9900", (long unsigned int)bodylen);
     if (! sendCheckReply(dataBuff, "DOWNLOAD", 10000))
       return false;
 
@@ -2034,11 +2034,11 @@ boolean Adafruit_FONA::postData(const char *request_type, const char *URL, const
     if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
       return false;
   }
-  else if (String(request_type) == "POST" && bodylen == 0) { // POST with query parameters
+  else if (strcmp(request_type, "POST") == 0 && bodylen == 0) { // POST with query parameters
     if (! sendCheckReply(F("AT+HTTPACTION=1"), ok_reply, 10000))
       return false;
   }
-  else if (String(request_type) == "HEAD") {
+  else if (strcmp(request_type, "HEAD") == 0) {
     if (! sendCheckReply(F("AT+HTTPACTION=2"), ok_reply, 10000))
       return false;
   }
@@ -3501,7 +3501,9 @@ uint8_t Adafruit_FONA::readline(uint32_t timeout, boolean multiline) {
       }
       replybuffer[replyidx] = c;
       //DEBUG_PRINT(c, HEX); DEBUG_PRINT("#"); DEBUG_PRINTLN(c);
-      replyidx++;
+
+      if (++replyidx >= 254)
+        break;
     }
 
     if (timeout == 0) {
