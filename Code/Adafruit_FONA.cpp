@@ -390,6 +390,43 @@ boolean Adafruit_FONA::setNetLED(bool onoff, uint8_t mode, uint16_t timer_on, ui
 
 /********* SIM ***********************************************************/
 
+// Return status of PIN requirement
+// -2 - Command returned with an error
+// -1 - Unknown status
+// 0 - MT is not pending for any password
+// 1 - MT is waiting SIM PIN to be given
+// 2 - MT is waiting for SIM PUK to be given
+// 3 - ME is waiting for phone to SIM card (antitheft)
+// 4 - ME is waiting for SIM PUK (antitheft)
+// 5 - PIN2, e.g. for editing the FDN book possible only if preceding Command was acknowledged with +CME ERROR:17
+// 6 - PUK2. Possible only if preceding Command was acknowledged with error +CME ERROR: 18.
+int8_t Adafruit_FONA::getPINStatus()
+{
+  getReply(F("AT+CPIN?"));
+
+  if (strncmp(replybuffer, "+CPIN: ", 7) != 0)
+    return FONA_SIM_ERROR;
+
+  char *returnVal = replybuffer + 7;
+
+  if (strcmp(returnVal, "READY") == 0)
+    return FONA_SIM_READY;
+  else if (strcmp(returnVal, "SIM PIN") == 0)
+    return FONA_SIM_PIN;
+  else if (strcmp(returnVal, "SIM PUK") == 0)
+    return FONA_SIM_PUK;
+  else if (strcmp(returnVal, "PH_SIM PIN") == 0)
+    return FONA_SIM_PH_PIN;
+  else if (strcmp(returnVal, "PH_SIM PUK") == 0)
+    return FONA_SIM_PH_PUK;
+  else if (strcmp(returnVal, "SIM PIN2") == 0)
+    return FONA_SIM_PIN2;
+  else if (strcmp(returnVal, "SIM PUK2") == 0)
+    return FONA_SIM_PUK2;
+
+  return FONA_SIM_UNKNOWN;
+}
+
 uint8_t Adafruit_FONA::unlockSIM(const char *pin)
 {
   char sendbuff[14] = "AT+CPIN=";
@@ -905,6 +942,27 @@ boolean Adafruit_FONA::enableNetworkTimeSync(boolean onoff) {
 }
 */
 
+// Returns the status of the NTP module:
+// 1 Network time synchronization is successful
+// 61 Network Error
+// 62 DNS resolution error
+// 63 Connection Erro
+// 64 Service response error
+// 65 Service Response Timeout
+// see AT Command manual 1.04 p.204
+uint8_t Adafruit_FONA::getNTPstatus()
+{
+    if (! sendCheckReply(F("AT+CNTP"), ok_reply, 10000))
+      return 0;
+
+    uint16_t status;
+    readline(10000);
+    if (! parseReply(F("+CNTP: "), &status))
+      return 0;
+
+    return status;
+}
+
 boolean Adafruit_FONA::enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpserver) {
   if (onoff) {
     if (! sendCheckReply(F("AT+CNTPCID=1"), ok_reply))
@@ -937,7 +995,7 @@ boolean Adafruit_FONA::enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpse
 }
 
 boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
-  getReply(F("AT+CCLK?"), (uint16_t) 10000);
+  getReply(F("AT+CCLK?"), 10000U);
   if (strncmp(replybuffer, "+CCLK: ", 7) != 0)
     return false;
 
@@ -1623,12 +1681,12 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       }
 
       // open bearer
-      if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 30000))
+      if (! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply, 85000))
         return false;
 
       // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
         // bring up wireless connection
-        if (! sendCheckReply(F("AT+CIICR"), ok_reply, 10000))
+        if (! sendCheckReply(F("AT+CIICR"), ok_reply, 85000))
           return false;
       // } // UNCOMMENT FOR LTE ONLY!
 
@@ -1641,7 +1699,7 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
         return false;
 
       // close bearer
-      if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 10000))
+      if (! sendCheckReply(F("AT+SAPBR=0,1"), ok_reply, 65000))
         return false;
 
       // if (_type < SIM7000) { // UNCOMMENT FOR LTE ONLY!
@@ -1716,6 +1774,86 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 }
 */
 
+// Returns type of the network the module is connected to
+// 0 no service
+// 1 GSM
+// 3 EGPRS
+// 7 LTE M1
+// 9 LTE NB
+// You can pass a string of sufficient length to receive a text copy as well
+// NOTE: Only tested on SIM7000E
+int8_t Adafruit_FONA::getNetworkType(char *typeStringBuffer, size_t bufferLength)
+{
+  uint16_t type;
+
+  if (! sendParseReply(F("AT+CNSMOD?"), F("+CNSMOD:"), &type, ',', 1))
+    return -1;
+  
+  if (typeStringBuffer != NULL)
+  {
+    switch (type)
+    {
+      case 0:
+        strncpy(typeStringBuffer, "no service", bufferLength);
+        break;
+      case 1:
+        strncpy(typeStringBuffer, "GSM", bufferLength);
+        break;
+      case 3:
+        strncpy(typeStringBuffer, "EGPRS", bufferLength);
+        break;
+      case 7:
+        strncpy(typeStringBuffer, "LTE M1", bufferLength);
+        break;
+      case 9:
+        strncpy(typeStringBuffer, "LTE NB", bufferLength);
+        break;
+      default:
+        strncpy(typeStringBuffer, "unknown", bufferLength);
+        break;
+    }
+  }
+
+  return (int8_t)type;
+} 
+
+// Returns bearer status
+// -1 Command returned with an error
+// 0 Bearer is connecting
+// 1 Bearer is connected
+// 2 Bearer is closing
+// 3 Bearer is closed
+int8_t Adafruit_FONA::getBearerStatus(void)
+{
+  uint16_t state;
+
+  if (! sendParseReply(F("AT+SAPBR=2,1"), F("+SAPBR: "), &state, ',', 1))
+    return -1;
+
+  return (int8_t)state;
+}
+
+// Query IP address and copy it into the passed buffer.
+// Buffer needs to be at least 16 chars long.
+// Returns true on success.
+boolean Adafruit_FONA::getIPv4(char *ipStringBuffer, size_t bufferLength)
+{
+  if (ipStringBuffer == NULL || bufferLength < 16)
+    return false;
+
+  getReply(F("AT+SAPBR=2,1"));
+
+  strtok(replybuffer, "\"");
+  char *temp = strtok(NULL, "\"");
+
+  if (temp == NULL)
+    return false;
+
+  strncpy(ipStringBuffer, temp, bufferLength);
+
+  return true;
+}
+
 void Adafruit_FONA::getNetworkInfo(void) {
   getReply(F("AT+CPSI?"));
   getReply(F("AT+COPS?"));
@@ -1749,7 +1887,7 @@ void Adafruit_FONA::setNetworkSettings(FONAFlashStringPtr apn,
 
 boolean Adafruit_FONA::getGSMLoc(uint16_t *errorcode, char *buff, uint16_t maxlen) {
 
-  getReply(F("AT+CIPGSMLOC=1,1"), (uint16_t)10000);
+  getReply(F("AT+CIPGSMLOC=1,1"), 10000U);
 
   if (! parseReply(F("+CIPGSMLOC: "), errorcode))
     return false;
@@ -2426,7 +2564,7 @@ boolean Adafruit_FONA::FTP_PUT(const char* fileName, const char* filePath, char*
     return false;
 
   uint16_t maxlen;
-  readline(10000);
+  readline(10000U);
   DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
   
   // Use regular FTPPUT method if there is less than 1024 bytes of data to send
@@ -2715,7 +2853,7 @@ boolean Adafruit_FONA_LTE::MQTT_connectionStatus(void) {
 // Subscribe to specified MQTT topic
 // QoS can be from 0-2
 boolean Adafruit_FONA_LTE::MQTT_subscribe(const char* topic, byte QoS) {
-  char cmdStr[64];
+  char cmdStr[127];
   sprintf(cmdStr, "AT+SMSUB=\"%s\",%i", topic, QoS);
 
   if (! sendCheckReply(cmdStr, ok_reply)) return false;
@@ -2735,7 +2873,7 @@ boolean Adafruit_FONA_LTE::MQTT_unsubscribe(const char* topic) {
 // QoS can be from 0-2
 // Server hold message flag can be 0 or 1
 boolean Adafruit_FONA_LTE::MQTT_publish(const char* topic, const char* message, uint16_t contentLength, byte QoS, byte retain) {
-  char cmdStr[40];
+  char cmdStr[127];
   sprintf(cmdStr, "AT+SMPUB=\"%s\",%i,%i,%i", topic, contentLength, QoS, retain);
 
   getReply(cmdStr, 2000);
@@ -3101,7 +3239,7 @@ boolean Adafruit_FONA::HTTP_data(uint32_t size, uint32_t maxTime) {
 }
 
 boolean Adafruit_FONA::HTTP_action(uint8_t method, uint16_t *status,
-                                   uint16_t *datalen, int32_t timeout) {
+                                   uint16_t *datalen, uint32_t timeout) {
   // Send request.
   if (! sendCheckReply(F("AT+HTTPACTION="), method, ok_reply))
     return false;
@@ -3220,7 +3358,7 @@ boolean Adafruit_FONA::HTTP_POST_start(char *url,
   }
 
   // HTTP POST data
-  if (! HTTP_data(postdatalen, 10000))
+  if (! HTTP_data(postdatalen, 10000U))
     return false;
   mySerial->write(postdata, postdatalen);
   if (! expectReply(ok_reply))
@@ -3283,7 +3421,7 @@ boolean Adafruit_FONA::HTTP_setup(char *url) {
 /********* HELPERS *********************************************/
 
 boolean Adafruit_FONA::expectReply(FONAFlashStringPtr reply,
-                                   uint16_t timeout) {
+                                   uint32_t timeout) {
   readline(timeout);
 
   DEBUG_PRINT(F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
@@ -3340,7 +3478,7 @@ uint16_t Adafruit_FONA::readRaw(uint16_t b) {
   return idx;
 }
 
-uint8_t Adafruit_FONA::readline(uint16_t timeout, boolean multiline) {
+uint8_t Adafruit_FONA::readline(uint32_t timeout, boolean multiline) {
   uint16_t replyidx = 0;
 
   while (timeout--) {
@@ -3378,7 +3516,7 @@ uint8_t Adafruit_FONA::readline(uint16_t timeout, boolean multiline) {
   return replyidx;
 }
 
-uint8_t Adafruit_FONA::getReply(const char *send, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReply(const char *send, uint32_t timeout) {
   flushInput();
 
 
@@ -3394,7 +3532,7 @@ uint8_t Adafruit_FONA::getReply(const char *send, uint16_t timeout) {
   return l;
 }
 
-uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr send, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr send, uint32_t timeout) {
   flushInput();
 
 
@@ -3411,7 +3549,7 @@ uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr send, uint16_t timeout) {
 }
 
 // Send prefix, suffix, and newline. Return response (and also set replybuffer with response).
-uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, char *suffix, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, char *suffix, uint32_t timeout) {
   flushInput();
 
 
@@ -3429,7 +3567,7 @@ uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, char *suffix, uint16_
 }
 
 // Send prefix, suffix, and newline. Return response (and also set replybuffer with response).
-uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, int32_t suffix, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, int32_t suffix, uint32_t timeout) {
   flushInput();
 
 
@@ -3447,7 +3585,7 @@ uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, int32_t suffix, uint1
 }
 
 // Send prefix, suffix, suffix2, and newline. Return response (and also set replybuffer with response).
-uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, int32_t suffix1, int32_t suffix2, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, int32_t suffix1, int32_t suffix2, uint32_t timeout) {
   flushInput();
 
 
@@ -3468,7 +3606,7 @@ uint8_t Adafruit_FONA::getReply(FONAFlashStringPtr prefix, int32_t suffix1, int3
 }
 
 // Send prefix, ", suffix, ", and newline. Return response (and also set replybuffer with response).
-uint8_t Adafruit_FONA::getReplyQuoted(FONAFlashStringPtr prefix, FONAFlashStringPtr suffix, uint16_t timeout) {
+uint8_t Adafruit_FONA::getReplyQuoted(FONAFlashStringPtr prefix, FONAFlashStringPtr suffix, uint32_t timeout) {
   flushInput();
 
 
@@ -3488,7 +3626,7 @@ uint8_t Adafruit_FONA::getReplyQuoted(FONAFlashStringPtr prefix, FONAFlashString
   return l;
 }
 
-boolean Adafruit_FONA::sendCheckReply(const char *send, const char *reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(const char *send, const char *reply, uint32_t timeout) {
   if (! getReply(send, timeout) )
     return false;
 /*
@@ -3504,14 +3642,14 @@ boolean Adafruit_FONA::sendCheckReply(const char *send, const char *reply, uint1
   return (strcmp(replybuffer, reply) == 0);
 }
 
-boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr send, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr send, FONAFlashStringPtr reply, uint32_t timeout) {
   if (! getReply(send, timeout) )
     return false;
 
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
-boolean Adafruit_FONA::sendCheckReply(const char* send, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(const char* send, FONAFlashStringPtr reply, uint32_t timeout) {
   if (! getReply(send, timeout) )
     return false;
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
@@ -3519,25 +3657,25 @@ boolean Adafruit_FONA::sendCheckReply(const char* send, FONAFlashStringPtr reply
 
 
 // Send prefix, suffix, and newline.  Verify FONA response matches reply parameter.
-boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr prefix, char *suffix, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr prefix, char *suffix, FONAFlashStringPtr reply, uint32_t timeout) {
   getReply(prefix, suffix, timeout);
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
 // Send prefix, suffix, and newline.  Verify FONA response matches reply parameter.
-boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix, FONAFlashStringPtr reply, uint32_t timeout) {
   getReply(prefix, suffix, timeout);
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
 // Send prefix, suffix, suffix2, and newline.  Verify FONA response matches reply parameter.
-boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix1, int32_t suffix2, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReply(FONAFlashStringPtr prefix, int32_t suffix1, int32_t suffix2, FONAFlashStringPtr reply, uint32_t timeout) {
   getReply(prefix, suffix1, suffix2, timeout);
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
 
 // Send prefix, ", suffix, ", and newline.  Verify FONA response matches reply parameter.
-boolean Adafruit_FONA::sendCheckReplyQuoted(FONAFlashStringPtr prefix, FONAFlashStringPtr suffix, FONAFlashStringPtr reply, uint16_t timeout) {
+boolean Adafruit_FONA::sendCheckReplyQuoted(FONAFlashStringPtr prefix, FONAFlashStringPtr suffix, FONAFlashStringPtr reply, uint32_t timeout) {
   getReplyQuoted(prefix, suffix, timeout);
   return (prog_char_strcmp(replybuffer, (prog_char*)reply) == 0);
 }
