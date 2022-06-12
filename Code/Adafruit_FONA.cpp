@@ -905,6 +905,27 @@ boolean Adafruit_FONA::enableNetworkTimeSync(boolean onoff) {
 }
 */
 
+// Returns the status of the NTP module:
+// 1 Network time synchronization is successful
+// 61 Network Error
+// 62 DNS resolution error
+// 63 Connection Erro
+// 64 Service response error
+// 65 Service Response Timeout
+// see AT Command manual 1.04 p.204
+uint8_t Adafruit_FONA::getNTPstatus()
+{
+    if (! sendCheckReply(F("AT+CNTP"), ok_reply, 10000))
+      return 0;
+
+    uint16_t status;
+    readline(10000);
+    if (! parseReply(F("+CNTP: "), &status))
+      return 0;
+
+    return status;
+}
+
 boolean Adafruit_FONA::enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpserver) {
   if (onoff) {
     if (! sendCheckReply(F("AT+CNTPCID=1"), ok_reply))
