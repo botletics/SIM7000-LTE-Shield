@@ -1716,6 +1716,86 @@ boolean Adafruit_FONA_3G::enableGPRS(boolean onoff) {
 }
 */
 
+// Returns type of the network the module is connected to
+// 0 no service
+// 1 GSM
+// 3 EGPRS
+// 7 LTE M1
+// 9 LTE NB
+// You can pass a string of sufficient length to receive a text copy as well
+// NOTE: Only tested on SIM7000E
+int8_t Adafruit_FONA::getNetworkType(char *typeStringBuffer, size_t bufferLength)
+{
+  uint16_t type;
+
+  if (! sendParseReply(F("AT+CNSMOD?"), F("+CNSMOD:"), &type, ',', 1))
+    return -1;
+  
+  if (typeStringBuffer != NULL)
+  {
+    switch (type)
+    {
+      case 0:
+        strncpy(typeStringBuffer, "no service", bufferLength);
+        break;
+      case 1:
+        strncpy(typeStringBuffer, "GSM", bufferLength);
+        break;
+      case 3:
+        strncpy(typeStringBuffer, "EGPRS", bufferLength);
+        break;
+      case 7:
+        strncpy(typeStringBuffer, "LTE M1", bufferLength);
+        break;
+      case 9:
+        strncpy(typeStringBuffer, "LTE NB", bufferLength);
+        break;
+      default:
+        strncpy(typeStringBuffer, "unknown", bufferLength);
+        break;
+    }
+  }
+
+  return (int8_t)type;
+} 
+
+// Returns bearer status
+// -1 Command returned with an error
+// 0 Bearer is connecting
+// 1 Bearer is connected
+// 2 Bearer is closing
+// 3 Bearer is closed
+int8_t Adafruit_FONA::getBearerStatus(void)
+{
+  uint16_t state;
+
+  if (! sendParseReply(F("AT+SAPBR=2,1"), F("+SAPBR: "), &state, ',', 1))
+    return -1;
+
+  return (int8_t)state;
+}
+
+// Query IP address and copy it into the passed buffer.
+// Buffer needs to be at least 16 chars long.
+// Returns true on success.
+boolean Adafruit_FONA::getIPv4(char *ipStringBuffer, size_t bufferLength)
+{
+  if (ipStringBuffer == NULL || bufferLength < 16)
+    return false;
+
+  getReply(F("AT+SAPBR=2,1"));
+
+  strtok(replybuffer, "\"");
+  char *temp = strtok(NULL, "\"");
+
+  if (temp == NULL)
+    return false;
+
+  strncpy(ipStringBuffer, temp, bufferLength);
+
+  return true;
+}
+
 void Adafruit_FONA::getNetworkInfo(void) {
   getReply(F("AT+CPSI?"));
   getReply(F("AT+COPS?"));
