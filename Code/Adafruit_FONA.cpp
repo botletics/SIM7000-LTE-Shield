@@ -1012,7 +1012,7 @@ boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
 /********* Real Time Clock ********************************************/
 
 boolean Adafruit_FONA::readRTC(uint8_t *year, uint8_t *month, uint8_t *date, uint8_t *hr, uint8_t *min, uint8_t *sec, int8_t *tz) {
-  getReply(F("AT+CCLK?"), (uint16_t) 10000); //Get RTC timeout 10 sec
+  getReply(F("AT+CCLK?"), 10000U); //Get RTC timeout 10 sec
   if (strncmp(replybuffer, "+CCLK: ", 7) != 0)
     return false;
 
