@@ -995,7 +995,7 @@ boolean Adafruit_FONA::enableNTPTimeSync(boolean onoff, FONAFlashStringPtr ntpse
 }
 
 boolean Adafruit_FONA::getTime(char *buff, uint16_t maxlen) {
-  getReply(F("AT+CCLK?"), (uint16_t) 10000);
+  getReply(F("AT+CCLK?"), 10000U);
   if (strncmp(replybuffer, "+CCLK: ", 7) != 0)
     return false;
 
