@@ -14,7 +14,7 @@ The library in this repo is an altered library built upon the original [Adafruit
 
 To see a comprehensive list of every available function in the library, please [see this wiki page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
 
-To ask questions, get help, or share a project you've done using this hardware or library, please see the [Botletics community forum](https://community.botletics.com/)
+To get help or share a project you've done using this hardware or library, please see the [Botletics community forum](https://forum.botletics.com/)
 
 The following list is a summary of the things I've done so far:
 
