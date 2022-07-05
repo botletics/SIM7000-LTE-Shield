@@ -19,7 +19,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/7/2021
+    Last Updated: 7/4/2022
     License: GNU GPL v3.0
 */
 
@@ -235,6 +235,7 @@ void printMenu(void) {
   Serial.println(F("[r] Read SMS #"));
   Serial.println(F("[R] Read all SMS"));
   Serial.println(F("[d] Delete SMS #"));
+  Serial.println(F("[D] Delete all SMS"));
   Serial.println(F("[s] Send SMS"));
   Serial.println(F("[u] Send USSD"));
   
@@ -673,6 +674,18 @@ void loop() {
 
         Serial.print(F("\n\rDeleting SMS #")); Serial.println(smsn);
         if (fona.deleteSMS(smsn)) {
+          Serial.println(F("OK!"));
+        } else {
+          Serial.println(F("Couldn't delete"));
+        }
+        break;
+      }
+
+    case 'D': {
+        // Delete all SMS
+        flushSerial();
+        Serial.println(F("\n\rDeleting all SMS"));
+        if (fona.deleteAllSMS()) {
           Serial.println(F("OK!"));
         } else {
           Serial.println(F("Couldn't delete"));
