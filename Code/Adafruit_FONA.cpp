@@ -2228,12 +2228,14 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   sendCheckReply(F("AT+SHCONF=\"HEADERLEN\",350"), ok_reply, 10000); // Max 350 for SIM7070G
 
   // HTTP build
-  sendCheckReply(F("AT+SHCONN"), ok_reply, 10000);
+  sendCheckReply(F("AT+SHCONN"), ok_reply, 20000);
 
   // Get HTTP status
-  getReply(F("AT+SHSTATE?"));
-  readline();
-  if (strstr(replybuffer, "+SHSTATE: 1") == NULL) return false;
+  if (!sendCheckReply(F("AT+SHSTATE?"), F("+SHSTATE: 1"))) return false;
+
+  // getReply(F("AT+SHSTATE?"));
+  // readline();
+  // if (strstr(replybuffer, "+SHSTATE: 1") == NULL) return false;
   readline(); // Eat 'OK'
 
   // Clear HTTP header (HTTP header is appended)
@@ -2285,23 +2287,25 @@ boolean Adafruit_FONA_LTE::HTTP_POST(const char *URI, const char *body, uint8_t 
   char cmdBuff[150]; // Make sure this is large enough for URI
 
   // Example 2 in HTTP(S) app note for SIM7070 POST request
-  if (_type == SIM7070) {
-    sprintf(cmdBuff, "AT+SHBOD=%i,10000", bodylen);
-    getReply(cmdBuff, 10000);
-    if (strstr(replybuffer, ">") == NULL) return false; // Wait for ">" to send message
-    sendCheckReply(body, ok_reply, 2000);
+  // if (_type == SIM7070) {
+  //   sprintf(cmdBuff, "AT+SHBOD=%i,10000", bodylen);
+  //   getReply(cmdBuff, 10000);
+  //   if (strstr(replybuffer, ">") == NULL) return false; // Wait for ">" to send message
+  //   sendCheckReply(body, ok_reply, 2000);
 
-    // if (! strcmp(replybuffer, "OK") != 0) return false; // Now send the JSON body
-  }
-  else { // For ex, SIM7000
-    sprintf(cmdBuff, "AT+SHBOD=\"%s\",%i", body, bodylen);
-    if (! sendCheckReply(cmdBuff, ok_reply, 10000)) return false;
-  }
+  //   // if (! strcmp(replybuffer, "OK") != 0) return false; // Now send the JSON body
+  // }
+  // else { // For ex, SIM7000
+  //   sprintf(cmdBuff, "AT+SHBOD=\"%s\",%i", body, bodylen);
+  //   if (! sendCheckReply(cmdBuff, ok_reply, 10000)) return false;
+  // }
   
   memset(cmdBuff, 0, sizeof(cmdBuff)); // Clear URI char array
   sprintf(cmdBuff, "AT+SHREQ=\"%s\",3", URI);
 
   if (! sendCheckReply(cmdBuff, ok_reply, 10000)) return false;
+
+
 
   // Parse response status and size
   // Example reply --> "+SHREQ: "POST",200,452"
@@ -2823,17 +2827,21 @@ boolean Adafruit_FONA::MQTTdisconnect(void) {
 // Parameter tags can be "CLIENTID", "URL", "KEEPTIME", "CLEANSS", "USERNAME",
 // "PASSWORD", "QOS", "TOPIC", "MESSAGE", or "RETAIN"
 boolean Adafruit_FONA_LTE::MQTT_setParameter(const char* paramTag, const char* paramValue, uint16_t port) {
-  char cmdStr[50];
+  char cmdStr[255];
 
-  if (strcmp(paramTag, "CLIENTID") == 0 || strcmp(paramTag, "URL") == 0 || strcmp(paramTag, "TOPIC") == 0 || strcmp(paramTag, "MESSAGE") == 0) {
-    if (port == 0) sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\"", paramTag, paramValue); // Quoted paramValue
-    else sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\",\"%i\"", paramTag, paramValue, port);
-    if (! sendCheckReply(cmdStr, ok_reply)) return false;
-  }
-  else {
-    sprintf(cmdStr, "AT+SMCONF=\"%s\",%s", paramTag, paramValue); // Unquoted paramValue
-    if (! sendCheckReply(cmdStr, ok_reply)) return false;
-  }
+  if (port == 0) sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\"", paramTag, paramValue); // Quoted paramValue
+  else sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\",%i", paramTag, paramValue, port);
+  if (! sendCheckReply(cmdStr, ok_reply)) return false;
+
+  // if (strcmp(paramTag, "CLIENTID") == 0 || strcmp(paramTag, "URL") == 0 || strcmp(paramTag, "TOPIC") == 0 || strcmp(paramTag, "MESSAGE") == 0) {
+  //   if (port == 0) sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\"", paramTag, paramValue); // Quoted paramValue
+  //   else sprintf(cmdStr, "AT+SMCONF=\"%s\",\"%s\",%i", paramTag, paramValue, port);
+  //   if (! sendCheckReply(cmdStr, ok_reply)) return false;
+  // }
+  // else {
+  //   sprintf(cmdStr, "AT+SMCONF=\"%s\",%s", paramTag, paramValue); // Unquoted paramValue
+  //   if (! sendCheckReply(cmdStr, ok_reply)) return false;
+  // }
   
   return true;
 }
