@@ -6,7 +6,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 1/7/2021
+ *  Last Updated: 7/4/2022
  *  License: GNU GPL v3.0
  */
 
@@ -153,10 +153,10 @@ void setup() {
   fona.powerOn(FONA_PWRKEY); // Power on the module
   moduleSetup(); // Establishes first-time serial comm and prints IMEI
 
-  tempsensor.wake(); // Wake up the MCP9808 if it was sleeping
   if (!tempsensor.begin()) {
     Serial.println("Couldn't find the MCP9808!");
-    while (1);
+    tempsensor.wake(); // Wake up the MCP9808 if it was sleeping and retry
+    if (!tempsensor.begin()) while (1);
   }
 
   // Unlock SIM card if needed
