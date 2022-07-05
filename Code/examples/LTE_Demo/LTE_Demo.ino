@@ -9,7 +9,7 @@
 
     Author: Timothy Woo (www.botletics.com)
     Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 4/8/2021
+    Last Updated: 7/4/2022
     License: GNU GPL v3.0
 */
 
@@ -38,8 +38,8 @@
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320
-#define SIMCOM_7000
-//#define SIMCOM_7070
+//#define SIMCOM_7000
+#define SIMCOM_7070
 //#define SIMCOM_7500
 //#define SIMCOM_7600
 
@@ -280,6 +280,7 @@ void printMenu(void) {
   Serial.println(F("[r] Read SMS #"));
   Serial.println(F("[R] Read all SMS"));
   Serial.println(F("[d] Delete SMS #"));
+  Serial.println(F("[D] Delete all SMS"));
   Serial.println(F("[s] Send SMS"));
   Serial.println(F("[u] Send USSD"));
   
@@ -681,7 +682,7 @@ void loop() {
         uint16_t smslen;
         int8_t smsn;
 
-        if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7000) ) {
+        if ( (type == SIM5320A) || (type == SIM5320E) || (type == SIM7000) || (type == SIM7070)) {
           smsn = 0; // zero indexed
           smsnum--;
         } else {
@@ -711,13 +712,25 @@ void loop() {
       }
 
     case 'd': {
-        // delete an SMS
+        // Delete an SMS
         flushSerial();
         Serial.print(F("Delete #"));
         uint8_t smsn = readnumber();
 
         Serial.print(F("\n\rDeleting SMS #")); Serial.println(smsn);
         if (fona.deleteSMS(smsn)) {
+          Serial.println(F("OK!"));
+        } else {
+          Serial.println(F("Couldn't delete"));
+        }
+        break;
+      }
+
+    case 'D': {
+        // Delete all SMS
+        flushSerial();
+        Serial.println(F("\n\rDeleting all SMS"));
+        if (fona.deleteAllSMS()) {
           Serial.println(F("OK!"));
         } else {
           Serial.println(F("Couldn't delete"));
@@ -1035,9 +1048,11 @@ void loop() {
 
             // Format JSON body for POST request
             // Example JSON body: "{\"temp\":\"22.3\",\"batt\":\"3800\"}"
-            sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%i\"}", tempBuff, battLevel); // construct JSON body
+//            sprintf(body, "{\"temp\":\"%s\",\"batt\":\"%i\"}", tempBuff, battLevel); // construct JSON body
 
-            fona.HTTP_addHeader("Content-Type", "application/json", 16);
+//            fona.HTTP_addHeader("Content-Type", "application/json", 16);
+            fona.HTTP_addPara("temp", "23.4", 5); // Test value
+            fona.HTTP_addPara("batt", "4120", 5); // Test value
             fona.HTTP_POST(URL, body, strlen(body));
             */
 
