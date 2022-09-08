@@ -2217,6 +2217,7 @@ boolean Adafruit_FONA_LTE::HTTP_connect(const char *server) {
   sendCheckReply(F("AT+SHDISC"), ok_reply, 10000); // Disconnect HTTP
   
   if (SSL_FONA) {
+    sendCheckReply(F("AT+CSSLCFG=\"sslversion\",1,3"), ok_reply);
     sendCheckReply(F("AT+SHSSL=1,\"\""), ok_reply, 10000);
   }
 
