@@ -19,6 +19,7 @@ To get help or share a project you've done using this hardware or library, pleas
 The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
+- SSL connection without certificate verification. Sent data to https://dweet.io using LTE_Demo sketch
 - Dedicated MQTT commands on SIM7000A. Tested on firmware versions 1351B03SIM7000A and 1351B04SIM7000A
 - Sleep mode and e-DRX configuration (~1.5mA)
 - FTP functions on SIM7000A firmware version 1351B03SIM7000A
