@@ -19,7 +19,7 @@ To get help or share a project you've done using this hardware or library, pleas
 The following list is a summary of the things I've done so far:
 
 ### Confirmed functionalities
-- SSL connection without certificate verification. Sent data to https://dweet.io using LTE_Demo sketch
+- SSL for SIM7000
 - Dedicated MQTT commands on SIM7000A. Tested on firmware versions 1351B03SIM7000A and 1351B04SIM7000A
 - Sleep mode and e-DRX configuration (~1.5mA)
 - FTP functions on SIM7000A firmware version 1351B03SIM7000A
@@ -36,12 +36,12 @@ The following list is a summary of the things I've done so far:
 - Generic stuff (reading supply voltage, netowrk connection, RSSI, etc.)
 
 ### To-Do List
-- Add SSL examples
 - FTP image transfering
 - FTP extended GET/PUT methods
 - Test and document MDM9206 SDK for standalone SIM7000 operation without external microcontroller
 
 ### Completed Tasks
+- Tested SSL connection without certificate verification. Sent data to https://dweet.io using LTE_Demo sketch
 - Tested SIM7070G general features with firmware 1951B14SIM7070 on SIM7070G: sending/receiving SMS, HTTP GET, HTTP POST, and GPS
 - Added SSL for TCP: opens port 8883 and allows MQTTS over SSL. Currently this feature is only for sending data. To use the function addRootCA(), set `#define SSL_FONA 1` in Adafruit_FONA.h
 - Added SIM7070G compatibility
