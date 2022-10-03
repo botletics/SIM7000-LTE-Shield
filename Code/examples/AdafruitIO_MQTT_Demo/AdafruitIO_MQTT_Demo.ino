@@ -6,7 +6,7 @@
  *  
  *  Author: Timothy Woo (www.botletics.com)
  *  Github: https://github.com/botletics/SIM7000-LTE-Shield
- *  Last Updated: 7/4/2022
+ *  Last Updated: 10/3/2022
  *  License: GNU GPL v3.0
  */
 
@@ -234,6 +234,21 @@ void loop() {
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Connected to cell network!"));
+  
+  // Disable data just to make sure it was actually off so that we can turn it on
+  // fona.openWirelessConnection(false);
+  
+  // Open wireless connection if not already activated
+  if (!fona.wirelessConnStatus()) {
+    while (!fona.openWirelessConnection(true)) {
+      Serial.println(F("Failed to enable connection, retrying..."));
+      delay(2000); // Retry every 2s
+    }
+    Serial.println(F("Enabled data!"));
+  }
+  else {
+    Serial.println(F("Data already enabled!"));
+  }
 
   // Measure battery voltage in mV
   battLevel = readVcc();
