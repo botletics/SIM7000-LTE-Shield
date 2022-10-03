@@ -38,8 +38,8 @@
 // Define *one* of the following lines:
 //#define SIMCOM_2G // SIM800/808/900/908, etc.
 //#define SIMCOM_3G // SIM5320
-//#define SIMCOM_7000
-#define SIMCOM_7070
+#define SIMCOM_7000
+//#define SIMCOM_7070
 //#define SIMCOM_7500
 //#define SIMCOM_7600
 
