@@ -12,6 +12,6 @@ All other software is released under the [GNU General Public License v3.0](https
 ## Arduino Library Support
 - This library is based on the [Adafruit FONA library](https://github.com/adafruit/Adafruit_FONA) and supports a variety of SIMCom 2G/3G/4G LTE/CAT-M/NB-IoT modules, including the SIM7000 LTE CAT-M/NB-IoT module.
 - Please see the [SIM7000-Shield-Library repo](https://github.com/botletics/SIM7000-Shield-Library) for source code
-- More info on the Botletics SIM7000 shield hardware can be found [here](https://www.botletics.com/products/sim7000-shield) and [here on Amazon](https://a.co/d/apOaGUD)
+- More info on the Botletics SIM7000 shield hardware can be found [here on Botletics](https://www.botletics.com/products/sim7000-shield) and [here on Amazon](https://a.co/d/apOaGUD)
 - For a list of library functions, please [see this wiki page](https://github.com/botletics/SIM7000-LTE-Shield/wiki/Library-Functions)
 - To get help or share a project you've done using this hardware or library, please go to the [Botletics community forum](https://forum.botletics.com/)
