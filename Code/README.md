@@ -1,5 +1,7 @@
 # Improved Version of Adafruit FONA Library
-The code in this repository is an improved version of the Adafruit FONA library which adds LTE functionality for the SIM7000 module.
+Find source code [here](https://github.com/botletics/SIM7000-Shield-Library)
+
+This code is based on the Adafruit FONA library and adds LTE functionality for the SIM7000 module.
 The text below is from the original Adafruit FONA library:
 
 ------------------------------------------
