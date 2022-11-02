@@ -1,2 +1,2 @@
 ### Source Code
-The source code can be found at the [SIM7000-Shield-Library repo](https://github.com/botletics/SIM7000-Shield-Library)
+The source code can be found at the [Botletics-SIM7000 repo](https://github.com/botletics/Botletics-SIM7000)
